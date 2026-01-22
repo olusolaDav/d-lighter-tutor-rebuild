@@ -33,6 +33,19 @@ import {
   Target,
   Zap,
 } from "lucide-react"
+import {
+  SUBJECTS,
+  GRADE_LEVELS,
+  COUNTRIES,
+  DAYS_OF_WEEK,
+  TIME_SLOTS,
+  CURRICULA,
+  INITIAL_FORM_DATA,
+  type BookingFormData,
+} from "@/lib/constants/form-data"
+
+// Plans available for selection
+const PLANS = ["Starter Plan", "Premium Plan", "Ultimate Plan"] as const
 
 // Context for managing modal state
 interface BookingFormContextType {
@@ -78,81 +91,14 @@ function BookingFormModal() {
   const { isOpen, selectedPlan, closeModal } = useBookingForm()
   const [step, setStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    country: "",
-    otherCountry: "",
-    studentAge: "",
-    gradeLevel: "",
-    curriculum: "",
-    subjects: [] as string[],
-    preferredDays: [] as string[],
-    preferredTime: "",
-    plan: "",
-    learningGoal: "",
-  })
+  const [formData, setFormData] = useState<BookingFormData>(INITIAL_FORM_DATA)
 
   // Update plan when selectedPlan changes
   useEffect(() => {
     if (selectedPlan) {
-      setFormData(prev => ({ ...prev, plan: selectedPlan }))
+      setFormData((prev) => ({ ...prev, plan: selectedPlan }))
     }
   }, [selectedPlan])
-
-  const plans = [
-    "Starter Plan",
-    "Premium Plan", 
-    "Ultimate Plan",
-  ]
-
-  const subjects = [
-    "Mathematics",
-    "English Language",
-    "Sciences (Physics, Chemistry, Biology)",
-    "Yoruba Language",
-    "Igbo Language",
-    "Hausa Language",
-    "French",
-    "Tech Skills (Coding, AI, Graphics, Animation, ICT)",
-    "Music (Piano, Guitar, Drums)",
-    "Other African Languages",
-  ]
-
-  const countries = [
-    { value: "United Kingdom", label: "🇬🇧 United Kingdom" },
-    { value: "United States", label: "🇺🇸 United States" },
-    { value: "Canada", label: "🇨🇦 Canada" },
-    { value: "Ireland", label: "🇮🇪 Ireland" },
-    { value: "Germany", label: "🇩🇪 Germany" },
-    { value: "France", label: "🇫🇷 France" },
-    { value: "Netherlands", label: "🇳🇱 Netherlands" },
-    { value: "Belgium", label: "🇧🇪 Belgium" },
-    { value: "Italy", label: "🇮🇹 Italy" },
-    { value: "Spain", label: "🇪🇸 Spain" },
-    { value: "Sweden", label: "🇸🇪 Sweden" },
-    { value: "Norway", label: "🇳🇴 Norway" },
-    { value: "Denmark", label: "🇩🇰 Denmark" },
-    { value: "Switzerland", label: "🇨🇭 Switzerland" },
-    { value: "Austria", label: "🇦🇹 Austria" },
-    { value: "Portugal", label: "🇵🇹 Portugal" },
-    { value: "Australia", label: "🇦🇺 Australia" },
-    { value: "New Zealand", label: "🇳🇿 New Zealand" },
-    { value: "United Arab Emirates", label: "🇦🇪 United Arab Emirates" },
-    { value: "Saudi Arabia", label: "🇸🇦 Saudi Arabia" },
-    { value: "Qatar", label: "🇶🇦 Qatar" },
-    { value: "Kuwait", label: "🇰🇼 Kuwait" },
-    { value: "Bahrain", label: "🇧🇭 Bahrain" },
-    { value: "Oman", label: "🇴🇲 Oman" },
-    { value: "South Africa", label: "🇿🇦 South Africa" },
-    { value: "Nigeria", label: "🇳🇬 Nigeria" },
-    { value: "Ghana", label: "🇬🇭 Ghana" },
-    { value: "Kenya", label: "🇰🇪 Kenya" },
-    { value: "Other", label: "🌐 Other (Please specify)" },
-  ]
-
-  const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
   const handleSubjectToggle = (subject: string) => {
     setFormData((prev) => ({
@@ -187,23 +133,7 @@ function BookingFormModal() {
         toast.success("Request Submitted! 🎉", {
           description: "We'll contact you within 24 hours to schedule your FREE trial class.",
         })
-        closeModal()
-        setStep(1)
-        setFormData({
-          name: "",
-          email: "",
-          phone: "",
-          country: "",
-          otherCountry: "",
-          studentAge: "",
-          gradeLevel: "",
-          curriculum: "",
-          subjects: [],
-          preferredDays: [],
-          preferredTime: "",
-          plan: "",
-          learningGoal: "",
-        })
+        handleClose()
       } else {
         toast.error("Submission Failed", {
           description: data.error || "Please try again or contact us on WhatsApp.",
@@ -219,15 +149,21 @@ function BookingFormModal() {
   }
 
   const canProceedStep1 =
-    formData.name && formData.email && formData.phone && formData.country && 
-    (formData.country !== "Other" || formData.otherCountry) && 
-    formData.studentAge && formData.gradeLevel && formData.curriculum
+    formData.name &&
+    formData.email &&
+    formData.phone &&
+    formData.country &&
+    (formData.country !== "Other" || formData.otherCountry) &&
+    formData.studentAge &&
+    formData.gradeLevel &&
+    formData.curriculum
   const canProceedStep2 = formData.subjects.length > 0
   const canProceedStep3 = formData.preferredDays.length > 0 && formData.preferredTime
 
   const handleClose = () => {
     closeModal()
     setStep(1)
+    setFormData(INITIAL_FORM_DATA)
   }
 
   return (
@@ -329,12 +265,21 @@ function BookingFormModal() {
                   <MapPin className="h-4 w-4 text-muted-foreground" />
                   Country of Residence
                 </Label>
-                <Select value={formData.country} onValueChange={(v) => setFormData({ ...formData, country: v, otherCountry: v !== "Other" ? "" : formData.otherCountry })}>
+                <Select
+                  value={formData.country}
+                  onValueChange={(v) =>
+                    setFormData({
+                      ...formData,
+                      country: v,
+                      otherCountry: v !== "Other" ? "" : formData.otherCountry,
+                    })
+                  }
+                >
                   <SelectTrigger className="h-12 border-2 bg-background">
                     <SelectValue placeholder="Select country" />
                   </SelectTrigger>
                   <SelectContent className="max-h-[300px]">
-                    {countries.map((country) => (
+                    {COUNTRIES.map((country) => (
                       <SelectItem key={country.value} value={country.value}>
                         {country.label}
                       </SelectItem>
@@ -359,7 +304,10 @@ function BookingFormModal() {
                   <GraduationCap className="h-4 w-4 text-muted-foreground" />
                   Child&apos;s Age
                 </Label>
-                <Select value={formData.studentAge} onValueChange={(v) => setFormData({ ...formData, studentAge: v })}>
+                <Select
+                  value={formData.studentAge}
+                  onValueChange={(v) => setFormData({ ...formData, studentAge: v })}
+                >
                   <SelectTrigger className="h-12 border-2 bg-background">
                     <SelectValue placeholder="Age" />
                   </SelectTrigger>
@@ -377,25 +325,19 @@ function BookingFormModal() {
                   <BookOpen className="h-4 w-4 text-muted-foreground" />
                   Grade/Year
                 </Label>
-                <Select value={formData.gradeLevel} onValueChange={(v) => setFormData({ ...formData, gradeLevel: v })}>
+                <Select
+                  value={formData.gradeLevel}
+                  onValueChange={(v) => setFormData({ ...formData, gradeLevel: v })}
+                >
                   <SelectTrigger className="h-12 border-2 bg-background">
                     <SelectValue placeholder="Grade" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Reception">Reception</SelectItem>
-                    <SelectItem value="Year 1">Year 1</SelectItem>
-                    <SelectItem value="Year 2">Year 2</SelectItem>
-                    <SelectItem value="Year 3">Year 3</SelectItem>
-                    <SelectItem value="Year 4">Year 4</SelectItem>
-                    <SelectItem value="Year 5">Year 5</SelectItem>
-                    <SelectItem value="Year 6">Year 6</SelectItem>
-                    <SelectItem value="Year 7">Year 7</SelectItem>
-                    <SelectItem value="Year 8">Year 8</SelectItem>
-                    <SelectItem value="Year 9">Year 9</SelectItem>
-                    <SelectItem value="Year 10 (GCSE)">Year 10 (GCSE)</SelectItem>
-                    <SelectItem value="Year 11 (GCSE)">Year 11 (GCSE)</SelectItem>
-                    <SelectItem value="Year 12 (A-Level)">Year 12 (A-Level)</SelectItem>
-                    <SelectItem value="Year 13 (A-Level)">Year 13 (A-Level)</SelectItem>
+                    {GRADE_LEVELS.map((level) => (
+                      <SelectItem key={level} value={level}>
+                        {level}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -404,16 +346,19 @@ function BookingFormModal() {
                   <Sparkles className="h-4 w-4 text-muted-foreground" />
                   Curriculum
                 </Label>
-                <Select value={formData.curriculum} onValueChange={(v) => setFormData({ ...formData, curriculum: v })}>
+                <Select
+                  value={formData.curriculum}
+                  onValueChange={(v) => setFormData({ ...formData, curriculum: v })}
+                >
                   <SelectTrigger className="h-12 border-2 bg-background">
                     <SelectValue placeholder="Curriculum" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="British">British</SelectItem>
-                    <SelectItem value="American">American</SelectItem>
-                    <SelectItem value="Nigerian">Nigerian</SelectItem>
-                    <SelectItem value="IB">International Baccalaureate</SelectItem>
-                    <SelectItem value="Other">Other</SelectItem>
+                    {CURRICULA.map((curr) => (
+                      <SelectItem key={curr} value={curr}>
+                        {curr}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -444,7 +389,7 @@ function BookingFormModal() {
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
-              {subjects.map((subject) => (
+              {SUBJECTS.map((subject) => (
                 <label
                   key={subject}
                   className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all bg-muted/30 hover:bg-muted/50 ${
@@ -492,7 +437,9 @@ function BookingFormModal() {
                 <Calendar className="h-5 w-5 text-secondary" />
                 Schedule & Goals
               </h3>
-              <p className="text-sm text-muted-foreground">Select preferred days, time, and your learning goal</p>
+              <p className="text-sm text-muted-foreground">
+                Select preferred days, time, and your learning goal
+              </p>
             </div>
 
             {/* Plan Selection */}
@@ -509,7 +456,7 @@ function BookingFormModal() {
                   <SelectValue placeholder="Select a plan (optional)" />
                 </SelectTrigger>
                 <SelectContent>
-                  {plans.map((plan) => (
+                  {PLANS.map((plan) => (
                     <SelectItem key={plan} value={plan}>
                       {plan}
                     </SelectItem>
@@ -524,7 +471,7 @@ function BookingFormModal() {
             <div>
               <Label className="text-sm font-medium mb-3 block">Preferred Days</Label>
               <div className="flex flex-wrap gap-2">
-                {days.map((day) => (
+                {DAYS_OF_WEEK.map((day) => (
                   <button
                     key={day}
                     type="button"
@@ -542,7 +489,10 @@ function BookingFormModal() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="preferredTime" className="flex items-center gap-2 text-sm font-medium">
+              <Label
+                htmlFor="preferredTime"
+                className="flex items-center gap-2 text-sm font-medium"
+              >
                 <Clock className="h-4 w-4 text-muted-foreground" />
                 Preferred Time (Your Local Time)
               </Label>
@@ -554,17 +504,21 @@ function BookingFormModal() {
                   <SelectValue placeholder="Select time slot" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Morning (8am - 12pm)">Morning (8am - 12pm)</SelectItem>
-                  <SelectItem value="Afternoon (12pm - 4pm)">Afternoon (12pm - 4pm)</SelectItem>
-                  <SelectItem value="Evening (4pm - 8pm)">Evening (4pm - 8pm)</SelectItem>
-                  <SelectItem value="Flexible">Flexible - Any time works</SelectItem>
+                  {TIME_SLOTS.map((slot) => (
+                    <SelectItem key={slot} value={slot}>
+                      {slot}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
 
             {/* Learning Goal */}
             <div className="space-y-2">
-              <Label htmlFor="learningGoal" className="flex items-center gap-2 text-sm font-medium">
+              <Label
+                htmlFor="learningGoal"
+                className="flex items-center gap-2 text-sm font-medium"
+              >
                 <Target className="h-4 w-4 text-muted-foreground" />
                 Learning Goal (Optional)
               </Label>
