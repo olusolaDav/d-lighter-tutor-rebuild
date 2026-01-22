@@ -68,7 +68,12 @@ export const metadata: Metadata = {
   authors: [{ name: "D-lighter Tutor", url: siteConfig.url }],
   creator: "D-lighter Tutor",
   publisher: "D-lighter Tutor",
-  generator: "Powered by Alot Digital Agency",
+  generator: "Next.js",
+  other: {
+    "developed-by": "Alot Digital Agency",
+    "agency-url": "https://agency.alotacademy.com",
+    "powered-by": "Alot Digital Agency",
+  },
   formatDetection: {
     email: false,
     address: false,
@@ -321,7 +326,7 @@ export default function RootLayout({
           />
         </noscript>
         
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
           {children}
           <CookieConsent />
           <Toaster richColors position="top-center" closeButton />

@@ -221,9 +221,15 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="mt-8 pt-8 border-t border-primary-foreground/10 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-primary-foreground/60 flex items-center gap-1">
-            © {new Date().getFullYear()} D-lighter Tutor. Made with{" "}
-            <Heart className="h-4 w-4 text-red-400 fill-red-400 animate-pulse" />{" "}
-            for diaspora families
+            © {new Date().getFullYear()} D-lighter Tutor. Design and Developed by{" "}
+            <a 
+              href="https://agency.alotacademy.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-secondary hover:text-secondary/80 transition-colors font-medium cursor-pointer"
+            >
+              Alot Digital Agency
+            </a>
           </p>
           <div className="flex items-center gap-4 text-sm text-primary-foreground/60">
             <Link href="/privacy-policy" className="hover:text-secondary transition-colors cursor-pointer">Privacy Policy</Link>
