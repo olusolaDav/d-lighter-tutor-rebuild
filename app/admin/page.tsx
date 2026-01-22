@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { withAuth, useAuth } from "@/lib/auth/AuthContext"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -46,6 +47,7 @@ import {
   ChevronLeft,
   ChevronRight,
   BarChart3,
+  LogOut,
 } from "lucide-react"
 import Link from "next/link"
 
@@ -104,7 +106,8 @@ const statusIcons = {
   closed: XCircle,
 }
 
-export default function AdminPage() {
+export default withAuth(function AdminPage() {
+  const { admin, logout } = useAuth()
   const [leads, setLeads] = useState<Lead[]>([])
   const [stats, setStats] = useState<Stats | null>(null)
   const [pagination, setPagination] = useState<Pagination | null>(null)
@@ -260,6 +263,17 @@ export default function AdminPage() {
             <span className="text-primary-foreground/60 text-sm">Lead Management</span>
           </div>
           <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 text-sm">
+              <div className="w-8 h-8 rounded-full bg-primary-foreground/20 flex items-center justify-center">
+                <span className="font-semibold text-primary-foreground">
+                  {admin?.firstName?.[0]}{admin?.lastName?.[0]}
+                </span>
+              </div>
+              <div className="hidden sm:block">
+                <p className="font-medium">{admin?.firstName} {admin?.lastName}</p>
+                <p className="text-primary-foreground/60 text-xs capitalize">{admin?.role?.replace('_', ' ')}</p>
+              </div>
+            </div>
             <Button
               onClick={handleRefresh}
               variant="outline"
@@ -274,6 +288,15 @@ export default function AdminPage() {
                 View Sales Page
               </Button>
             </Link>
+            <Button
+              onClick={() => logout()}
+              variant="outline"
+              size="sm"
+              className="bg-transparent border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Logout
+            </Button>
           </div>
         </div>
       </header>
@@ -678,4 +701,4 @@ export default function AdminPage() {
       </Dialog>
     </div>
   )
-}
+})
