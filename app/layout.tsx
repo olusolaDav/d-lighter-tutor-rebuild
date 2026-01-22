@@ -19,7 +19,7 @@ const inter = Inter({ subsets: ["latin"], display: "swap" })
 const siteConfig = {
   name: "D-lighter Tutor",
   url: "https://d-lightertutor.com",
-  ogImage: "/og-image.png", // Generated dynamically or use static image
+  ogImage: "/images/og-sales.png", // Generated dynamically or use static image
   description:
     "Quality online tutoring for Nigerian and African children (ages 3-16) in UK, US, Canada & beyond. Expert tutors for Maths, English, Science, Nigerian languages (Igbo, Yoruba, Hausa), and more. Flexible payment options.",
   links: {
