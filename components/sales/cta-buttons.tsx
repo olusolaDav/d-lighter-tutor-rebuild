@@ -41,7 +41,7 @@ export function CTAButtons({
           ) : (
             <>
               <span className="hidden sm:inline">Book Free Trial</span>
-              <span className="sm:hidden">Free Trial</span>
+              <span className="sm:hidden">Book Free Trial</span>
             </>
           )}
         </Button>

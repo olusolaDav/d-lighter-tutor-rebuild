@@ -102,21 +102,6 @@ export function HeroSection({ onBookTrial }: HeroSectionProps) {
             {/* CTA Buttons */}
             <CTAButtons onBookTrial={onBookTrial} variant="hero" className="mb-12" />
 
-            {/* Additional Trust Indicators */}
-            <div className="flex flex-wrap justify-center gap-6 text-primary-foreground/80 text-sm mb-8">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-5 w-5 text-secondary" />
-                <span>No Credit Card Required</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-5 w-5 text-secondary" />
-                <span>Cancel Anytime</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-5 w-5 text-secondary" />
-                <span>100% Satisfaction Guaranteed</span>
-              </div>
-            </div>
 
             {/* Stats Row */}
             <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
