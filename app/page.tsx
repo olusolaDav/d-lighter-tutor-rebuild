@@ -11,23 +11,26 @@ import { FAQSection } from "@/components/faq-section"
 import { TutorRecruitmentCTA } from "@/components/tutor-recruitment-cta"
 import { CTASection } from "@/components/cta-section"
 import { Footer } from "@/components/footer"
+import { BookingFormProvider } from "@/components/booking-form-modal"
 
 export default function Home() {
   return (
-    <main className="min-h-screen">
-      <Header />
-      <HeroSection />
-      <StatsSection />
-      <SubjectsSection />
-      <HowItWorksSection />
-      <WhyChooseSection />
-      <PricingSection />
-      <TestimonialsSection />
-      <FAQSection />
-      {/* <BlogSection /> */}
-      <TutorRecruitmentCTA />
-      <CTASection />
-      <Footer />
-    </main>
+    <BookingFormProvider>
+      <main className="min-h-screen">
+        <Header />
+        <HeroSection />
+        <StatsSection />
+        <SubjectsSection />
+        <HowItWorksSection />
+        <WhyChooseSection />
+        <PricingSection />
+        <TestimonialsSection />
+        <FAQSection />
+        {/* <BlogSection /> */}
+        <TutorRecruitmentCTA />
+        <CTASection />
+        <Footer />
+      </main>
+    </BookingFormProvider>
   )
 }

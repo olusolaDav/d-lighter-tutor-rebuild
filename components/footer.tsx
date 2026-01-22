@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Facebook, Instagram, Mail, Phone, MessageCircle } from "lucide-react"
+import { Facebook, Instagram, Mail, Phone, MessageCircle, Heart, MapPin, Clock } from "lucide-react"
 import { websiteContent } from "@/content/website-content"
 
 function XIcon({ className }: { className?: string }) {
@@ -34,25 +34,41 @@ export function Footer() {
     }
   }
 
+  const countries = ["🇬🇧 UK", "🇺🇸 USA", "🇨🇦 Canada", "🇦🇪 UAE", "🇸🇦 KSA"]
+
   return (
-    <footer className="bg-primary text-primary-foreground py-12">
-      <div className="container mx-auto px-4">
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-          <div>
-            <h3 className="text-lg font-bold mb-4">D-lighter Tutor</h3>
-            <p className="text-sm text-primary-foreground/80 leading-relaxed mb-4">
-              {
-                "Empowering Nigerian children in diaspora with quality online education that bridges continents and cultures."
-              }
+    <footer className="bg-gradient-to-br from-primary via-primary to-primary/95 text-primary-foreground relative overflow-hidden">
+      {/* Decorative elements */}
+      <div className="absolute top-10 right-10 h-16 w-16 rounded-full bg-secondary/10 opacity-30 animate-float" />
+      <div className="absolute bottom-20 left-10 h-20 w-20 rounded-full bg-accent/10 opacity-30 animate-float" style={{ animationDelay: "2s" }} />
+
+      {/* Main footer content */}
+      <div className="container mx-auto px-4 py-16 relative z-10">
+        <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
+          {/* Brand section */}
+          <div className="lg:col-span-1">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="h-12 w-12 rounded-2xl bg-secondary/20 flex items-center justify-center">
+                <span className="text-xl font-bold text-secondary">DT</span>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold">D-lighter Tutor</h3>
+                <p className="text-xs text-primary-foreground/60">Where Learning Shines</p>
+              </div>
+            </div>
+            <p className="text-sm text-primary-foreground/80 leading-relaxed mb-6">
+              Empowering Nigerian & African children in diaspora with quality online education that bridges continents and keeps cultural roots strong.
             </p>
-            <div className="flex gap-4">
+            
+            {/* Social links */}
+            <div className="flex gap-3">
               {websiteContent.socialLinks.map((social) => (
                 <a
                   key={social.name}
                   href={social.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-secondary transition-colors"
+                  className="h-10 w-10 rounded-full bg-primary-foreground/10 hover:bg-secondary hover:text-secondary-foreground flex items-center justify-center transition-all hover:scale-110"
                   aria-label={social.name}
                 >
                   {getSocialIcon(social.icon)}
@@ -61,85 +77,146 @@ export function Footer() {
             </div>
           </div>
 
+          {/* Quick Links */}
           <div>
-            <h4 className="text-sm font-semibold mb-4">Quick Links</h4>
-            <ul className="space-y-2 text-sm text-primary-foreground/80">
-              <li>
-                <Link href="#subjects" className="hover:text-secondary transition-colors">
-                  Subjects
-                </Link>
-              </li>
-              <li>
-                <Link href="#how-it-works" className="hover:text-secondary transition-colors">
-                  How It Works
-                </Link>
-              </li>
-              <li>
-                <Link href="#pricing" className="hover:text-secondary transition-colors">
-                  Pricing
-                </Link>
-              </li>
-              <li>
-                <Link href="#faq" className="hover:text-secondary transition-colors">
-                  FAQ
-                </Link>
-              </li>
-              {/* <li>
-                <Link href="#blog" className="hover:text-secondary transition-colors">
-                  Blog
-                </Link>
-              </li> */}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-sm font-semibold mb-4">Subjects We Offer</h4>
-            <ul className="space-y-2 text-sm text-primary-foreground/80">
-              <li>Mathematics & English</li>
-              <li>Sciences (Biology, Chemistry, Physics)</li>
-              <li>Nigerian Languages (Igbo, Yoruba)</li>
-              <li>IT Skills & Coding</li>
-              <li>Music Lessons</li>
-              <li>Exam Preparation</li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-sm font-semibold mb-4">Contact Us</h4>
+            <h4 className="text-sm font-bold mb-6 flex items-center gap-2">
+              <span className="h-6 w-6 rounded bg-secondary/20 flex items-center justify-center text-xs">→</span>
+              Quick Links
+            </h4>
             <ul className="space-y-3 text-sm text-primary-foreground/80">
-              <li className="flex items-start gap-2">
-                <Phone className="h-4 w-4 mt-0.5 shrink-0" />
-                <a href={`tel:${websiteContent.contact.phone}`} className="hover:text-secondary transition-colors">
-                  {websiteContent.contact.phone}
+              {[
+                { href: "#subjects", label: "Our Subjects" },
+                { href: "#how-it-works", label: "How It Works" },
+                { href: "#pricing", label: "Pricing Plans" },
+                { href: "#testimonials", label: "Success Stories" },
+                { href: "#faq", label: "FAQ" },
+              ].map((link) => (
+                <li key={link.href}>
+                  <Link 
+                    href={link.href} 
+                    className="flex items-center gap-2 hover:text-secondary transition-colors group"
+                  >
+                    <span className="h-1.5 w-1.5 rounded-full bg-secondary/50 group-hover:bg-secondary transition-colors" />
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Subjects */}
+          <div>
+            <h4 className="text-sm font-bold mb-6 flex items-center gap-2">
+              <span className="h-6 w-6 rounded bg-secondary/20 flex items-center justify-center text-xs">➕</span>
+              What We Teach
+            </h4>
+            <ul className="space-y-3 text-sm text-primary-foreground/80">
+              {[
+                "Mathematics & English",
+                "Sciences",
+                "African Languages",
+                "Tech & Digital Skills",
+                "Music Lessons",
+                "Exam Prep",
+              ].map((item, i) => (
+                <li key={i} className="flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-secondary/50" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Contact */}
+          <div>
+            <h4 className="text-sm font-bold mb-6 flex items-center gap-2">
+              <span className="h-6 w-6 rounded bg-secondary/20 flex items-center justify-center">
+                <Phone className="h-3 w-3" />
+              </span>
+              Get In Touch
+            </h4>
+            <ul className="space-y-4 text-sm text-primary-foreground/80">
+              <li>
+                <a 
+                  href={`tel:${websiteContent.contact.phone}`} 
+                  className="flex items-start gap-3 hover:text-secondary transition-colors group"
+                >
+                  <div className="h-8 w-8 rounded-lg bg-primary-foreground/10 group-hover:bg-secondary/20 flex items-center justify-center shrink-0">
+                    <Phone className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-primary-foreground">Phone</p>
+                    <p>{websiteContent.contact.phone}</p>
+                  </div>
                 </a>
               </li>
-              <li className="flex items-start gap-2">
-                <MessageCircle className="h-4 w-4 mt-0.5 shrink-0" />
+              <li>
                 <a
                   href={websiteContent.contact.whatsapp}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-secondary transition-colors"
+                  className="flex items-start gap-3 hover:text-secondary transition-colors group"
                 >
-                  WhatsApp Us
+                  <div className="h-8 w-8 rounded-lg bg-green-500/20 group-hover:bg-green-500/30 flex items-center justify-center shrink-0">
+                    <MessageCircle className="h-4 w-4 text-green-400" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-primary-foreground">WhatsApp</p>
+                    <p>Chat with us 24/7</p>
+                  </div>
                 </a>
               </li>
-              <li className="flex items-start gap-2">
-                <Mail className="h-4 w-4 mt-0.5 shrink-0" />
-                <a href={`mailto:${websiteContent.contact.email}`} className="hover:text-secondary transition-colors">
-                  {websiteContent.contact.email}
+              <li>
+                <a 
+                  href={`mailto:${websiteContent.contact.email}`} 
+                  className="flex items-start gap-3 hover:text-secondary transition-colors group"
+                >
+                  <div className="h-8 w-8 rounded-lg bg-primary-foreground/10 group-hover:bg-secondary/20 flex items-center justify-center shrink-0">
+                    <Mail className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-primary-foreground">Email</p>
+                    <p className="text-xs">{websiteContent.contact.email}</p>
+                  </div>
                 </a>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-primary-foreground/20 mt-8 pt-8 text-center">
-          <p className="text-sm text-primary-foreground/60">
-            {
-              "© 2025 D-lighter Tutor. All rights reserved. Serving Nigerian families in UK, US, Canada, UAE, and Saudi Arabia."
-            }
+        {/* Countries served */}
+        <div className="mt-12 pt-8 border-t border-primary-foreground/10">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-2 text-sm text-primary-foreground/70">
+              <MapPin className="h-4 w-4" />
+              <span>Serving families in:</span>
+              <div className="flex gap-2">
+                {countries.map((country, i) => (
+                  <span key={i} className="bg-primary-foreground/10 px-2 py-1 rounded text-xs">
+                    {country}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-primary-foreground/70">
+              <Clock className="h-4 w-4" />
+              <span>Available across all time zones</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom bar */}
+        <div className="mt-8 pt-8 border-t border-primary-foreground/10 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-sm text-primary-foreground/60 flex items-center gap-1">
+            © {new Date().getFullYear()} D-lighter Tutor. Made with{" "}
+            <Heart className="h-4 w-4 text-red-400 fill-red-400 animate-pulse" />{" "}
+            for diaspora families
           </p>
+          <div className="flex items-center gap-4 text-sm text-primary-foreground/60">
+            <Link href="#" className="hover:text-secondary transition-colors">Privacy Policy</Link>
+            <span>•</span>
+            <Link href="#" className="hover:text-secondary transition-colors">Terms of Service</Link>
+          </div>
         </div>
       </div>
     </footer>

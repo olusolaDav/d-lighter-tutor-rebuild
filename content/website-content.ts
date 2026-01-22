@@ -103,9 +103,9 @@ export const websiteContent = {
       description: "Master French and Spanish with native speakers",
     },
     {
-      name: "IT & Coding",
+      name: "Tech & Digital Skills",
       icon: "laptop",
-      description: "Future-proof skills in programming and technology",
+      description: "Coding, AI, Graphics, Animation, and ICT knowledge",
     },
     {
       name: "Music Lessons",
@@ -269,7 +269,7 @@ export const websiteContent = {
     {
       question: "What subjects do you offer?",
       answer:
-        "We offer Mathematics, English, Sciences (Biology, Chemistry, Physics), Nigerian Languages (Igbo, Yoruba), Foreign Languages (French, Spanish), IT & Coding, Music, and comprehensive exam preparation for Cambridge, SAT, WAEC, JAMB, and more.",
+        "We offer Mathematics, English, Sciences (Biology, Chemistry, Physics), Nigerian Languages (Igbo, Yoruba), Foreign Languages (French, Spanish), Tech & Digital Skills (Coding, AI, Graphics, Animation, ICT), Music, and comprehensive exam preparation for Cambridge, SAT, WAEC, JAMB, and more.",
     },
     {
       question: "How are tutors matched to my child?",
