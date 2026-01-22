@@ -78,14 +78,14 @@ export function TestimonialsSection() {
             {/* Navigation buttons */}
             <button 
               onClick={prevTestimonial}
-              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 lg:-translate-x-12 z-10 h-12 w-12 rounded-full bg-card border-2 border-secondary/20 shadow-lg flex items-center justify-center hover:border-secondary hover:scale-110 transition-all"
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 lg:-translate-x-12 z-10 h-12 w-12 rounded-full bg-card border-2 border-secondary/20 shadow-lg flex items-center justify-center hover:border-secondary hover:scale-110 transition-all cursor-pointer"
               aria-label="Previous review"
             >
               <ChevronLeft className="h-6 w-6 text-foreground" />
             </button>
             <button 
               onClick={nextTestimonial}
-              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 lg:translate-x-12 z-10 h-12 w-12 rounded-full bg-card border-2 border-secondary/20 shadow-lg flex items-center justify-center hover:border-secondary hover:scale-110 transition-all"
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 lg:translate-x-12 z-10 h-12 w-12 rounded-full bg-card border-2 border-secondary/20 shadow-lg flex items-center justify-center hover:border-secondary hover:scale-110 transition-all cursor-pointer"
               aria-label="Next review"
             >
               <ChevronRight className="h-6 w-6 text-foreground" />
@@ -164,7 +164,7 @@ export function TestimonialsSection() {
               ))}
             </div>
             <p className="text-sm text-muted-foreground">
-              Trusted by <span className="font-bold text-foreground">500+</span> families worldwide
+              Trusted by <span className="font-bold text-foreground">5  0+</span> families worldwide
             </p>
           </div>
         </div>

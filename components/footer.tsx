@@ -1,6 +1,15 @@
 import Link from "next/link"
-import { Facebook, Instagram, Mail, Phone, MessageCircle, Heart, MapPin, Clock } from "lucide-react"
+import Image from "next/image"
+import { Facebook, Instagram, Mail, Phone, MessageCircle, Heart, MapPin, Clock, Linkedin, Youtube } from "lucide-react"
 import { websiteContent } from "@/content/website-content"
+
+function TikTokIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor">
+      <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-.88-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z" />
+    </svg>
+  )
+}
 
 function XIcon({ className }: { className?: string }) {
   return (
@@ -25,8 +34,12 @@ export function Footer() {
         return <Facebook className="h-5 w-5" />
       case "instagram":
         return <Instagram className="h-5 w-5" />
-      case "twitter":
-        return <XIcon className="h-5 w-5" />
+      case "linkedin":
+        return <Linkedin className="h-5 w-5" />
+      case "youtube":
+        return <Youtube className="h-5 w-5" />
+      case "tiktok":
+        return <TikTokIcon className="h-5 w-5" />
       case "medium":
         return <MediumIcon className="h-5 w-5" />
       default:
@@ -48,8 +61,8 @@ export function Footer() {
           {/* Brand section */}
           <div className="lg:col-span-1">
             <div className="flex items-center gap-3 mb-6">
-              <div className="h-12 w-12 rounded-2xl bg-secondary/20 flex items-center justify-center">
-                <span className="text-xl font-bold text-secondary">DT</span>
+              <div className="relative">
+                <Image src="/images/brand-logo.svg" alt="D-lighter Tutor Logo" width={48} height={48} className="rounded-2xl" />
               </div>
               <div>
                 <h3 className="text-xl font-bold">D-lighter Tutor</h3>
@@ -94,7 +107,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link 
                     href={link.href} 
-                    className="flex items-center gap-2 hover:text-secondary transition-colors group"
+                    className="flex items-center gap-2 hover:text-secondary transition-colors group cursor-pointer"
                   >
                     <span className="h-1.5 w-1.5 rounded-full bg-secondary/50 group-hover:bg-secondary transition-colors" />
                     {link.label}
@@ -213,9 +226,9 @@ export function Footer() {
             for diaspora families
           </p>
           <div className="flex items-center gap-4 text-sm text-primary-foreground/60">
-            <Link href="#" className="hover:text-secondary transition-colors">Privacy Policy</Link>
+            <Link href="/privacy-policy" className="hover:text-secondary transition-colors cursor-pointer">Privacy Policy</Link>
             <span>•</span>
-            <Link href="#" className="hover:text-secondary transition-colors">Terms of Service</Link>
+            <Link href="/terms-of-service" className="hover:text-secondary transition-colors cursor-pointer">Terms of Service</Link>
           </div>
         </div>
       </div>

@@ -18,7 +18,7 @@ export interface FAQ {
 export interface SocialLink {
   name: string
   url: string
-  icon: "facebook" | "instagram" | "twitter" | "medium"
+  icon: "facebook" | "instagram" | "linkedin" | "youtube" | "tiktok" | "medium"
 }
 
 export interface Stat {
@@ -339,18 +339,28 @@ export const websiteContent = {
   socialLinks: [
     {
       name: "Facebook",
-      url: "https://www.facebook.com/dlightertutor",
+      url: "https://web.facebook.com/dlightertutor",
       icon: "facebook",
     },
     {
       name: "Instagram",
-      url: "https://www.instagram.com/dlightertutor",
+      url: "https://www.instagram.com/dlightertutor/",
       icon: "instagram",
     },
     {
-      name: "X (Twitter)",
-      url: "https://x.com/dlightertutor",
-      icon: "twitter",
+      name: "LinkedIn",
+      url: "https://www.linkedin.com/company/dlightertutor",
+      icon: "linkedin",
+    },
+    {
+      name: "YouTube",
+      url: "https://www.youtube.com/@dlightertutor/",
+      icon: "youtube",
+    },
+    {
+      name: "TikTok",
+      url: "https://www.tiktok.com/@dlightertutor/",
+      icon: "tiktok",
     },
     {
       name: "Medium",

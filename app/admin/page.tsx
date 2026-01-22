@@ -561,13 +561,13 @@ export default function AdminPage() {
                   </div>
                   <div>
                     <p className="text-muted-foreground">Email</p>
-                    <a href={`mailto:${selectedLead.email}`} className="font-medium text-secondary hover:underline">
+                    <a href={`mailto:${selectedLead.email}`} className="font-medium text-secondary hover:underline cursor-pointer">
                       {selectedLead.email}
                     </a>
                   </div>
                   <div>
                     <p className="text-muted-foreground">Phone</p>
-                    <a href={`tel:${selectedLead.phone}`} className="font-medium text-secondary hover:underline">
+                    <a href={`tel:${selectedLead.phone}`} className="font-medium text-secondary hover:underline cursor-pointer">
                       {selectedLead.phone}
                     </a>
                   </div>

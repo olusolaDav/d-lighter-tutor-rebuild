@@ -81,7 +81,7 @@ export function FAQSection() {
             >
               <button
                 onClick={() => toggleFAQ(index)}
-                className="w-full flex items-center gap-4 p-5 text-left bg-card hover:bg-accent/30 transition-colors"
+                className="w-full flex items-center gap-4 p-5 text-left bg-card hover:bg-accent/30 transition-colors cursor-pointer"
               >
                 <span className={`h-8 w-8 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${openIndex === index ? "bg-secondary text-secondary-foreground scale-110" : "bg-muted text-muted-foreground"}`}>
                   {index + 1}

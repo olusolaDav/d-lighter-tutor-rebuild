@@ -85,8 +85,8 @@ const jsonLd = {
   name: "D-lighter Tutor",
   description:
     "Expert online tutoring service for Nigerian and African children in the diaspora. We provide personalized 1-on-1 tutoring for ages 3-16.",
-  url: "https://dlightertutor.com",
-  logo: "https://dlightertutor.com/images/logo.png",
+  url: "https://d-lightertutor.com",
+  logo: "https://d-lightertutor.com/brand-logo.png",
   sameAs: [
     "https://wa.me/2348129517392",
   ],

@@ -123,7 +123,7 @@ export function PricingSection() {
               <button
                 key={curr.code}
                 onClick={() => setCurrency(curr.code)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all cursor-pointer ${
                   currency === curr.code
                     ? "bg-secondary text-secondary-foreground shadow"
                     : "text-muted-foreground hover:text-foreground"

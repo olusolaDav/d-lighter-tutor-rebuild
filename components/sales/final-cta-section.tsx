@@ -36,7 +36,7 @@ export function FinalCTASection({ onBookTrial }: FinalCTASectionProps) {
               <Gift className="mr-2 h-6 w-6" />
               Book Your Free Trial Now
             </Button>
-            <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
+            <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="cursor-pointer">
               <Button
                 size="lg"
                 variant="outline"

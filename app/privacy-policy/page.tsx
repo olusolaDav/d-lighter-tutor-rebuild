@@ -132,13 +132,68 @@ export default function PrivacyPolicyPage() {
           </section>
 
           <section className="mb-10">
-            <h2 className="text-2xl font-semibold text-foreground mb-4">9. Cookies and Tracking</h2>
-            <p className="text-muted-foreground leading-relaxed">
+            <h2 className="text-2xl font-semibold text-foreground mb-4">9. Cookies and Tracking Technologies</h2>
+            <p className="text-muted-foreground leading-relaxed mb-4">
               We use cookies and similar tracking technologies to enhance your experience on our website. Cookies are 
               small data files stored on your device that help us remember your preferences and understand how you use 
-              our site. You can control cookie settings through your browser preferences. Disabling cookies may affect 
-              some features of our website.
+              our site.
             </p>
+            
+            <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">Types of Cookies We Use</h3>
+            
+            <div className="space-y-4">
+              <div className="bg-muted/30 rounded-lg p-4">
+                <h4 className="font-semibold text-foreground">Necessary Cookies</h4>
+                <p className="text-muted-foreground text-sm mt-1">
+                  Essential for the website to function properly. These cookies enable basic functions like page 
+                  navigation, secure areas access, and remembering your cookie preferences. The website cannot 
+                  function properly without these cookies.
+                </p>
+              </div>
+              
+              <div className="bg-muted/30 rounded-lg p-4">
+                <h4 className="font-semibold text-foreground">Analytics Cookies</h4>
+                <p className="text-muted-foreground text-sm mt-1">
+                  Help us understand how visitors interact with our website by collecting and reporting information 
+                  anonymously. We use Google Analytics to track page views, session duration, bounce rates, and 
+                  traffic sources. This data helps us improve our website and services.
+                </p>
+              </div>
+              
+              <div className="bg-muted/30 rounded-lg p-4">
+                <h4 className="font-semibold text-foreground">Marketing Cookies</h4>
+                <p className="text-muted-foreground text-sm mt-1">
+                  Used to track visitors across websites to display relevant advertisements. These cookies may be 
+                  set by our advertising partners through our site to build a profile of your interests and show 
+                  you relevant ads on other sites.
+                </p>
+              </div>
+            </div>
+
+            <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">Managing Your Cookie Preferences</h3>
+            <p className="text-muted-foreground leading-relaxed mb-4">
+              When you first visit our website, you will be presented with a cookie consent banner where you can:
+            </p>
+            <ul className="list-disc pl-6 text-muted-foreground space-y-2">
+              <li><strong>Accept All:</strong> Enable all cookies for the best experience</li>
+              <li><strong>Necessary Only:</strong> Accept only essential cookies required for the site to function</li>
+              <li><strong>Manage Preferences:</strong> Choose which types of cookies you want to enable</li>
+            </ul>
+            <p className="text-muted-foreground leading-relaxed mt-4">
+              You can also control cookie settings through your browser preferences. Most browsers allow you to 
+              refuse cookies or delete cookies that have been set. Please note that disabling cookies may affect 
+              some features and functionality of our website.
+            </p>
+
+            <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">Third-Party Services</h3>
+            <p className="text-muted-foreground leading-relaxed">
+              We use the following third-party services that may place cookies on your device:
+            </p>
+            <ul className="list-disc pl-6 text-muted-foreground space-y-2 mt-2">
+              <li><strong>Google Analytics:</strong> Website analytics and performance tracking</li>
+              <li><strong>Google Tag Manager:</strong> Tag management for analytics and marketing tools</li>
+              <li><strong>Vercel Analytics:</strong> Performance monitoring and web vitals</li>
+            </ul>
           </section>
 
           <section className="mb-10">
