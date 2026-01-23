@@ -178,7 +178,7 @@ export default function LoginPage() {
             )}
           </Button>
 
-          <div className="text-center pt-4 border-t border-gray-100">
+          {/* <div className="text-center pt-4 border-t border-gray-100">
             <p className="text-sm text-gray-600">
               Don't have an admin account?{' '}
               <Link 
@@ -188,7 +188,7 @@ export default function LoginPage() {
                 Sign up here
               </Link>
             </p>
-          </div>
+          </div> */}
         </form>
       </CardContent>
     </Card>
