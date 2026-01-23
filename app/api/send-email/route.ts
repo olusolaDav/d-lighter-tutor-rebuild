@@ -189,12 +189,12 @@ export async function POST(request: NextRequest) {
               <table role="presentation" style="width: 100%; border-collapse: collapse;">
                 <tr>
                   <td align="center" style="padding: 8px;">
-                    <a href="https://wa.me/${phone.replace(/[^0-9]/g, '')}" style="display: inline-block; background-color: #22c55e; color: #ffffff; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px;">
+                    <a href="https://wa.me/${phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hi ${name}! Thank you for requesting a FREE trial class with D-lighter Tutor. I'm reaching out to discuss the details and schedule your child's first lesson. When would be the best time to chat?`)}" style="display: inline-block; background-color: #22c55e; color: #ffffff; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px;">
                       💬 Reply via WhatsApp
                     </a>
                   </td>
                   <td align="center" style="padding: 8px;">
-                    <a href="mailto:${email}" style="display: inline-block; background-color: #1e3a5f; color: #ffffff; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px;">
+                    <a href="mailto:${email}?subject=Re: FREE Trial Class Request&body=Hi ${name},%0A%0AThank you for your interest in D-lighter Tutor! I've received your trial class request and would love to discuss the next steps.%0A%0ABest regards,%0AD-lighter Tutor Team" style="display: inline-block; background-color: #1e3a5f; color: #ffffff; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px;">
                       ✉️ Reply via Email
                     </a>
                   </td>

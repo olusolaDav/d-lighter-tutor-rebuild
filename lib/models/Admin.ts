@@ -1,8 +1,8 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema, Types } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 export interface IAdmin extends Document {
-  _id: string;
+  _id: Types.ObjectId;
   firstName: string;
   lastName: string;
   email: string;
@@ -102,17 +102,17 @@ const adminSchema = new Schema<IAdmin>(
 );
 
 // Virtual for account lock status
-adminSchema.virtual('isLocked').get(function () {
-  return !!(this.lockUntil && this.lockUntil > Date.now());
+adminSchema.virtual('isLocked').get(function (this: IAdmin) {
+  return !!(this.lockUntil && this.lockUntil instanceof Date && this.lockUntil.getTime() > Date.now());
 });
 
 // Middleware to hash password before saving
-adminSchema.pre('save', async function (next) {
+adminSchema.pre('save', async function (this: IAdmin, next) {
   if (!this.isModified('password')) return next();
 
   try {
     const salt = await bcrypt.genSalt(12);
-    this.password = await bcrypt.hash(this.password, salt);
+    this.password = await bcrypt.hash(this.password as string, salt);
     next();
   } catch (error: any) {
     next(error);
@@ -120,7 +120,7 @@ adminSchema.pre('save', async function (next) {
 });
 
 // Middleware to set default permissions
-adminSchema.pre('save', function (next) {
+adminSchema.pre('save', function (this: IAdmin, next) {
   if (this.isNew) {
     if (this.role === 'super_admin') {
       this.permissions = [
@@ -173,7 +173,6 @@ adminSchema.methods.incrementLoginAttempts = async function () {
 };
 
 // Index for performance
-adminSchema.index({ email: 1 });
 adminSchema.index({ isActive: 1 });
 adminSchema.index({ role: 1 });
 

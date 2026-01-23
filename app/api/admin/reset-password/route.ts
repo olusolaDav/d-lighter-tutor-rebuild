@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import { Admin } from '@/lib/models/Admin';
-import { verifyAccessToken, validatePassword, sanitizeInput, checkRateLimit } from '@/lib/auth';
+import { verifyAccessToken, validatePassword, sanitizeInput, checkRateLimit, verifyResetToken } from '@/lib/auth';
 import { emailService } from '@/lib/emailService';
 
 export async function POST(request: NextRequest) {
@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     const rateLimitKey = `reset_password_${clientIP}`;
     const rateLimit = checkRateLimit(rateLimitKey, 5, 60 * 60 * 1000); // 1 hour window
 
-    if (!rateLimit.success) {
+    if (!rateLimit.allowed) {
       return NextResponse.json(
         { 
           success: false, 
@@ -47,13 +47,13 @@ export async function POST(request: NextRequest) {
     const passwordValidation = validatePassword(newPassword);
     if (!passwordValidation.isValid) {
       return NextResponse.json(
-        { success: false, message: passwordValidation.message },
+        { success: false, message: passwordValidation.errors.join(', ') },
         { status: 400 }
       );
     }
 
     // Verify reset token
-    const tokenPayload = verifyAccessToken(resetToken);
+    const tokenPayload = verifyResetToken(resetToken);
     if (!tokenPayload) {
       return NextResponse.json(
         { success: false, message: 'Invalid or expired reset token' },

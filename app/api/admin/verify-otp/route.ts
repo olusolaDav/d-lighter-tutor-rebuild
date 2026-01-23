@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     const rateLimitKey = `verify_otp_${clientIP}`;
     const rateLimit = checkRateLimit(rateLimitKey, 5, 15 * 60 * 1000); // 15 minutes window
 
-    if (!rateLimit.success) {
+    if (!rateLimit.allowed) {
       return NextResponse.json(
         { 
           success: false, 

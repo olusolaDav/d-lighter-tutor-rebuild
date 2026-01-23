@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     const rateLimitKey = `forgot_password_${clientIP}`;
     const rateLimit = checkRateLimit(rateLimitKey, 3, 60 * 60 * 1000); // 1 hour window
 
-    if (!rateLimit.success) {
+    if (!rateLimit.allowed) {
       return NextResponse.json(
         { 
           success: false, 
@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
     const emailRateLimitKey = `forgot_password_email_${sanitizedEmail}`;
     const emailRateLimit = checkRateLimit(emailRateLimitKey, 3, 60 * 60 * 1000); // 1 hour window
 
-    if (!emailRateLimit.success) {
+    if (!emailRateLimit.allowed) {
       return NextResponse.json(
         { 
           success: false, 

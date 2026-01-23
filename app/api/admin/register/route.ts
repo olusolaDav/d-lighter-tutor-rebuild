@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     const rateLimitKey = `register_${clientIP}`;
     const rateLimit = checkRateLimit(rateLimitKey, 3, 60 * 60 * 1000); // 1 hour window
 
-    if (!rateLimit.success) {
+    if (!rateLimit.allowed) {
       return NextResponse.json(
         { 
           success: false, 
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     const passwordValidation = validatePassword(password);
     if (!passwordValidation.isValid) {
       return NextResponse.json(
-        { success: false, message: passwordValidation.message },
+        { success: false, message: passwordValidation.errors.join(', ') },
         { status: 400 }
       );
     }

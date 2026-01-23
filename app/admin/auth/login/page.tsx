@@ -5,10 +5,9 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Eye, EyeOff, Lock, Mail, Loader2, Shield } from "lucide-react"
+import { Eye, EyeOff } from "lucide-react"
 
 interface LoginFormData {
   email: string
@@ -17,18 +16,19 @@ interface LoginFormData {
 
 interface LoginError {
   message: string
-  type?: 'error' | 'warning' | 'info'
+  type: 'error' | 'warning'
 }
 
-export default function AdminLoginPage() {
+export default function LoginPage() {
   const router = useRouter()
   const [formData, setFormData] = useState<LoginFormData>({
-    email: "",
-    password: "",
+    email: '',
+    password: ''
   })
-  const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<LoginError | null>(null)
+  const [showPassword, setShowPassword] = useState(false)
+  const [rememberMe, setRememberMe] = useState(false)
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -36,6 +36,7 @@ export default function AdminLoginPage() {
       ...prev,
       [name]: value
     }))
+    
     // Clear error when user starts typing
     if (error) setError(null)
   }
@@ -88,68 +89,55 @@ export default function AdminLoginPage() {
   const isFormValid = formData.email && formData.password
 
   return (
-    <Card className="w-full max-w-md mx-auto shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
-      <CardHeader className="space-y-1 text-center pb-6">
-        <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-secondary via-secondary to-accent rounded-full flex items-center justify-center shadow-lg">
-          <Shield className="w-8 h-8 text-white" />
-        </div>
-        <CardTitle className="text-2xl font-bold text-gray-900">
+    <Card className="w-full max-w-md mx-auto shadow-lg border border-gray-200 bg-white rounded-xl">
+      <CardHeader className="space-y-4 text-center pb-8 pt-8">
+        <CardTitle className="text-3xl font-bold text-gray-900">
           Welcome Back
         </CardTitle>
-        <CardDescription className="text-gray-600">
-          Sign in to your admin account to continue
+        <CardDescription className="text-gray-500 text-base">
+          Sign in to your secure workspace
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="space-y-6">
+      <CardContent className="px-8 pb-8">
         {error && (
-          <Alert variant={error.type === 'error' ? 'destructive' : 'default'} className="mb-4">
+          <Alert variant={error.type === 'error' ? 'destructive' : 'default'} className="mb-6">
             <AlertDescription>{error.message}</AlertDescription>
           </Alert>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-sm font-semibold text-gray-800">
-              Email Address
-            </Label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 w-5 h-5" />
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                required
-                placeholder="admin@d-lightertutor.com"
-                value={formData.email}
-                onChange={handleInputChange}
-                className="pl-10 h-12 bg-white border-2 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-secondary focus:ring-2 focus:ring-secondary/20 transition-all duration-200"
-                disabled={loading}
-              />
-            </div>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              required
+              placeholder="admin@ngoziumoru.info"
+              value={formData.email}
+              onChange={handleInputChange}
+              className="h-12 px-4 bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:bg-white transition-all duration-200 rounded-lg"
+              disabled={loading}
+            />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password" className="text-sm font-semibold text-gray-800">
-              Password
-            </Label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 w-5 h-5" />
               <Input
                 id="password"
                 name="password"
                 type={showPassword ? "text" : "password"}
                 required
-                placeholder="Enter your password"
+                placeholder="Password"
                 value={formData.password}
                 onChange={handleInputChange}
-                className="pl-10 pr-10 h-12 bg-white border-2 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-secondary focus:ring-2 focus:ring-secondary/20 transition-all duration-200"
+                className="h-12 px-4 pr-10 bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:bg-white transition-all duration-200 rounded-lg"
                 disabled={loading}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                 disabled={loading}
               >
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -157,50 +145,52 @@ export default function AdminLoginPage() {
             </div>
           </div>
 
+          <div className="flex items-center justify-between py-2">
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <span className="text-sm text-gray-600">Remember Me</span>
+            </label>
+            <Link 
+              href="/admin/auth/forgot-password" 
+              className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+            >
+              Forgot Password?
+            </Link>
+          </div>
+
           <Button
             type="submit"
             disabled={!isFormValid || loading}
-            className="w-full h-12 bg-gradient-to-r from-secondary via-secondary to-accent hover:from-secondary/90 hover:to-accent/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] disabled:transform-none disabled:hover:scale-100"
+            className="w-full h-12 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50"
           >
             {loading ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Signing In...
-              </>
+              <div className="flex items-center space-x-2">
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span>Signing In...</span>
+              </div>
             ) : (
-              "Sign In"
+              'Continue'
             )}
           </Button>
+
+          <div className="text-center pt-4 border-t border-gray-100">
+            <p className="text-sm text-gray-600">
+              Don't have an admin account?{' '}
+              <Link 
+                href="/admin/auth/register" 
+                className="text-blue-600 hover:text-blue-800 font-medium"
+              >
+                Sign up here
+              </Link>
+            </p>
+          </div>
         </form>
-
-        <div className="text-center">
-          <Link
-            href="/admin/auth/forgot-password"
-            className="text-sm text-secondary hover:text-secondary/80 font-semibold hover:underline transition-colors"
-          >
-            Forgot your password?
-          </Link>
-        </div>
       </CardContent>
-
-      <CardFooter className="flex flex-col space-y-4 pt-6 border-t border-gray-100">
-        <div className="text-center">
-          <p className="text-sm text-gray-600">
-            Don't have an admin account?{" "}
-            <Link
-              href="/admin/auth/register"
-              className="text-secondary hover:text-secondary/80 font-semibold hover:underline transition-colors"
-            >
-              Register here
-            </Link>
-          </p>
-        </div>
-
-        <div className="flex items-center justify-center space-x-2 text-xs text-gray-500">
-          <Lock className="w-3 h-3" />
-          <span>Secured with 2-Factor Authentication</span>
-        </div>
-      </CardFooter>
     </Card>
   )
 }

@@ -92,6 +92,8 @@ function BookingFormModal() {
   const [step, setStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState<BookingFormData>(INITIAL_FORM_DATA)
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [submittedFormData, setSubmittedFormData] = useState<BookingFormData | null>(null)
 
   // Update plan when selectedPlan changes
   useEffect(() => {
@@ -130,10 +132,11 @@ function BookingFormModal() {
       const data = await response.json()
 
       if (data.success) {
+        setSubmittedFormData({ ...formData, plan: selectedPlan || formData.plan })
+        setShowSuccessModal(true)
         toast.success("Request Submitted! 🎉", {
           description: "We'll contact you within 24 hours to schedule your FREE trial class.",
         })
-        handleClose()
       } else {
         toast.error("Submission Failed", {
           description: data.error || "Please try again or contact us on WhatsApp.",
@@ -164,21 +167,24 @@ function BookingFormModal() {
     closeModal()
     setStep(1)
     setFormData(INITIAL_FORM_DATA)
+    setShowSuccessModal(false)
+    setSubmittedFormData(null)
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold flex items-center gap-2">
-            <Gift className="h-6 w-6 text-secondary" />
-            Book Your FREE Trial Class
-          </DialogTitle>
-          {selectedPlan && (
-            <p className="text-sm text-muted-foreground mt-1">
-              Selected Plan: <span className="font-semibold text-secondary">{selectedPlan}</span>
-            </p>
-          )}
+    <>
+      <Dialog open={isOpen && !showSuccessModal} onOpenChange={handleClose}>
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+              <Gift className="h-6 w-6 text-secondary" />
+              Book Your FREE Trial Class
+            </DialogTitle>
+            {selectedPlan && (
+              <p className="text-sm text-muted-foreground mt-1">
+                Selected Plan: <span className="font-semibold text-secondary">{selectedPlan}</span>
+              </p>
+            )}
         </DialogHeader>
 
         {/* Progress indicator */}
@@ -575,6 +581,97 @@ function BookingFormModal() {
             </div>
           </div>
         )}
+      </DialogContent>
+    </Dialog>
+      
+    <SuccessModal 
+      isOpen={showSuccessModal}
+      onClose={handleClose}
+      formData={submittedFormData}
+    />
+  </>
+  )
+}
+
+// Success Modal Component
+function SuccessModal({ 
+  isOpen, 
+  onClose, 
+  formData 
+}: { 
+  isOpen: boolean
+  onClose: () => void
+  formData: BookingFormData | null
+}) {
+  if (!formData) return null
+
+  const generateWhatsAppMessage = (data: BookingFormData) => {
+    const finalCountry = data.country === "Other" && data.otherCountry ? data.otherCountry : data.country
+    const message = `Hi! I just submitted a trial class request form on your website. Here are my details:
+
+📧 Name: ${data.name}
+📞 Phone: ${data.phone}
+📍 Country: ${finalCountry}
+👨‍🎓 Student Age: ${data.studentAge}
+📚 Grade Level: ${data.gradeLevel}
+📖 Curriculum: ${data.curriculum}
+🎯 Subjects: ${data.subjects.join(', ')}
+📅 Preferred Days: ${data.preferredDays.join(', ')}
+⏰ Preferred Time: ${data.preferredTime}${data.plan ? `
+💼 Plan: ${data.plan}` : ''}${data.learningGoal ? `
+🎯 Learning Goal: ${data.learningGoal}` : ''}
+
+I'm looking forward to hearing from you about scheduling the FREE trial class!`
+    
+    return encodeURIComponent(message)
+  }
+
+  const whatsappUrl = `https://wa.me/2348129517392?text=${generateWhatsAppMessage(formData)}`
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[500px] text-center">
+        <DialogHeader>
+          <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+            <CheckCircle2 className="w-8 h-8 text-green-600" />
+          </div>
+          <DialogTitle className="text-2xl font-bold text-gray-900">
+            Request Submitted Successfully! 🎉
+          </DialogTitle>
+        </DialogHeader>
+        
+        <div className="space-y-6">
+          <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+            <p className="text-green-800 font-medium mb-2">What happens next?</p>
+            <ul className="text-sm text-green-700 space-y-1 text-left">
+              <li>• Our team will review your request within 24 hours</li>
+              <li>• We'll match your child with the perfect tutor</li>
+              <li>• You'll receive scheduling details via WhatsApp/email</li>
+            </ul>
+          </div>
+          
+          <div className="space-y-3">
+            <p className="text-gray-600">
+              Want to discuss your requirements immediately?
+            </p>
+            
+            <Button 
+              onClick={() => window.open(whatsappUrl, '_blank')}
+              className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg flex items-center justify-center gap-2"
+            >
+              <span>💬</span>
+              Chat with Admin on WhatsApp
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              onClick={onClose}
+              className="w-full"
+            >
+              Close
+            </Button>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   )

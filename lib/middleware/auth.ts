@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyAccessToken } from '@/lib/auth';
+import { verifyAccessToken, type JWTPayload } from '@/lib/auth';
 
 export interface AuthenticatedRequest extends NextRequest {
   admin?: {
@@ -39,7 +39,7 @@ export function withAuth(handler: (req: AuthenticatedRequest) => Promise<NextRes
         adminId: tokenPayload.adminId,
         email: tokenPayload.email,
         role: tokenPayload.role,
-        permissions: tokenPayload.permissions,
+        permissions: tokenPayload.permissions || [],
       };
 
       // Call the original handler

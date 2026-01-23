@@ -1,7 +1,7 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema, Types } from 'mongoose';
 
 export interface IOTP extends Document {
-  _id: string;
+  _id: Types.ObjectId;
   email: string;
   otp: string;
   purpose: 'email_verification' | 'login_verification' | 'password_reset';
