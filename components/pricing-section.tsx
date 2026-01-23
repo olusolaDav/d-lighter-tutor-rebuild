@@ -50,8 +50,14 @@ export function PricingSection() {
         "Flexible scheduling",
         "Monthly progress report",
         "Monthly mock tests included",
+        "100% Satisfaction Guaranteed",
+        "No credit card required",
         "Pay only for hours completed",
-        "24-hour cancellation policy",
+        "Cancel anytime",
+        "Can pay in naira",
+        "5% sibling discount available",
+
+
       ],
       popular: false,
     },
@@ -69,7 +75,6 @@ export function PricingSection() {
         "Priority tutor matching",
         "Detailed assessments",
         "Direct WhatsApp support",
-        "5% sibling discount available",
       ],
       popular: true,
     },

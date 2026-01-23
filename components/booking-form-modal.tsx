@@ -45,7 +45,7 @@ import {
 } from "@/lib/constants/form-data"
 
 // Plans available for selection
-const PLANS = ["Starter Plan", "Premium Plan", "Ultimate Plan"] as const
+const PLANS = ["Starter Plan", "Standard", "Intensive"] as const
 
 // Context for managing modal state
 interface BookingFormContextType {
