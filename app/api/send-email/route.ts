@@ -253,8 +253,8 @@ This email was sent from the D-lighter Tutor Website.
 
     // Send email to admin using ZeptoMail SMTP
     await transporter.sendMail({
-      from: '"D-lighter Tutor" <noreply@d-lightertutor.com>',
-      to: ["dlightertutor2@gmail.com", "dlightertutor@gmail.com", "biodun4destiny@gmail.com"],
+      from: '"D-lighter Tutor" <booking@d-lightertutor.com>',
+      to: ["dlightertutor2@gmail.com", "dlightertutor@gmail.com", "biodun4destiny@gmail.com", "booking@d-lightertutor.com"],
       replyTo: email,
       subject: `🎓 New Trial Class Request from ${name} (${finalCountry})${plan ? ` - ${plan} Plan` : ''}`,
       text: textContent,
