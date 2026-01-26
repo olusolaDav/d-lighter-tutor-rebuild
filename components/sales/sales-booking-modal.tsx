@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { toast } from "sonner"
+import { generateWhatsAppUrl, redirectToWhatsApp } from "@/lib/utils"
 import {
   Dialog,
   DialogContent,
@@ -107,36 +108,55 @@ export function SalesBookingModal({ isOpen, onClose }: SalesBookingModalProps) {
       const emailData = await emailResponse.json()
 
       if (emailData.success) {
+        // Generate WhatsApp URL with form data
+        const whatsappUrl = generateWhatsAppUrl(formData, "sales-page")
+        
         setIsSubmitted(true)
         toast.success("🎉 Request Submitted Successfully!", {
-          description:
-            "We've received your request and sent a confirmation to your email. Our team will contact you within 24 hours.",
+          description: "Click the WhatsApp button to continue the conversation...",
           duration: 8000,
         })
-        // Open WhatsApp as backup
-        if (leadData.data?.whatsappUrl) {
-          window.open(leadData.data.whatsappUrl, "_blank")
+        
+        // Try to open WhatsApp immediately
+        const newWindow = window.open(whatsappUrl, "_blank", "noopener,noreferrer")
+        
+        if (!newWindow) {
+          // Show a more prominent message
+          setTimeout(() => {
+            toast.info("Click the green WhatsApp button below! 👇", {
+              description: "Your browser blocked the automatic redirect",
+              duration: 5000
+            })
+          }, 1000)
         }
       } else {
         // Email failed but lead was saved - still show success but warn
+        const whatsappUrl = generateWhatsAppUrl(formData, "sales-page")
+        
         setIsSubmitted(true)
         toast.warning("Request Received!", {
-          description:
-            "We've saved your request. Our team will contact you shortly via WhatsApp.",
+          description: "Opening WhatsApp to continue setup...",
           duration: 6000,
         })
-        if (leadData.data?.whatsappUrl) {
-          window.open(leadData.data.whatsappUrl, "_blank")
-        }
+        
+        // Open WhatsApp immediately
+        window.open(whatsappUrl, "_blank", "noopener,noreferrer")
       }
     } catch {
+      // On error, still attempt to redirect to WhatsApp with form data as backup
+      const whatsappUrl = generateWhatsAppUrl(formData, "sales-page")
+      
       toast.error("Submission Failed", {
-        description: "Please try again or contact us directly on WhatsApp.",
+        description: "Opening WhatsApp for manual submission...",
         duration: 5000,
       })
+      
       setError(
-        "Failed to submit. Please try again or contact us directly on WhatsApp."
+        "Failed to submit. Opening WhatsApp for manual assistance."
       )
+      
+      // Open WhatsApp immediately as backup
+      window.open(whatsappUrl, "_blank", "noopener,noreferrer")
     } finally {
       setIsSubmitting(false)
     }
@@ -182,23 +202,21 @@ export function SalesBookingModal({ isOpen, onClose }: SalesBookingModalProps) {
             <div className="h-20 w-20 mx-auto mb-6 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
               <CheckCircle2 className="h-10 w-10 text-green-600" />
             </div>
-            <h2 className="text-2xl font-bold text-foreground mb-4">Thank You!</h2>
-            <p className="text-muted-foreground mb-6">
-              Your request has been submitted. We&apos;ve opened WhatsApp so you can
-              chat with us directly.
+            <h2 className="text-2xl font-bold text-foreground mb-4">🎉 Thank You!</h2>
+            <p className="text-muted-foreground mb-6 text-lg">
+              Your request has been submitted successfully! 
             </p>
             <p className="text-sm text-muted-foreground mb-8">
-              Our team will contact you within 24 hours to schedule your child&apos;s
-              FREE trial class.
+              Click the WhatsApp button below to continue the conversation and schedule your FREE trial class.
             </p>
             <div className="flex flex-col gap-3">
-              <Button asChild className="bg-green-600 hover:bg-green-700 rounded-full">
+              <Button asChild className="bg-green-600 hover:bg-green-700 rounded-full py-4 text-lg font-bold shadow-lg hover:shadow-xl transition-all whatsapp-pulse">
                 <a
-                  href="https://wa.me/2348129517392"
+                  href={generateWhatsAppUrl(formData, "sales-page")}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <MessageCircle className="mr-2 h-5 w-5" />
+                  <MessageCircle className="mr-3 h-6 w-6" />
                   Continue on WhatsApp
                 </a>
               </Button>

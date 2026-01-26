@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { toast } from "sonner"
+import { generateWhatsAppUrl, redirectToWhatsApp } from "@/lib/utils"
 import {
   Gift,
   ArrowRight,
@@ -132,11 +133,29 @@ function BookingFormModal() {
       const data = await response.json()
 
       if (data.success) {
-        setSubmittedFormData({ ...formData, plan: selectedPlan || formData.plan })
+        const submittedData = { ...formData, plan: selectedPlan || formData.plan }
+        setSubmittedFormData(submittedData)
         setShowSuccessModal(true)
+        
+        // Generate WhatsApp URL and try to open immediately
+        const whatsappUrl = generateWhatsAppUrl(submittedData, "main-page")
+        
         toast.success("Request Submitted! 🎉", {
-          description: "We'll contact you within 24 hours to schedule your FREE trial class.",
+          description: "Click the WhatsApp button to continue the conversation...",
         })
+        
+        // Try to open WhatsApp immediately
+        const newWindow = window.open(whatsappUrl, "_blank", "noopener,noreferrer")
+        
+        if (!newWindow) {
+          // Show a more prominent message to click the WhatsApp button
+          setTimeout(() => {
+            toast.info("Click the WhatsApp button below to continue! 👇", {
+              description: "Your browser blocked the automatic redirect",
+              duration: 5000
+            })
+          }, 1000)
+        }
       } else {
         toast.error("Submission Failed", {
           description: data.error || "Please try again or contact us on WhatsApp.",
@@ -642,25 +661,26 @@ I'm looking forward to hearing from you about scheduling the FREE trial class!`
         
         <div className="space-y-6">
           <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-            <p className="text-green-800 font-medium mb-2">What happens next?</p>
+            <p className="text-green-800 font-medium mb-2">✅ Request Submitted Successfully!</p>
             <ul className="text-sm text-green-700 space-y-1 text-left">
-              <li>• Our team will review your request within 24 hours</li>
-              <li>• We'll match your child with the perfect tutor</li>
-              <li>• You'll receive scheduling details via WhatsApp/email</li>
+              <li>• Your booking request has been received</li>
+              <li>• Continue the conversation on WhatsApp for instant support</li>
+              <li>• Our team will help you schedule the FREE trial class</li>
             </ul>
           </div>
           
           <div className="space-y-3">
-            <p className="text-gray-600">
-              Want to discuss your requirements immediately?
+            <p className="text-gray-600 font-medium text-center">
+              👇 Click below to continue on WhatsApp
             </p>
             
             <Button 
               onClick={() => window.open(whatsappUrl, '_blank')}
-              className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg flex items-center justify-center gap-2"
+              className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-lg flex items-center justify-center gap-3 text-lg shadow-lg hover:shadow-xl transition-all whatsapp-pulse"
+              size="lg"
             >
-              <span>💬</span>
-              Chat with Admin on WhatsApp
+              <span className="text-2xl">💬</span>
+              Continue on WhatsApp
             </Button>
             
             <Button 
