@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { MessageCircle, Sparkles, ArrowRight, CheckCircle2, Gift } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { useBookingForm } from "@/components/booking-form-modal"
+import { WHATSAPP_URL } from "@/lib/constants/form-data"
 
 export function CTASection() {
   const sectionRef = useRef<HTMLElement>(null)
@@ -95,7 +96,7 @@ export function CTASection() {
               className="border-2 border-primary-foreground/50 text-primary-foreground hover:bg-primary-foreground hover:text-primary text-lg h-16 px-10 bg-transparent rounded-full"
             >
               <a
-                href="https://wa.me/2348129517392?text=Hi%2C%20I%27d%20like%20to%20know%20more%20about%20D-lighter%20Tutor"
+                href={WHATSAPP_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2"
