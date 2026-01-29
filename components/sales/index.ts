@@ -1,7 +1,6 @@
 // Sales page components barrel export
 export { StickyHeader } from "./sticky-header"
 export { HeroSection } from "./hero-section"
-export { ProblemSection } from "./problem-section"
 export { SolutionSection } from "./solution-section"
 export { HowItWorksSection } from "./how-it-works-section"
 export { TestimonialsSection } from "./testimonials-section"

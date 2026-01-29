@@ -4,13 +4,12 @@ import { useState, useCallback } from "react"
 import {
   StickyHeader,
   HeroSection,
-  ProblemSection,
   SolutionSection,
   HowItWorksSection,
   TestimonialsSection,
   VideoSection,
   GuaranteeSection,
-  FAQSection,
+
   FinalCTASection,
   SalesFooter,
   SalesBookingModal,
@@ -35,9 +34,6 @@ export default function SalesPage() {
       {/* Hero Section */}
       <HeroSection onBookTrial={openModal} />
 
-      {/* Problem Section */}
-      <ProblemSection onBookTrial={openModal} />
-
       {/* Solution Section */}
       <SolutionSection onBookTrial={openModal} />
 
@@ -53,8 +49,7 @@ export default function SalesPage() {
       {/* Guarantee Section */}
       <GuaranteeSection onBookTrial={openModal} />
 
-      {/* FAQ Section */}
-      <FAQSection onBookTrial={openModal} />
+    
 
       {/* Final CTA Section */}
       <FinalCTASection onBookTrial={openModal} />

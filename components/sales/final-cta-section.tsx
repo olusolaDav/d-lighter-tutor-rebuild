@@ -9,7 +9,7 @@ interface FinalCTASectionProps {
 
 export function FinalCTASection({ onBookTrial }: FinalCTASectionProps) {
   return (
-    <section className="py-24 bg-gradient-to-br from-primary via-primary to-primary/95 relative overflow-hidden">
+    <section className="py-12 md:py-16 bg-gradient-to-br from-primary via-primary to-primary/95 relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
         <div className="absolute top-10 left-[10%] h-32 w-32 rounded-full bg-secondary/10 blur-2xl" />
         <div className="absolute bottom-10 right-[10%] h-40 w-40 rounded-full bg-accent/10 blur-2xl" />
@@ -18,13 +18,14 @@ export function FinalCTASection({ onBookTrial }: FinalCTASectionProps) {
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl md:text-5xl font-bold text-primary-foreground mb-6">
-            Ready to Give Your Child the{" "}
-            <span className="text-secondary">Academic Edge?</span>
+            Try It Free - See the{" "}
+            <span className="text-secondary">Difference in 30 Minutes</span>
           </h2>
           <p className="text-xl text-primary-foreground/90 mb-10">
-            Join families across the UK, USA, Canada, and UAE who have transformed their
-            children&apos;s education with D-lighter Tutor. Start with a FREE trial class
-            today.
+            We invite you to book a <strong>FREE 30-minute trial session</strong> and experience how personalised tutoring can change your child&apos;s learning journey.
+          </p>
+          <p className="text-lg text-primary-foreground/80 mb-10">
+            Click "Get Started" below to enrol and book your <strong>FREE trial today</strong>.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -34,16 +35,22 @@ export function FinalCTASection({ onBookTrial }: FinalCTASectionProps) {
               className="bg-secondary hover:bg-secondary/90 text-secondary-foreground text-lg h-16 px-10 rounded-full font-bold shadow-lg shadow-secondary/30"
             >
               <Gift className="mr-2 h-6 w-6" />
-              Book Your Free Trial Now
+              Get Started
             </Button>
+          </div>
+          
+          <div className="mt-8 text-center">
+            <p className="text-lg text-primary-foreground/90 mb-4">
+              Do you prefer to chat first?
+            </p>
             <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="cursor-pointer">
               <Button
                 size="lg"
                 variant="outline"
-                className="border-2 border-primary-foreground/30 bg-white/10 text-white hover:bg-white/20 rounded-full font-semibold text-lg h-16 px-10 font-bold w-full sm:w-auto"
+                className="border-2 border-primary-foreground/30 bg-white/10 text-white hover:bg-white/20 rounded-full font-semibold text-lg h-16 px-10 font-bold"
               >
                 <MessageCircle className="mr-2 h-6 w-6" />
-                Chat on WhatsApp
+                WhatsApp us
               </Button>
             </a>
           </div>
@@ -59,16 +66,7 @@ export function FinalCTASection({ onBookTrial }: FinalCTASectionProps) {
           </div>
 
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-6 text-primary-foreground/80">
-            <a
-              href={WHATSAPP_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 hover:text-primary-foreground transition-colors"
-            >
-              <MessageCircle className="h-5 w-5" aria-hidden="true" />
-              WhatsApp: +234 {WHATSAPP_NUMBER.slice(3, 6)} {WHATSAPP_NUMBER.slice(6, 9)}{" "}
-              {WHATSAPP_NUMBER.slice(9)}
-            </a>
+        
             <a
               href={`mailto:${CONTACT_EMAIL}`}
               className="flex items-center gap-2 hover:text-primary-foreground transition-colors"

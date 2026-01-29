@@ -74,7 +74,7 @@ export function CTAButtons({
         </a>
       </div>
 
-      {showTrustIndicators && (
+      {/* {showTrustIndicators && (
         <div className={`flex flex-wrap justify-center gap-4 sm:gap-6 mt-6 text-sm ${
           isHero || isFinal ? "text-primary-foreground/80" : "text-muted-foreground"
         }`}>
@@ -85,7 +85,7 @@ export function CTAButtons({
             </div>
           ))}
         </div>
-      )}
+      )} */}
     </div>
   )
 }

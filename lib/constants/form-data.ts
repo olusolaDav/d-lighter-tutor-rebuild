@@ -132,7 +132,7 @@ export const INITIAL_FORM_DATA: BookingFormData = {
 
 // WhatsApp contact
 export const WHATSAPP_NUMBER = "2348129517392"
-export const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}`
+export const WHATSAPP_URL = `https://wa.link/uo1rq2`
 
 // Email contact
 export const CONTACT_EMAIL = "hello@dlightertutor.com"

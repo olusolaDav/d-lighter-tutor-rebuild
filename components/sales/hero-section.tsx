@@ -53,7 +53,7 @@ export function HeroSection({ onBookTrial }: HeroSectionProps) {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-20 relative z-10">
+      <div className="container mx-auto px-4 py-12 md:py-16 relative z-10">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             {/* Limited Offer Badge */}
@@ -66,9 +66,8 @@ export function HeroSection({ onBookTrial }: HeroSectionProps) {
 
             {/* Main Headline */}
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-primary-foreground mb-6 leading-tight">
-              Expert Tutoring for{" "}
               <span className="relative inline-block">
-                <span className="text-secondary">African Children</span>
+                <span className="text-secondary">"My Child Is Trying?</span>
                 <svg
                   className="absolute -bottom-2 left-0 w-full"
                   viewBox="0 0 300 12"
@@ -85,18 +84,35 @@ export function HeroSection({ onBookTrial }: HeroSectionProps) {
                 </svg>
               </span>
               <br className="hidden sm:block" />
-              <span className="text-primary-foreground/90">in the Diaspora</span>
+              <span className="text-primary-foreground/90">But Still Falling Behind"</span>
             </h1>
 
             <p className="text-xl md:text-2xl text-primary-foreground/90 mb-4 max-w-3xl mx-auto leading-relaxed">
-              We support <strong>Nigerian and African parents</strong> in the UK, US, Canada, and
-              beyond with <strong>personalized 1-on-1 online tutoring</strong> for learners aged{" "}
-              <strong>3 to 16 years</strong>.
+              That's what <strong>many parents tell us</strong> before they find <strong>D-Lighter Tutor</strong>.
             </p>
 
+            <div className="text-lg text-primary-foreground/80 mb-4 max-w-2xl mx-auto space-y-2">
+              <p>Your child attends classes.</p>
+              <p>They do their homework.</p>
+              <p>They even try their best.</p>
+            </div>
+
+            <p className="text-xl font-semibold text-primary-foreground mb-4 max-w-2xl mx-auto">
+              Yet somehow?
+            </p>
+
+            <div className="text-lg text-primary-foreground/80 mb-6 max-w-2xl mx-auto space-y-2">
+              <p>• Lessons still feel confusing</p>
+              <p>• Exams feel stressful</p>
+              <p>• Confidence keeps dropping</p>
+            </div>
+
             <p className="text-lg text-primary-foreground/80 mb-8 max-w-2xl mx-auto">
-              Designed to fit your schedule • Tailored to your child&apos;s curriculum • Trained
-              professionals in early childhood education
+              As a parent, it hurts to watch. You want to help - but between busy schedules, unfamiliar curricula, and limited time, it feels overwhelming.
+            </p>
+
+            <p className="text-2xl font-bold text-secondary mb-8">
+              This is where your child's story can change.
             </p>
 
             {/* CTA Buttons */}
@@ -104,7 +120,7 @@ export function HeroSection({ onBookTrial }: HeroSectionProps) {
 
 
             {/* Stats Row */}
-            <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
+            {/* <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
               {HERO_STATS.map((stat, i) => {
                 const Icon = iconMap[stat.icon as keyof typeof iconMap]
                 return (
@@ -120,7 +136,7 @@ export function HeroSection({ onBookTrial }: HeroSectionProps) {
                   </div>
                 )
               })}
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

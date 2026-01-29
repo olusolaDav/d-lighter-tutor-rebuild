@@ -1,5 +1,5 @@
 import { BadgeCheck, CheckCircle } from "lucide-react"
-import { GUARANTEE_ITEMS } from "@/lib/constants/sales-content"
+import { TRUST_INDICATORS } from "@/lib/constants/sales-content"
 import { CTAButtons } from "./cta-buttons"
 
 interface GuaranteeSectionProps {
@@ -8,7 +8,7 @@ interface GuaranteeSectionProps {
 
 export function GuaranteeSection({ onBookTrial }: GuaranteeSectionProps) {
   return (
-    <section className="py-16 bg-secondary/10">
+    <section className="py-12 md:py-16 bg-secondary/10">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center justify-center h-20 w-20 rounded-full bg-secondary/20 mb-6">
@@ -23,7 +23,7 @@ export function GuaranteeSection({ onBookTrial }: GuaranteeSectionProps) {
             are in our tutors.
           </p>
           <div className="flex flex-wrap justify-center gap-6 text-sm mb-8">
-            {GUARANTEE_ITEMS.map((item, i) => (
+            {TRUST_INDICATORS.map((item, i) => (
               <div key={i} className="flex items-center gap-2 text-foreground">
                 <CheckCircle className="h-5 w-5 text-secondary" aria-hidden="true" />
                 {item}

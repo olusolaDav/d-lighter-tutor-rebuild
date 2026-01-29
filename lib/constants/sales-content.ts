@@ -21,6 +21,69 @@ export const PROBLEMS = [
   "Finding quality tutors who understand them?",
 ] as const
 
+// How We Help Children Turn Confusion into Confidence
+export const HOW_WE_HELP_FEATURES = [
+  {
+    icon: "Target",
+    title: "Understand concepts clearly",
+    description: "not just memorise",
+    color: "bg-blue-500",
+  },
+  {
+    icon: "GraduationCap",
+    title: "Stay aligned with school",
+    description: "and exam requirements",
+    color: "bg-green-500",
+  },
+  {
+    icon: "Shield",
+    title: "Build confidence",
+    description: "and independence",
+    color: "bg-purple-500",
+  },
+  {
+    icon: "FileText",
+    title: "Improve grades",
+    description: "step by step",
+    color: "bg-orange-500",
+  },
+] as const
+
+// What Your Child Can Learn With Us
+export const LEARNING_AREAS = [
+  {
+    icon: "FileText",
+    title: "Schoolwork & assignments",
+    description: "Complete support for daily school requirements",
+    color: "bg-blue-500",
+  },
+  {
+    icon: "GraduationCap",
+    title: "Exam preparation",
+    description: "11+, SAT, IGCSE, SNSA, NQS",
+    color: "bg-green-500",
+  },
+  {
+    icon: "Globe",
+    title: "Language learning",
+    description: "Igbo, Yoruba, French & Spanish",
+    color: "bg-purple-500",
+  },
+  {
+    icon: "Target",
+    title: "ICT & digital skills",
+    description: "Modern technology education",
+    color: "bg-orange-500",
+  },
+  {
+    icon: "Clock",
+    title: "Music lessons",
+    description: "Creative arts and musical education",
+    color: "bg-pink-500",
+  },
+] as const
+
+// Keep original for backward compatibility
 export const SOLUTION_FEATURES = [
   {
     icon: "GraduationCap",
