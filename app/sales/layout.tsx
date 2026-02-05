@@ -140,7 +140,7 @@ t.src=v;s=b.getElementsByTagName(e)[0];
 s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
 fbq('init', '2353780038384290');
-fbq('init', '1288454889108517');
+fbq('init', '1213482960888906');
 fbq('track', 'PageView');
           `
         }}
@@ -152,7 +152,7 @@ fbq('track', 'PageView');
       </noscript>
       <noscript>
         <img height="1" width="1" style={{ display: 'none' }}
-        src="https://www.facebook.com/tr?id=1288454889108517&ev=PageView&noscript=1"
+        src="https://www.facebook.com/tr?id=1213482960888906&ev=PageView&noscript=1"
         />
       </noscript>
       {/* End Meta Pixel Code */}
