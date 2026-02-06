@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { websiteContent } from "@/content/website-content"
 import { useScrollAnimation } from "@/hooks/use-scroll-animation"
+import Link from "next/link"
 
 export function TutorRecruitmentCTA() {
   const { ref, isVisible } = useScrollAnimation()
@@ -142,14 +143,15 @@ export function TutorRecruitmentCTA() {
                     <p className="text-muted-foreground mb-6 leading-relaxed">
                       Join our growing team and help African children in diaspora achieve academic excellence
                     </p>
-                    <Button
-                      size="lg"
-                      onClick={handleApply}
-                      className="bg-secondary text-secondary-foreground hover:bg-secondary/90 w-full btn-playful rounded-full shadow-lg shadow-secondary/30 group"
-                    >
-                      Apply to Become a Tutor
-                      <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                    </Button>
+                     <Link href="https://forms.gle/w1ffKrwYe1Asgz3K9">
+                      <Button
+                        size="lg"
+                        className="bg-secondary text-secondary-foreground hover:bg-secondary/90 w-full btn-playful rounded-full shadow-lg shadow-secondary/30 group"
+                      >
+                        Apply to Become a Tutor
+                        <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                      </Button>
+                    </Link>
                   </div>
                   
                   <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
