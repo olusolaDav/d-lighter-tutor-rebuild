@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og"
 
 export const runtime = "edge"
 
-export const alt = "D-lighter Tutor - Expert Online Tutoring for African Children"
+export const alt = "D-lighter Tutor - Expert Online Tutoring for African Children Ages 3-16 | Personalized Learning"
 export const size = {
   width: 1200,
   height: 600,
@@ -20,7 +20,7 @@ export default async function TwitterImage() {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          background: "linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #ec4899 100%)",
+          background: "linear-gradient(135deg, #1e3a5f 0%, #2D5F8A 50%, #F59E0B 100%)",
           fontFamily: "Inter, system-ui, sans-serif",
         }}
       >
@@ -64,7 +64,7 @@ export default async function TwitterImage() {
                 width: 60,
                 height: 60,
                 borderRadius: 16,
-                background: "linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)",
+                background: "linear-gradient(135deg, #1e3a5f 0%, #2D5F8A 100%)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -77,7 +77,7 @@ export default async function TwitterImage() {
               style={{
                 fontSize: 40,
                 fontWeight: 800,
-                background: "linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)",
+                background: "linear-gradient(135deg, #1e3a5f 0%, #2D5F8A 100%)",
                 backgroundClip: "text",
                 color: "transparent",
               }}
@@ -98,7 +98,7 @@ export default async function TwitterImage() {
               lineHeight: 1.2,
             }}
           >
-            Quality Online Tutoring for African Children
+            Expert Tutors. Personalized Learning. Better Results.
           </h1>
 
           {/* Subtitle */}
@@ -111,14 +111,14 @@ export default async function TwitterImage() {
               marginBottom: 24,
             }}
           >
-            Expert tutors for ages 3-16 • Maths, English, Science, African Languages
+            Personalized online tutoring for African children ages 3-16 • Maths, English, Science, Languages
           </p>
 
           {/* CTA */}
           <div
             style={{
               padding: "14px 36px",
-              background: "linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)",
+              background: "linear-gradient(135deg, #D97706 0%, #F59E0B 100%)",
               borderRadius: 50,
               display: "flex",
               alignItems: "center",

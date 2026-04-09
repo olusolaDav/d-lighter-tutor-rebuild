@@ -2,14 +2,14 @@ import { MetadataRoute } from "next"
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "D-lighter Tutor - Online Tutoring for African Children",
+    name: "D-lighter Tutor - Expert Online Tutoring for African Children Ages 3-16",
     short_name: "D-lighter Tutor",
     description:
-      "Quality online tutoring for Nigerian and African children aged 3-16. Expert tutors for Maths, English, Science, African Languages, Coding, and Music.",
+      "Expert personalized online tutoring for Nigerian and African children aged 3-16. Qualified tutors for Mathematics, English, Science, Yoruba, Igbo, Hausa, Coding, Music, and exam preparation (11+, GCSE, SAT, IGCSE).",
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",
-    theme_color: "#7c3aed",
+    theme_color: "#2D5F8A",
     orientation: "portrait-primary",
     scope: "/",
     lang: "en",

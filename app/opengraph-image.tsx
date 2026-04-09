@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og"
 
 export const runtime = "edge"
 
-export const alt = "D-lighter Tutor - Quality Online Tutoring for African Children"
+export const alt = "D-lighter Tutor - Expert Online Tutoring for African Children Ages 3-16 | Personalized Learning"
 export const size = {
   width: 1200,
   height: 630,
@@ -20,7 +20,7 @@ export default async function OGImage() {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          background: "linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #ec4899 100%)",
+          background: "linear-gradient(135deg, #1e3a5f 0%, #2D5F8A 50%, #F59E0B 100%)",
           fontFamily: "Inter, system-ui, sans-serif",
         }}
       >
@@ -64,7 +64,7 @@ export default async function OGImage() {
                 width: 80,
                 height: 80,
                 borderRadius: 20,
-                background: "linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)",
+                background: "linear-gradient(135deg, #1e3a5f 0%, #2D5F8A 100%)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -77,7 +77,7 @@ export default async function OGImage() {
               style={{
                 fontSize: 48,
                 fontWeight: 800,
-                background: "linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)",
+                background: "linear-gradient(135deg, #1e3a5f 0%, #2D5F8A 100%)",
                 backgroundClip: "text",
                 color: "transparent",
               }}
@@ -98,9 +98,9 @@ export default async function OGImage() {
               lineHeight: 1.2,
             }}
           >
-            Quality Online Tutoring for
+            Expert Tutors. Personalized Learning.
             <br />
-            African Children Worldwide
+            Better Results.
           </h1>
 
           {/* Subtitle */}
@@ -113,7 +113,7 @@ export default async function OGImage() {
               marginBottom: 32,
             }}
           >
-            Expert tutors for ages 3-16 • UK, US, Canada & Beyond
+            Personalized online tutoring for African children ages 3-16 in UK, US, Canada & beyond
           </p>
 
           {/* Features Row */}
@@ -151,7 +151,7 @@ export default async function OGImage() {
             style={{
               marginTop: 32,
               padding: "16px 40px",
-              background: "linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)",
+              background: "linear-gradient(135deg, #D97706 0%, #F59E0B 100%)",
               borderRadius: 50,
               display: "flex",
               alignItems: "center",
