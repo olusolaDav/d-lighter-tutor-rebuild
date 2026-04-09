@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronLeft, ChevronRight, MessageSquare } from "lucide-react"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 import Image from "next/image"
 import { useEffect, useRef, useState } from "react"
 
@@ -52,18 +52,12 @@ export function TestimonialsSection() {
   }, [isVisible])
 
   return (
-    <section ref={sectionRef} id="testimonials" className="py-20 bg-gradient-to-b from-muted/20 to-background relative overflow-hidden">
-      {/* Decorative elements */}
-      <div className="absolute top-10 left-10 h-16 w-16 rounded-full bg-blue-100 dark:bg-blue-900/20 opacity-20 animate-float" />
-      <div className="absolute bottom-10 right-10 h-20 w-20 rounded-full bg-pink-100 dark:bg-pink-900/20 opacity-20 animate-float" style={{ animationDelay: "1.5s" }} />
+    <section ref={sectionRef} id="testimonials" className="py-20 bg-gradient-to-b from-blue-50/60 to-white relative overflow-hidden">
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Section header */}
         <div className={`text-center mb-16 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
-          <span className="inline-flex items-center gap-2 bg-secondary/10 text-secondary px-4 py-2 rounded-full mb-4">
-            <MessageSquare className="h-4 w-4" />
-            <span className="font-semibold text-sm">Real Stories from Real Parents</span>
-          </span>
+          <p className="text-secondary font-semibold text-sm uppercase tracking-wider mb-4">Real Stories from Real Parents</p>
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Parents <span className="text-secondary">Love</span> What We Do
           </h2>
@@ -79,7 +73,7 @@ export function TestimonialsSection() {
             <p className="text-muted-foreground text-sm mt-1">See what our students have achieved</p>
           </div>
           <div
-            className="rounded-2xl overflow-hidden border-2 border-secondary/20 shadow-xl bg-card"
+            className="rounded-2xl overflow-hidden border border-secondary/20 shadow-md bg-white"
             onContextMenu={(e) => e.preventDefault()}
           >
             <video
@@ -102,21 +96,21 @@ export function TestimonialsSection() {
             {/* Navigation buttons */}
             <button 
               onClick={prevTestimonial}
-              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 lg:-translate-x-12 z-10 h-12 w-12 rounded-full bg-card border-2 border-secondary/20 shadow-lg flex items-center justify-center hover:border-secondary hover:scale-110 transition-all cursor-pointer"
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 lg:-translate-x-12 z-10 h-10 w-10 rounded-full bg-white border border-border shadow-md flex items-center justify-center hover:border-secondary transition-all cursor-pointer"
               aria-label="Previous review"
             >
               <ChevronLeft className="h-6 w-6 text-foreground" />
             </button>
             <button 
               onClick={nextTestimonial}
-              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 lg:translate-x-12 z-10 h-12 w-12 rounded-full bg-card border-2 border-secondary/20 shadow-lg flex items-center justify-center hover:border-secondary hover:scale-110 transition-all cursor-pointer"
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 lg:translate-x-12 z-10 h-10 w-10 rounded-full bg-white border border-border shadow-md flex items-center justify-center hover:border-secondary transition-all cursor-pointer"
               aria-label="Next review"
             >
               <ChevronRight className="h-6 w-6 text-foreground" />
             </button>
 
             {/* Main review image */}
-            <div className="relative overflow-hidden rounded-2xl border-2 border-secondary/20 shadow-xl bg-card">
+            <div className="relative overflow-hidden rounded-2xl border border-secondary/20 shadow-md bg-white">
               <Image
                 src={REVIEW_IMAGES[currentIndex]}
                 alt={`Parent review ${currentIndex + 1}`}
@@ -155,10 +149,10 @@ export function TestimonialsSection() {
             >
               <button
                 onClick={() => setCurrentIndex(index)}
-                className={`relative w-full overflow-hidden rounded-xl border-2 cursor-pointer transition-all duration-300 ${
+                className={`relative w-full overflow-hidden rounded-xl border cursor-pointer transition-all duration-300 ${
                   currentIndex === index 
-                    ? "border-secondary ring-2 ring-secondary/30 scale-[1.02]" 
-                    : "border-border hover:border-secondary/50 hover:scale-[1.02]"
+                    ? "border-secondary ring-2 ring-secondary/20" 
+                    : "border-border hover:border-secondary/50"
                 }`}
               >
                 <Image

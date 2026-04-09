@@ -88,7 +88,7 @@ export default function ForgotPasswordPage() {
     return (
       <Card className="w-full max-w-md mx-auto shadow-xl border-0 bg-white/80 backdrop-blur-sm">
         <CardHeader className="space-y-1 text-center pb-6">
-          <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-green-500 to-blue-600 rounded-full flex items-center justify-center">
+          <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-amber-500 to-blue-600 rounded-full flex items-center justify-center">
             <Mail className="w-8 h-8 text-white" />
           </div>
           <CardTitle className="text-2xl font-bold text-gray-900">
@@ -101,8 +101,8 @@ export default function ForgotPasswordPage() {
 
         <CardContent className="space-y-6">
           {error && (
-            <Alert variant="default" className="mb-4 border-green-200 bg-green-50">
-              <AlertDescription className="text-green-800">{error.message}</AlertDescription>
+            <Alert variant="default" className="mb-4 border-amber-200 bg-amber-50">
+              <AlertDescription className="text-amber-800">{error.message}</AlertDescription>
             </Alert>
           )}
 
@@ -130,7 +130,7 @@ export default function ForgotPasswordPage() {
               })
               router.push(`/admin/auth/verify-otp?${queryParams}`)
             }}
-            className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold"
+            className="w-full h-12 bg-gradient-to-r from-secondary to-blue-600 hover:from-secondary/90 hover:to-blue-700 text-white font-semibold"
           >
             Enter Verification Code
           </Button>
@@ -152,7 +152,7 @@ export default function ForgotPasswordPage() {
   return (
     <Card className="w-full max-w-md mx-auto shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
       <CardHeader className="space-y-1 text-center pb-6">
-        <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-orange-500 to-accent rounded-full flex items-center justify-center shadow-lg">
+        <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-secondary to-accent rounded-full flex items-center justify-center shadow-lg">
           <Key className="w-8 h-8 text-white" />
         </div>
         <CardTitle className="text-2xl font-bold text-gray-900">
@@ -197,7 +197,7 @@ export default function ForgotPasswordPage() {
           <Button
             type="submit"
             disabled={!isEmailValid || loading}
-            className="w-full h-12 bg-gradient-to-r from-orange-500 to-accent hover:from-orange-600 hover:to-accent/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] disabled:transform-none disabled:hover:scale-100"
+            className="w-full h-12 bg-gradient-to-r from-secondary to-secondary/80 hover:from-secondary/90 hover:to-secondary/70 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] disabled:transform-none disabled:hover:scale-100"
           >
             {loading ? (
               <>

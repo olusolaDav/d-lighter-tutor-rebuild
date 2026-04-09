@@ -33,19 +33,19 @@ export const HOW_WE_HELP_FEATURES = [
     icon: "GraduationCap",
     title: "Stay aligned with school",
     description: "and exam requirements",
-    color: "bg-green-500",
+    color: "bg-amber-500",
   },
   {
     icon: "Shield",
     title: "Build confidence",
     description: "and independence",
-    color: "bg-purple-500",
+    color: "bg-slate-700",
   },
   {
     icon: "FileText",
     title: "Improve grades",
     description: "step by step",
-    color: "bg-orange-500",
+    color: "bg-blue-500",
   },
 ] as const
 
@@ -61,25 +61,25 @@ export const LEARNING_AREAS = [
     icon: "GraduationCap",
     title: "Exam preparation",
     description: "11+, SAT, IGCSE, SNSA, NQS",
-    color: "bg-green-500",
+    color: "bg-amber-500",
   },
   {
     icon: "Globe",
     title: "Language learning",
     description: "Igbo, Yoruba, French & Spanish",
-    color: "bg-purple-500",
+    color: "bg-slate-700",
   },
   {
     icon: "Target",
     title: "ICT & digital skills",
     description: "Modern technology education",
-    color: "bg-orange-500",
+    color: "bg-amber-500",
   },
   {
     icon: "Clock",
     title: "Music lessons",
     description: "Creative arts and musical education",
-    color: "bg-pink-500",
+    color: "bg-blue-500",
   },
 ] as const
 
@@ -95,31 +95,31 @@ export const SOLUTION_FEATURES = [
     icon: "Target",
     title: "True One-on-One Sessions",
     description: "No group classes. Your child gets 100% focused attention in every session, ensuring faster progress and better results.",
-    color: "bg-green-500",
+    color: "bg-amber-500",
   },
   {
     icon: "Globe",
     title: "African Languages & Culture",
     description: "Keep your children connected to their roots. We offer Yoruba, Igbo, Hausa, and other African language classes.",
-    color: "bg-purple-500",
+    color: "bg-slate-700",
   },
   {
     icon: "Clock",
     title: "Flexible Scheduling",
     description: "Classes available across UK, US, Canada, and UAE time zones. Reschedule with 24-hour notice — no questions asked.",
-    color: "bg-orange-500",
+    color: "bg-amber-500",
   },
   {
     icon: "FileText",
     title: "Monthly Progress Reports",
     description: "Know exactly how your child is progressing. Receive detailed reports with assessment scores and tutor feedback.",
-    color: "bg-pink-500",
+    color: "bg-blue-500",
   },
   {
     icon: "Shield",
     title: "Pay-As-You-Go Model",
     description: "No upfront packages or long-term commitments. Pay only for completed hours at month-end in NGN, GBP, or USD.",
-    color: "bg-teal-500",
+    color: "bg-amber-500",
   },
 ] as const
 

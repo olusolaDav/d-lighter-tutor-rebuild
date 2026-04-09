@@ -13,12 +13,12 @@ export function TestimonialsSection({ onBookTrial }: TestimonialsSectionProps) {
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-yellow-500/10 px-4 py-2 rounded-full mb-4">
+            <div className="inline-flex items-center gap-2 bg-amber-500/10 px-4 py-2 rounded-full mb-4">
               <Star
-                className="h-4 w-4 text-yellow-500 fill-yellow-500"
+                className="h-4 w-4 text-amber-500 fill-amber-500"
                 aria-hidden="true"
               />
-              <span className="text-sm font-semibold text-yellow-600 dark:text-yellow-500">
+              <span className="text-sm font-semibold text-amber-600 dark:text-amber-500">
                 Loved by Parents
               </span>
             </div>

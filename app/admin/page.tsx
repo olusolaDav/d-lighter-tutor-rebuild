@@ -95,7 +95,7 @@ interface Pagination {
 const statusColors = {
   new: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
   contacted: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
-  converted: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+  converted: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
   closed: "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400",
 }
 
@@ -331,8 +331,8 @@ export default withAuth(function AdminPage() {
 
             <div className="bg-card border rounded-xl p-4">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
-                  <Phone className="h-5 w-5 text-orange-600" />
+                <div className="h-10 w-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                  <Phone className="h-5 w-5 text-blue-600" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{stats.byStatus.contacted}</p>
@@ -343,8 +343,8 @@ export default withAuth(function AdminPage() {
 
             <div className="bg-card border rounded-xl p-4">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                  <CheckCircle className="h-5 w-5 text-green-600" />
+                <div className="h-10 w-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                  <CheckCircle className="h-5 w-5 text-amber-600" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{stats.byStatus.converted}</p>
@@ -355,8 +355,8 @@ export default withAuth(function AdminPage() {
 
             <div className="bg-card border rounded-xl p-4">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                  <TrendingUp className="h-5 w-5 text-purple-600" />
+                <div className="h-10 w-10 rounded-lg bg-slate-100 dark:bg-slate-900/30 flex items-center justify-center">
+                  <TrendingUp className="h-5 w-5 text-slate-600" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{stats.conversionRate}%</p>
@@ -367,8 +367,8 @@ export default withAuth(function AdminPage() {
 
             <div className="bg-card border rounded-xl p-4">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-lg bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center">
-                  <BarChart3 className="h-5 w-5 text-pink-600" />
+                <div className="h-10 w-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                  <BarChart3 className="h-5 w-5 text-amber-600" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{stats.todayLeads}</p>

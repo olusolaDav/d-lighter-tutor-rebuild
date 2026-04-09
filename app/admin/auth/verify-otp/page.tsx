@@ -279,7 +279,7 @@ function VerifyOTPContent() {
           <Button
             type="submit"
             disabled={otpInputs.join('').length !== 6 || loading}
-            className="w-full h-12 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50"
+            className="w-full h-12 bg-gradient-to-r from-secondary to-blue-600 hover:from-secondary/90 hover:to-blue-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50"
           >
             {loading ? (
               <div className="flex items-center space-x-2">

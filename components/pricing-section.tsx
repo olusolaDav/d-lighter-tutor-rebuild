@@ -2,14 +2,13 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Check, Sparkles, Star, Gift, Zap, Crown, Clock } from "lucide-react"
+import { Check, Star, Gift, Zap, Crown, Clock } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { useBookingForm } from "@/components/booking-form-modal"
 
 export function PricingSection() {
   const sectionRef = useRef<HTMLElement>(null)
   const [isVisible, setIsVisible] = useState(false)
-  const [hoveredPlan, setHoveredPlan] = useState<number | null>(null)
   const [currency, setCurrency] = useState<"NGN" | "GBP" | "USD">("NGN")
   const { openModal } = useBookingForm()
 
@@ -66,7 +65,7 @@ export function PricingSection() {
       hourlyRate: pricing[currency].hourly,
       tagline: "Most Popular Choice",
       icon: Crown,
-      color: "from-secondary to-orange-500",
+      color: "from-secondary to-blue-600",
       features: [
         "Everything in Starter",
         "FREE 30-min bonus class weekly",
@@ -84,7 +83,7 @@ export function PricingSection() {
       hourlyRate: pricing[currency].hourly,
       tagline: "For serious learners",
       icon: Zap,
-      color: "from-purple-400 to-violet-500",
+      color: "from-slate-500 to-slate-700",
       features: [
         "Everything in Standard",
         "Multiple subjects coverage",
@@ -98,18 +97,12 @@ export function PricingSection() {
   ]
 
   return (
-    <section ref={sectionRef} id="pricing" className="py-20 bg-gradient-to-b from-background to-muted/30 relative overflow-hidden">
-      {/* Decorative elements */}
-      <div className="absolute top-20 left-10 h-20 w-20 rounded-full bg-green-100 dark:bg-green-900/20 opacity-20 animate-float" />
-      <div className="absolute bottom-20 right-10 h-24 w-24 rounded-full bg-purple-100 dark:bg-purple-900/20 opacity-20 animate-float" style={{ animationDelay: "1.5s" }} />
+    <section ref={sectionRef} id="pricing" className="py-20 bg-white relative overflow-hidden">
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Section header */}
         <div className={`text-center mb-12 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
-          <span className="inline-flex items-center gap-2 bg-secondary/10 text-secondary px-4 py-2 rounded-full mb-4">
-            <Gift className="h-4 w-4" />
-            <span className="font-semibold text-sm">Transparent Pricing</span>
-          </span>
+          <p className="text-secondary font-semibold text-sm uppercase tracking-wider mb-4">Transparent Pricing</p>
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Plans That <span className="text-secondary">Fit Your Family</span>
           </h2>
@@ -146,16 +139,12 @@ export function PricingSection() {
               key={index}
               className={`transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
               style={{ transitionDelay: `${index * 150}ms` }}
-              onMouseEnter={() => setHoveredPlan(index)}
-              onMouseLeave={() => setHoveredPlan(null)}
             >
               <Card 
-                className={`child-card relative h-full border-2 overflow-hidden transition-all duration-300 ${
+                className={`relative h-full border overflow-hidden transition-all duration-300 rounded-2xl ${
                   plan.popular 
-                    ? "border-secondary shadow-xl scale-105 lg:scale-110" 
-                    : hoveredPlan === index 
-                      ? "border-secondary/50 shadow-lg" 
-                      : "border-border"
+                    ? "border-secondary shadow-lg scale-105 lg:scale-110" 
+                    : "border-border shadow-sm hover:shadow-md hover:border-secondary/50"
                 }`}
               >
                 {/* Popular badge */}
@@ -168,13 +157,13 @@ export function PricingSection() {
                 )}
 
                 {/* Top gradient bar */}
-                <div className={`h-2 bg-gradient-to-r ${plan.color}`} />
+                {plan.popular && <div className="h-1 bg-secondary" />}
 
                 <CardHeader className="text-center pb-4 pt-8">
                   {/* Plan icon */}
                   <div className="mx-auto mb-4 relative">
-                    <div className={`h-16 w-16 rounded-2xl bg-gradient-to-br ${plan.color} flex items-center justify-center shadow-lg ${hoveredPlan === index || plan.popular ? "animate-bounce-slow" : ""}`}>
-                      <plan.icon className="h-8 w-8 text-white" />
+                    <div className={`h-14 w-14 rounded-2xl ${plan.popular ? "bg-secondary" : "bg-blue-50"} flex items-center justify-center`}>
+                      <plan.icon className={`h-7 w-7 ${plan.popular ? "text-white" : "text-secondary"}`} />
                     </div>
                   </div>
 
@@ -189,7 +178,7 @@ export function PricingSection() {
                   
                   {/* Price */}
                   <div className="mt-4">
-                    <span className={`text-3xl font-bold bg-gradient-to-r ${plan.color} bg-clip-text text-transparent`}>
+                    <span className="text-3xl font-bold text-foreground">
                       {plan.price}
                     </span>
                     <span className="text-muted-foreground text-sm">/month</span>
@@ -203,8 +192,8 @@ export function PricingSection() {
                   <ul className="space-y-3">
                     {plan.features.map((feature, idx) => (
                       <li key={idx} className="flex items-start gap-3">
-                        <div className={`shrink-0 h-5 w-5 rounded-full bg-gradient-to-r ${plan.color} flex items-center justify-center mt-0.5`}>
-                          <Check className="h-3 w-3 text-white" />
+                        <div className="shrink-0 h-5 w-5 rounded-full bg-secondary/10 flex items-center justify-center mt-0.5">
+                          <Check className="h-3 w-3 text-secondary" />
                         </div>
                         <span className={`text-sm ${feature.includes("FREE") ? "font-semibold text-foreground" : "text-muted-foreground"}`}>
                           {feature}
@@ -216,19 +205,17 @@ export function PricingSection() {
                   <Button
                     onClick={() => openModal(plan.name)}
                     size="lg"
-                    className={`w-full btn-playful rounded-full transition-all ${
+                    className={`w-full rounded-full transition-all ${
                       plan.popular 
-                        ? "bg-secondary hover:bg-secondary/90 text-secondary-foreground shadow-lg shadow-secondary/30" 
+                        ? "bg-secondary hover:bg-secondary/90 text-white shadow-md" 
                         : "bg-primary hover:bg-primary/90 text-primary-foreground"
                     }`}
                   >
                     Get Started
-                    {plan.popular && <Sparkles className="h-4 w-4 ml-2" />}
                   </Button>
                 </CardContent>
 
                 {/* Bottom gradient on hover */}
-                <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${plan.color} opacity-0 group-hover:opacity-100 transition-opacity`} />
               </Card>
             </div>
           ))}
@@ -237,8 +224,8 @@ export function PricingSection() {
         {/* Bottom info */}
         <div className={`mt-16 text-center space-y-6 transition-all duration-700 delay-500 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
           {/* Free trial banner */}
-          <div className="inline-flex flex-col sm:flex-row items-center gap-4 bg-secondary/10 border-2 border-secondary/20 rounded-2xl px-8 py-4">
-            <div className="h-12 w-12 rounded-full bg-secondary/20 flex items-center justify-center">
+          <div className="inline-flex flex-col sm:flex-row items-center gap-4 bg-blue-50 border border-secondary/20 rounded-2xl px-8 py-4">
+            <div className="h-12 w-12 rounded-xl bg-secondary/10 flex items-center justify-center">
               <Gift className="h-6 w-6 text-secondary" />
             </div>
             <div className="text-center sm:text-left">
@@ -256,7 +243,7 @@ export function PricingSection() {
               { icon: Check, text: "All Nigerian tutors" },
             ].map((item, i) => (
               <span key={i} className="flex items-center gap-2 bg-muted/50 rounded-full px-4 py-2">
-                <item.icon className="h-4 w-4 text-green-500" />
+                <item.icon className="h-4 w-4 text-amber-500" />
                 {item.text}
               </span>
             ))}

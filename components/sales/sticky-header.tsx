@@ -32,7 +32,7 @@ export function StickyHeader({ onBookTrial }: StickyHeaderProps) {
           <div className="flex items-center gap-2">
             <Button
               onClick={onBookTrial}
-              className="bg-secondary hover:bg-secondary/90 text-secondary-foreground rounded-full font-semibold"
+              className="bg-amber-500 hover:bg-amber-600 text-white rounded-full font-semibold"
             >
               Book Free Trial
               <ArrowRight className="ml-2 h-4 w-4" />

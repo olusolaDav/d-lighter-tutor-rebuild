@@ -651,8 +651,8 @@ I'm looking forward to hearing from you about scheduling the FREE trial class!`
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px] text-center">
         <DialogHeader>
-          <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-            <CheckCircle2 className="w-8 h-8 text-green-600" />
+          <div className="mx-auto w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mb-4">
+            <CheckCircle2 className="w-8 h-8 text-amber-600" />
           </div>
           <DialogTitle className="text-2xl font-bold text-gray-900">
             Request Submitted Successfully! 🎉
@@ -660,9 +660,9 @@ I'm looking forward to hearing from you about scheduling the FREE trial class!`
         </DialogHeader>
         
         <div className="space-y-6">
-          <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-            <p className="text-green-800 font-medium mb-2">✅ Request Submitted Successfully!</p>
-            <ul className="text-sm text-green-700 space-y-1 text-left">
+          <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
+            <p className="text-amber-800 font-medium mb-2">✅ Request Submitted Successfully!</p>
+            <ul className="text-sm text-amber-700 space-y-1 text-left">
               <li>• Your booking request has been received</li>
               <li>• Continue the conversation on WhatsApp for instant support</li>
               <li>• Our team will help you schedule the FREE trial class</li>

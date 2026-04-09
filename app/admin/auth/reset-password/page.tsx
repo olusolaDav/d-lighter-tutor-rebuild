@@ -246,7 +246,7 @@ function ResetPasswordContent() {
             <Button
               type="submit"
               disabled={!isFormValid || loading}
-              className="w-full h-12 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50"
+              className="w-full h-12 bg-gradient-to-r from-secondary to-blue-600 hover:from-secondary/90 hover:to-blue-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50"
             >
               {loading ? (
                 <div className="flex items-center space-x-2">
@@ -272,16 +272,16 @@ function ResetPasswordContent() {
 
         {error?.type === 'success' && (
           <div className="text-center space-y-4">
-            <div className="flex items-center justify-center text-green-600">
+            <div className="flex items-center justify-center text-amber-600">
               <CheckCircle className="w-6 h-6 mr-2" />
               <span className="font-semibold">Password Reset Successful!</span>
             </div>
-            <p className="text-sm text-green-700">
+            <p className="text-sm text-amber-700">
               Your password has been reset successfully. Redirecting to login...
             </p>
             <Button
               onClick={() => router.push('/admin/auth/login')}
-              className="w-full h-12 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-semibold rounded-lg"
+              className="w-full h-12 bg-gradient-to-r from-amber-500 to-blue-600 hover:from-amber-600 hover:to-blue-700 text-white font-semibold rounded-lg"
             >
               Continue to Login
             </Button>

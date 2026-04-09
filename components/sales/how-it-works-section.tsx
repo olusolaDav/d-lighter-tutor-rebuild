@@ -32,9 +32,9 @@ export function HowItWorksSection({ onBookTrial }: HowItWorksSectionProps) {
         <div className="max-w-6xl mx-auto">
           {/* Section 3: How We Help */}
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-secondary/10 px-4 py-2 rounded-full mb-4">
-              <Sparkles className="h-4 w-4 text-secondary" aria-hidden="true" />
-              <span className="text-sm font-semibold text-secondary">
+            <div className="inline-flex items-center gap-2 bg-amber-500/10 px-4 py-2 rounded-full mb-4">
+              <Sparkles className="h-4 w-4 text-amber-500" aria-hidden="true" />
+              <span className="text-sm font-semibold text-amber-600">
                 Our Approach
               </span>
             </div>

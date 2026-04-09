@@ -24,7 +24,7 @@ export function TutorRecruitmentCTA() {
       icon: TrendingUp,
       title: "Competitive Pay",
       description: "Earn great rates with flexible payment options",
-      color: "from-green-400 to-emerald-500",
+      color: "from-amber-400 to-amber-500",
     },
     {
       icon: Globe,
@@ -36,21 +36,18 @@ export function TutorRecruitmentCTA() {
       icon: Users,
       title: "Amazing Community",
       description: "Join passionate educators worldwide",
-      color: "from-purple-400 to-violet-500",
+      color: "from-slate-500 to-slate-700",
     },
     {
       icon: GraduationCap,
       title: "Grow Your Skills",
       description: "Access training & development",
-      color: "from-orange-400 to-amber-500",
+      color: "from-amber-300 to-amber-500",
     },
   ]
 
   return (
-    <section id="become-tutor" className="py-20 bg-gradient-to-b from-muted/30 to-background relative overflow-hidden" ref={ref}>
-      {/* Decorative elements */}
-      <div className="absolute top-10 right-10 h-16 w-16 rounded-full bg-blue-100 dark:bg-blue-900/20 opacity-20 animate-float" />
-      <div className="absolute bottom-20 left-10 h-20 w-20 rounded-full bg-purple-100 dark:bg-purple-900/20 opacity-20 animate-float" style={{ animationDelay: "1.5s" }} />
+    <section id="become-tutor" className="py-20 bg-gradient-to-b from-blue-50/60 to-white relative overflow-hidden" ref={ref}>
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-6xl mx-auto">
@@ -60,10 +57,7 @@ export function TutorRecruitmentCTA() {
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
             }`}
           >
-            <span className="inline-flex items-center gap-2 bg-secondary/10 text-secondary px-4 py-2 rounded-full mb-4">
-              <Briefcase className="h-4 w-4" />
-              <span className="font-semibold text-sm">Join Our Team</span>
-            </span>
+            <p className="text-secondary font-semibold text-sm uppercase tracking-wider mb-4">Join Our Team</p>
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               Become a <span className="text-secondary">D-lighter Tutor</span>
             </h2>
@@ -83,15 +77,12 @@ export function TutorRecruitmentCTA() {
               return (
                 <Card
                   key={index}
-                  className="child-card p-6 border-2 border-border hover:border-secondary/50 group"
+                  className="p-6 border border-border hover:border-secondary/50 bg-white rounded-2xl shadow-sm hover:shadow-md transition-all group"
                   style={{ transitionDelay: `${index * 100}ms` }}
                 >
-                  {/* Top gradient */}
-                  <div className={`h-1 bg-gradient-to-r ${benefit.color} -mt-6 -mx-6 mb-6 rounded-t-xl`} />
-                  
                   <div className="flex items-start gap-4">
-                    <div className={`bg-gradient-to-br ${benefit.color} w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
-                      <Icon className="h-6 w-6 text-white" />
+                    <div className="bg-blue-50 w-12 h-12 rounded-xl flex items-center justify-center">
+                      <Icon className="h-6 w-6 text-secondary" />
                     </div>
                     <div className="flex-1">
                       <h3 className="font-bold text-foreground mb-1">{benefit.title}</h3>
@@ -109,7 +100,7 @@ export function TutorRecruitmentCTA() {
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
             }`}
           >
-            <Card className="child-card p-8 md:p-10 bg-gradient-to-br from-card to-muted/50 border-2 border-secondary/20 overflow-hidden">
+            <Card className="p-8 md:p-10 bg-white border border-border rounded-2xl shadow-sm overflow-hidden">
               <div className="grid md:grid-cols-2 gap-8 items-center">
                 <div>
                   <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
@@ -135,7 +126,7 @@ export function TutorRecruitmentCTA() {
                 </div>
                 
                 <div className="text-center">
-                  <div className="bg-gradient-to-br from-secondary/10 via-primary/5 to-accent/10 rounded-3xl p-8 mb-6 border border-secondary/20">
+                  <div className="bg-blue-50 rounded-3xl p-8 mb-6 border border-secondary/10">
                     <div className="h-14 w-14 mx-auto mb-4 rounded-full bg-secondary/20 flex items-center justify-center">
                       <Briefcase className="h-7 w-7 text-secondary" />
                     </div>
@@ -146,7 +137,7 @@ export function TutorRecruitmentCTA() {
                      <Link href="https://forms.gle/w1ffKrwYe1Asgz3K9">
                       <Button
                         size="lg"
-                        className="bg-secondary text-secondary-foreground hover:bg-secondary/90 w-full btn-playful rounded-full shadow-lg shadow-secondary/30 group"
+                        className="bg-secondary text-white hover:bg-secondary/90 w-full rounded-full shadow-md"
                       >
                         Apply to Become a Tutor
                         <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />

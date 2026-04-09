@@ -12,9 +12,9 @@ export function VideoSection({ onBookTrial }: VideoSectionProps) {
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 bg-secondary/10 px-4 py-2 rounded-full mb-4">
-              <Play className="h-4 w-4 text-secondary" aria-hidden="true" />
-              <span className="text-sm font-semibold text-secondary">See Us In Action</span>
+            <div className="inline-flex items-center gap-2 bg-amber-500/10 px-4 py-2 rounded-full mb-4">
+              <Play className="h-4 w-4 text-amber-500" aria-hidden="true" />
+              <span className="text-sm font-semibold text-amber-600">See Us In Action</span>
             </div>
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               Watch a <span className="text-secondary">Live Class</span> in Action

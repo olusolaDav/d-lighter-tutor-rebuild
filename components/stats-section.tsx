@@ -77,9 +77,9 @@ export function StatsSection() {
       suffix: "+",
       label: "Happy Learners",
       description: "Growing every week",
-      color: "from-green-400 to-emerald-500",
-      bgColor: "bg-green-100 dark:bg-green-900/30",
-      iconColor: "text-green-600 dark:text-green-400",
+      color: "from-amber-400 to-amber-500",
+      bgColor: "bg-amber-100 dark:bg-amber-900/30",
+      iconColor: "text-amber-600 dark:text-amber-400",
     },
     {
       icon: BookOpen,
@@ -97,9 +97,9 @@ export function StatsSection() {
       suffix: "",
       label: "Countries",
       description: "UK, US, Canada & more",
-      color: "from-purple-400 to-violet-500",
-      bgColor: "bg-purple-100 dark:bg-purple-900/30",
-      iconColor: "text-purple-600 dark:text-purple-400",
+      color: "from-slate-500 to-slate-700",
+      bgColor: "bg-slate-100 dark:bg-slate-900/30",
+      iconColor: "text-slate-600 dark:text-slate-400",
     },
     {
       icon: Award,
@@ -107,26 +107,18 @@ export function StatsSection() {
       suffix: "%",
       label: "Success Rate",
       description: "Vetted expert tutors",
-      color: "from-orange-400 to-amber-500",
-      bgColor: "bg-orange-100 dark:bg-orange-900/30",
-      iconColor: "text-orange-600 dark:text-orange-400",
+      color: "from-blue-400 to-indigo-500",
+      bgColor: "bg-blue-100 dark:bg-blue-900/30",
+      iconColor: "text-blue-600 dark:text-blue-400",
     },
   ]
 
   return (
-    <section ref={sectionRef} className="py-20 bg-gradient-to-b from-background to-muted/30 relative overflow-hidden">
-      {/* Decorative elements */}
-      <div className="absolute top-10 left-10 h-16 w-16 rounded-full bg-blue-100 dark:bg-blue-900/20 opacity-30 animate-float" />
-      <div className="absolute bottom-10 right-10 h-20 w-20 rounded-full bg-purple-100 dark:bg-purple-900/20 opacity-30 animate-float" style={{ animationDelay: "1s" }} />
-      <div className="absolute top-1/2 left-1/4 h-12 w-12 rounded-full bg-green-100 dark:bg-green-900/20 opacity-30 animate-float" style={{ animationDelay: "2s" }} />
-
+    <section ref={sectionRef} className="py-20 bg-white relative overflow-hidden">
       <div className="container mx-auto px-4">
         {/* Section header */}
         <div className={`text-center mb-12 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
-          <span className="inline-flex items-center gap-2 bg-secondary/10 text-secondary px-4 py-2 rounded-full mb-4">
-            <TrendingUp className="h-4 w-4" />
-            <span className="font-semibold text-sm">Our Growing Impact</span>
-          </span>
+          <span className="text-secondary font-semibold text-sm uppercase tracking-wider mb-2 block">Our Growing Impact</span>
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Trusted by Families <span className="text-secondary">Across the Globe</span>
           </h2>
@@ -142,25 +134,19 @@ export function StatsSection() {
               className={`relative group transition-all duration-700 delay-${index * 100} ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
               style={{ transitionDelay: `${index * 100}ms` }}
             >
-              <div className="child-card bg-card border-2 border-border hover:border-secondary/50 p-6 text-center h-full">
+              <div className="bg-white border border-border rounded-2xl p-6 text-center h-full hover:shadow-md transition-shadow">
                 {/* Icon */}
-                <div className={`mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl ${stat.bgColor} group-hover:scale-110 transition-transform duration-300`}>
-                  <stat.icon className={`h-8 w-8 ${stat.iconColor}`} />
+                <div className={`mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl ${stat.bgColor}`}>
+                  <stat.icon className={`h-7 w-7 ${stat.iconColor}`} />
                 </div>
                 
                 {/* Animated counter */}
-                <div className="text-4xl md:text-5xl font-bold text-foreground mb-2">
+                <div className="text-4xl font-bold text-foreground mb-1">
                   <AnimatedCounter end={stat.value} suffix={stat.suffix} />
                 </div>
                 
                 {/* Label */}
-                <div className="text-lg font-semibold text-foreground mb-1">{stat.label}</div>
-                
-                {/* Description */}
-                <div className="text-sm text-muted-foreground">{stat.description}</div>
-
-                {/* Gradient bar at bottom */}
-                <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${stat.color} rounded-b-2xl opacity-0 group-hover:opacity-100 transition-opacity`} />
+                <div className="text-sm font-medium text-muted-foreground">{stat.label}</div>
               </div>
             </div>
           ))}
@@ -170,7 +156,7 @@ export function StatsSection() {
         <div className={`mt-12 text-center transition-all duration-700 delay-500 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
           <div className="inline-flex items-center gap-4 bg-card border-2 border-secondary/20 rounded-full px-6 py-3">
             <div className="flex -space-x-2">
-              {["bg-green-500", "bg-blue-500", "bg-purple-500"].map((color, i) => (
+              {["bg-amber-500", "bg-blue-500", "bg-secondary"].map((color, i) => (
                 <div key={i} className={`h-8 w-8 rounded-full ${color} flex items-center justify-center border-2 border-background text-white text-xs font-bold`}>
                   {String.fromCharCode(65 + i)}
                 </div>

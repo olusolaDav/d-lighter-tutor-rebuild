@@ -199,8 +199,8 @@ export function SalesBookingModal({ isOpen, onClose }: SalesBookingModalProps) {
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         {isSubmitted ? (
           <div className="p-8 text-center">
-            <div className="h-20 w-20 mx-auto mb-6 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-              <CheckCircle2 className="h-10 w-10 text-green-600" />
+            <div className="h-20 w-20 mx-auto mb-6 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+              <CheckCircle2 className="h-10 w-10 text-amber-600" />
             </div>
             <h2 className="text-2xl font-bold text-foreground mb-4">🎉 Thank You!</h2>
             <p className="text-muted-foreground mb-6 text-lg">
@@ -387,7 +387,7 @@ export function SalesBookingModal({ isOpen, onClose }: SalesBookingModalProps) {
                   <Button
                     onClick={nextStep}
                     disabled={!canProceedStep1}
-                    className="w-full h-12 bg-secondary hover:bg-secondary/90 text-secondary-foreground rounded-full"
+                    className="w-full h-12 bg-amber-500 hover:bg-amber-600 text-white rounded-full"
                   >
                     Continue to Student Details
                     <ArrowRight className="ml-2 h-5 w-5" />

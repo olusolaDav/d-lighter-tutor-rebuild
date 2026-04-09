@@ -27,7 +27,7 @@ export function CTAButtons({
         <Button
           onClick={onBookTrial}
           size="lg"
-          className={`bg-secondary hover:bg-secondary/90 text-secondary-foreground rounded-full font-bold shadow-lg shadow-secondary/30 hover:shadow-xl transition-all hover:-translate-y-1 ${
+          className={`bg-amber-500 hover:bg-amber-600 text-white rounded-full font-bold shadow-lg shadow-amber-500/30 hover:shadow-xl transition-all hover:-translate-y-1 ${
             isHero || isFinal
               ? "text-lg h-16 px-10"
               : "h-12 sm:h-14 px-4 sm:px-8"

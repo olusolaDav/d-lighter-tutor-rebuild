@@ -11,15 +11,15 @@ export function FinalCTASection({ onBookTrial }: FinalCTASectionProps) {
   return (
     <section className="py-12 md:py-16 bg-gradient-to-br from-primary via-primary to-primary/95 relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-        <div className="absolute top-10 left-[10%] h-32 w-32 rounded-full bg-secondary/10 blur-2xl" />
-        <div className="absolute bottom-10 right-[10%] h-40 w-40 rounded-full bg-accent/10 blur-2xl" />
+        <div className="absolute top-10 left-[10%] h-32 w-32 rounded-full bg-amber-500/10 blur-2xl" />
+        <div className="absolute bottom-10 right-[10%] h-40 w-40 rounded-full bg-secondary/10 blur-2xl" />
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl md:text-5xl font-bold text-primary-foreground mb-6">
             Try It Free - See the{" "}
-            <span className="text-secondary">Difference in 30 Minutes</span>
+              <span className="text-amber-400">Difference in 30 Minutes</span>
           </h2>
           <p className="text-xl text-primary-foreground/90 mb-10">
             We invite you to book a <strong>FREE 30-minute trial session</strong> and experience how personalised tutoring can change your child&apos;s learning journey.
@@ -32,7 +32,7 @@ export function FinalCTASection({ onBookTrial }: FinalCTASectionProps) {
             <Button
               onClick={onBookTrial}
               size="lg"
-              className="bg-secondary hover:bg-secondary/90 text-secondary-foreground text-lg h-16 px-10 rounded-full font-bold shadow-lg shadow-secondary/30"
+              className="bg-amber-500 hover:bg-amber-600 text-white text-lg h-16 px-10 rounded-full font-bold shadow-lg shadow-amber-500/30"
             >
               <Gift className="mr-2 h-6 w-6" />
               Get Started
@@ -59,7 +59,7 @@ export function FinalCTASection({ onBookTrial }: FinalCTASectionProps) {
           <div className="flex flex-wrap justify-center gap-4 sm:gap-6 mt-8 text-primary-foreground/80 text-sm">
             {TRUST_INDICATORS.map((indicator, i) => (
               <div key={i} className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-secondary" aria-hidden="true" />
+                <CheckCircle className="h-4 w-4 text-amber-400" aria-hidden="true" />
                 <span>{indicator}</span>
               </div>
             ))}

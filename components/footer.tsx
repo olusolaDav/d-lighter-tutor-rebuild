@@ -50,11 +50,7 @@ export function Footer() {
   const countries = ["🇬🇧 UK", "🇺🇸 USA", "🇨🇦 Canada", "🇦🇪 UAE", "🇸🇦 KSA"]
 
   return (
-    <footer className="bg-gradient-to-br from-primary via-primary to-primary/95 text-primary-foreground relative overflow-hidden">
-      {/* Decorative elements */}
-      <div className="absolute top-10 right-10 h-16 w-16 rounded-full bg-secondary/10 opacity-30 animate-float" />
-      <div className="absolute bottom-20 left-10 h-20 w-20 rounded-full bg-accent/10 opacity-30 animate-float" style={{ animationDelay: "2s" }} />
-
+    <footer className="bg-gray-50 text-foreground relative overflow-hidden">
       {/* Main footer content */}
       <div className="container mx-auto px-4 py-16 relative z-10">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
@@ -66,10 +62,10 @@ export function Footer() {
               </div>
               <div>
                 <h3 className="text-xl font-bold">D-lighter Tutor</h3>
-                <p className="text-xs text-primary-foreground/60">Where Learning Shines</p>
+                <p className="text-xs text-muted-foreground">Where Learning Shines</p>
               </div>
             </div>
-            <p className="text-sm text-primary-foreground/80 leading-relaxed mb-6">
+            <p className="text-sm text-muted-foreground leading-relaxed mb-6">
               Empowering Nigerian & African children in diaspora with quality online education that bridges continents and keeps cultural roots strong.
             </p>
             
@@ -81,7 +77,7 @@ export function Footer() {
                   href={social.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="h-10 w-10 rounded-full bg-primary-foreground/10 hover:bg-secondary hover:text-secondary-foreground flex items-center justify-center transition-all hover:scale-110"
+                  className="h-10 w-10 rounded-full bg-white border border-border hover:bg-secondary hover:text-white hover:border-secondary flex items-center justify-center transition-all"
                   aria-label={social.name}
                 >
                   {getSocialIcon(social.icon)}
@@ -96,7 +92,7 @@ export function Footer() {
               <span className="h-6 w-6 rounded bg-secondary/20 flex items-center justify-center text-xs">→</span>
               Quick Links
             </h4>
-            <ul className="space-y-3 text-sm text-primary-foreground/80">
+            <ul className="space-y-3 text-sm text-muted-foreground">
               {[
                 { href: "#subjects", label: "Our Subjects" },
                 { href: "#how-it-works", label: "How It Works" },
@@ -123,7 +119,7 @@ export function Footer() {
               <span className="h-6 w-6 rounded bg-secondary/20 flex items-center justify-center text-xs">➕</span>
               What We Teach
             </h4>
-            <ul className="space-y-3 text-sm text-primary-foreground/80">
+            <ul className="space-y-3 text-sm text-muted-foreground">
               {[
                 "Mathematics & English",
                 "Sciences",
@@ -148,17 +144,17 @@ export function Footer() {
               </span>
               Get In Touch
             </h4>
-            <ul className="space-y-4 text-sm text-primary-foreground/80">
+            <ul className="space-y-4 text-sm text-muted-foreground">
               <li>
                 <a 
                   href={`tel:${websiteContent.contact.phone}`} 
                   className="flex items-start gap-3 hover:text-secondary transition-colors group"
                 >
-                  <div className="h-8 w-8 rounded-lg bg-primary-foreground/10 group-hover:bg-secondary/20 flex items-center justify-center shrink-0">
-                    <Phone className="h-4 w-4" />
+                  <div className="h-8 w-8 rounded-lg bg-white border border-border group-hover:bg-secondary/10 flex items-center justify-center shrink-0">
+                    <Phone className="h-4 w-4 text-muted-foreground" />
                   </div>
                   <div>
-                    <p className="font-medium text-primary-foreground">Phone</p>
+                    <p className="font-medium text-foreground">Phone</p>
                     <p>{websiteContent.contact.phone}</p>
                   </div>
                 </a>
@@ -170,11 +166,11 @@ export function Footer() {
                   rel="noopener noreferrer"
                   className="flex items-start gap-3 hover:text-secondary transition-colors group"
                 >
-                  <div className="h-8 w-8 rounded-lg bg-green-500/20 group-hover:bg-green-500/30 flex items-center justify-center shrink-0">
-                    <MessageCircle className="h-4 w-4 text-green-400" />
+                  <div className="h-8 w-8 rounded-lg bg-amber-50 group-hover:bg-amber-100 flex items-center justify-center shrink-0">
+                    <MessageCircle className="h-4 w-4 text-amber-500" />
                   </div>
                   <div>
-                    <p className="font-medium text-primary-foreground">WhatsApp</p>
+                    <p className="font-medium text-foreground">WhatsApp</p>
                     <p>Chat with us 24/7</p>
                   </div>
                 </a>
@@ -184,11 +180,11 @@ export function Footer() {
                   href={`mailto:${websiteContent.contact.email}`} 
                   className="flex items-start gap-3 hover:text-secondary transition-colors group"
                 >
-                  <div className="h-8 w-8 rounded-lg bg-primary-foreground/10 group-hover:bg-secondary/20 flex items-center justify-center shrink-0">
-                    <Mail className="h-4 w-4" />
+                  <div className="h-8 w-8 rounded-lg bg-white border border-border group-hover:bg-secondary/10 flex items-center justify-center shrink-0">
+                    <Mail className="h-4 w-4 text-muted-foreground" />
                   </div>
                   <div>
-                    <p className="font-medium text-primary-foreground">Email</p>
+                    <p className="font-medium text-foreground">Email</p>
                     <p className="text-xs">{websiteContent.contact.email}</p>
                   </div>
                 </a>
@@ -198,20 +194,20 @@ export function Footer() {
         </div>
 
         {/* Countries served */}
-        <div className="mt-12 pt-8 border-t border-primary-foreground/10">
+        <div className="mt-12 pt-8 border-t border-border">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-2 text-sm text-primary-foreground/70">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <MapPin className="h-4 w-4" />
               <span>Serving families in:</span>
               <div className="flex gap-2">
                 {countries.map((country, i) => (
-                  <span key={i} className="bg-primary-foreground/10 px-2 py-1 rounded text-xs">
+                  <span key={i} className="bg-white border border-border px-2 py-1 rounded text-xs">
                     {country}
                   </span>
                 ))}
               </div>
             </div>
-            <div className="flex items-center gap-2 text-sm text-primary-foreground/70">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Clock className="h-4 w-4" />
               <span>Available across all time zones</span>
             </div>
@@ -219,8 +215,8 @@ export function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-8 pt-8 border-t border-primary-foreground/10 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-primary-foreground/60 flex items-center gap-1">
+        <div className="mt-8 pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-sm text-muted-foreground flex items-center gap-1">
             © {new Date().getFullYear()} D-lighter Tutor. Design and Developed by{" "}
             <a 
               href="https://agency.alotacademy.com" 
@@ -231,7 +227,7 @@ export function Footer() {
               Alot Digital Agency
             </a>
           </p>
-          <div className="flex items-center gap-4 text-sm text-primary-foreground/60">
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <Link href="/privacy-policy" className="hover:text-secondary transition-colors cursor-pointer">Privacy Policy</Link>
             <span>•</span>
             <Link href="/terms-of-service" className="hover:text-secondary transition-colors cursor-pointer">Terms of Service</Link>

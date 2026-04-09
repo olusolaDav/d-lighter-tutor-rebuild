@@ -61,10 +61,10 @@ export interface Testimonial {
 // Website Content
 export const websiteContent = {
   hero: {
-    title: "Quality Online Tutoring for Ages 3-16",
-    subtitle: "Connecting Nigerian & African Children in Diaspora with Expert Tutors",
+    title: "Light Up Your Child's Learning Journey",
+    subtitle: "Expert One-on-One Tutoring for Ages 3-16",
     description:
-      "Give your child the gift of quality education from anywhere in the world. Expert one-on-one tutoring in academics, languages, IT skills, and more.",
+      "Expert one-on-one tutoring for children aged 3-16. From schoolwork to African languages, we help your child build confidence and excel — wherever you are in the world.",
     ctaPrimary: "Book a Free Trial",
     ctaSecondary: "Explore Subjects",
   },

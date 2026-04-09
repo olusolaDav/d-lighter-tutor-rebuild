@@ -9,6 +9,7 @@ import {
 } from "lucide-react"
 import { HERO_STATS } from "@/lib/constants/sales-content"
 import { CTAButtons } from "./cta-buttons"
+import Image from "next/image"
 
 const iconMap = {
   Star,
@@ -23,19 +24,29 @@ interface HeroSectionProps {
 export function HeroSection({ onBookTrial }: HeroSectionProps) {
   return (
     <section className="relative min-h-[90vh] flex items-center bg-gradient-to-br from-primary via-primary to-primary/90 overflow-hidden">
+      {/* Doodle Background Pattern */}
+      <div 
+        className="absolute inset-0 opacity-[0.06] pointer-events-none"
+        style={{
+          backgroundImage: "url('/doodle_blue.png')",
+          backgroundSize: "600px",
+          backgroundRepeat: "repeat",
+        }}
+      />
+      
       {/* Animated Background Elements */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-20 left-[10%] h-24 w-24 rounded-full bg-secondary/20 blur-xl animate-pulse" />
+        <div className="absolute top-20 left-[10%] h-24 w-24 rounded-full bg-amber-500/20 blur-xl animate-pulse" />
         <div
-          className="absolute top-40 right-[15%] h-32 w-32 rounded-full bg-accent/20 blur-xl animate-pulse"
+          className="absolute top-40 right-[15%] h-32 w-32 rounded-full bg-secondary/20 blur-xl animate-pulse"
           style={{ animationDelay: "1s" }}
         />
         <div
-          className="absolute bottom-32 left-[20%] h-20 w-20 rounded-full bg-secondary/15 blur-lg animate-pulse"
+          className="absolute bottom-32 left-[20%] h-20 w-20 rounded-full bg-amber-500/15 blur-lg animate-pulse"
           style={{ animationDelay: "0.5s" }}
         />
         <div
-          className="absolute bottom-20 right-[25%] h-16 w-16 rounded-full bg-accent/15 blur-lg animate-pulse"
+          className="absolute bottom-20 right-[25%] h-16 w-16 rounded-full bg-secondary/15 blur-lg animate-pulse"
           style={{ animationDelay: "1.5s" }}
         />
         {/* Floating icons */}
@@ -43,13 +54,13 @@ export function HeroSection({ onBookTrial }: HeroSectionProps) {
           className="absolute top-32 right-[30%] animate-bounce"
           style={{ animationDelay: "0.3s", animationDuration: "3s" }}
         >
-          <GraduationCap className="h-8 w-8 text-secondary/30" />
+          <GraduationCap className="h-8 w-8 text-amber-500/30" />
         </div>
         <div
           className="absolute bottom-40 left-[30%] animate-bounce"
           style={{ animationDelay: "0.7s", animationDuration: "4s" }}
         >
-          <BookOpen className="h-6 w-6 text-accent/30" />
+          <BookOpen className="h-6 w-6 text-secondary/30" />
         </div>
       </div>
 
@@ -57,9 +68,9 @@ export function HeroSection({ onBookTrial }: HeroSectionProps) {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             {/* Limited Offer Badge */}
-            <div className="inline-flex items-center gap-2 bg-secondary/20 backdrop-blur-sm border border-secondary/30 px-5 py-2.5 rounded-full mb-6 animate-pulse">
-              <Gift className="h-4 w-4 text-secondary" />
-              <span className="text-sm font-bold text-secondary">
+            <div className="inline-flex items-center gap-2 bg-amber-500/20 backdrop-blur-sm border border-amber-500/30 px-5 py-2.5 rounded-full mb-6 animate-pulse">
+              <Gift className="h-4 w-4 text-amber-400" />
+              <span className="text-sm font-bold text-amber-400">
                 LIMITED TIME: First Trial Class is FREE!
               </span>
             </div>
@@ -67,7 +78,7 @@ export function HeroSection({ onBookTrial }: HeroSectionProps) {
             {/* Main Headline */}
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-primary-foreground mb-6 leading-tight">
               <span className="relative inline-block">
-                <span className="text-secondary">"My Child Is Trying?</span>
+                <span className="text-amber-400">&ldquo;My Child Is Trying?</span>
                 <svg
                   className="absolute -bottom-2 left-0 w-full"
                   viewBox="0 0 300 12"
@@ -79,12 +90,12 @@ export function HeroSection({ onBookTrial }: HeroSectionProps) {
                     stroke="currentColor"
                     strokeWidth="3"
                     strokeLinecap="round"
-                    className="text-secondary/50"
+                    className="text-amber-400/50"
                   />
                 </svg>
               </span>
               <br className="hidden sm:block" />
-              <span className="text-primary-foreground/90">But Still Falling Behind"</span>
+              <span className="text-primary-foreground/90">But Still Falling Behind&rdquo;</span>
             </h1>
 
             <p className="text-xl md:text-2xl text-primary-foreground/90 mb-4 max-w-3xl mx-auto leading-relaxed">
@@ -111,8 +122,8 @@ export function HeroSection({ onBookTrial }: HeroSectionProps) {
               As a parent, it hurts to watch. You want to help - but between busy schedules, unfamiliar curricula, and limited time, it feels overwhelming.
             </p>
 
-            <p className="text-2xl font-bold text-secondary mb-8">
-              This is where your child's story can change.
+            <p className="text-2xl font-bold text-amber-400 mb-8">
+              This is where your child&apos;s story can change.
             </p>
 
             {/* CTA Buttons */}
