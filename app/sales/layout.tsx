@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     siteName: "D-lighter Tutor",
     images: [
       {
-        url: "/images/og-sales.png",
+        url: "/opengraph-image.png",
         width: 1200,
         height: 630,
         alt: "D-lighter Tutor - Expert Tutors. Personalized Learning. Better Results for African Children Ages 3-16",
