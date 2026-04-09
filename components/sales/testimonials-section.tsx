@@ -30,6 +30,24 @@ export function TestimonialsSection({ onBookTrial }: TestimonialsSectionProps) {
             </p>
           </div>
 
+          {/* Result Video Testimonial */}
+          <div
+            className="mb-8 mx-auto max-w-md rounded-2xl overflow-hidden border bg-card shadow-lg"
+            onContextMenu={(e) => e.preventDefault()}
+          >
+            <video
+              src="/result_testimonial.mp4"
+              autoPlay
+              loop
+              muted
+              playsInline
+              disablePictureInPicture
+              controlsList="nodownload nofullscreen noremoteplayback"
+              className="w-full h-auto block pointer-events-none select-none"
+              aria-label="Student result testimonial video showing grade improvements"
+            />
+          </div>
+
           {/* Review Images Grid */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
             {REVIEW_IMAGES.map((src, i) => (

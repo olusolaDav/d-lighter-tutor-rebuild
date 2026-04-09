@@ -72,6 +72,30 @@ export function TestimonialsSection() {
           </p>
         </div>
 
+        {/* Result Video Testimonial — separate from carousel */}
+        <div className={`max-w-4xl mx-auto mb-14 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
+          <div className="text-center mb-4">
+            <span className="text-sm font-semibold text-secondary uppercase tracking-wider">Real Results</span>
+            <p className="text-muted-foreground text-sm mt-1">See what our students have achieved</p>
+          </div>
+          <div
+            className="rounded-2xl overflow-hidden border-2 border-secondary/20 shadow-xl bg-card"
+            onContextMenu={(e) => e.preventDefault()}
+          >
+            <video
+              src="/result_testimonial.mp4"
+              autoPlay
+              loop
+              muted
+              playsInline
+              disablePictureInPicture
+              controlsList="nodownload nofullscreen noremoteplayback"
+              className="w-full h-auto block pointer-events-none select-none"
+              aria-label="Student result testimonial video showing grade improvements"
+            ></video>
+          </div>
+        </div>
+
         {/* Featured testimonial carousel */}
         <div className={`max-w-4xl mx-auto mb-12 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
           <div className="relative">
