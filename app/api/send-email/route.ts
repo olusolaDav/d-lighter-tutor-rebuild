@@ -2,12 +2,18 @@ import { NextRequest, NextResponse } from "next/server"
 import nodemailer from "nodemailer"
 
 // Create transporter using ZeptoMail SMTP
+// ZeptoMail requires AUTH LOGIN — not AUTH PLAIN
 const transporter = nodemailer.createTransport({
   host: "smtp.zeptomail.com",
   port: 587,
+  secure: false,
   auth: {
     user: "emailapikey",
-    pass: process.env.ZEPTOMAIL_API_KEY || "wSsVR60j+EP3Bqd6mDCoIrxuy1QAAl+gQ0wsilD06HP0S/DD8cczkkzKDAOlTfJMR2VhQTtHpLMgyRxR02dfhtsrnlFUWiiF9mqRe1U4J3x17qnvhDzDWm5UkxOILo0Izw5ikmlpF8si+g==",
+    pass: process.env.ZEPTOMAIL_API_KEY,
+  },
+  authMethod: "LOGIN",
+  tls: {
+    rejectUnauthorized: true,
   },
 })
 

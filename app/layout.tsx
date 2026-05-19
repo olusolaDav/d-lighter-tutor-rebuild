@@ -6,6 +6,7 @@ import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
 import { CookieConsent } from "@/components/cookie-consent"
+import { ChatWidget } from "@/components/chat-widget"
 import "./globals.css"
 
 // Google Analytics Measurement ID
@@ -533,6 +534,7 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
           {children}
           <CookieConsent />
+          <ChatWidget />
           <Toaster richColors position="top-center" closeButton />
           <Analytics />
         </ThemeProvider>

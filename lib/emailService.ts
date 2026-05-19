@@ -26,6 +26,10 @@ class EmailService {
         user: 'emailapikey',
         pass: process.env.ZEPTOMAIL_API_KEY,
       },
+      authMethod: 'LOGIN',
+      tls: {
+        rejectUnauthorized: true,
+      },
     });
   }
 
