@@ -20,10 +20,12 @@ export async function GET(
       return NextResponse.json({ success: false, error: 'Session not found' }, { status: 404 })
     }
 
-    // Return full session state for the widget to sync
+    // Return full session state for the widget and admin dashboard to sync
     return NextResponse.json({
       success: true,
       status: session.status,
+      visitorName: session.visitorName,
+      visitorPhone: session.visitorPhone,
       messages: session.messages.map((m: { role: string; content: string; timestamp: Date }) => ({
         role: m.role,
         content: m.content,

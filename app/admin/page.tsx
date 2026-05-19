@@ -288,6 +288,12 @@ export default withAuth(function AdminPage() {
                 View Sales Page
               </Button>
             </Link>
+            <Link href="/admin/chat">
+              <Button variant="secondary" size="sm" className="gap-1.5">
+                <MessageCircle className="h-4 w-4" />
+                Live Chat
+              </Button>
+            </Link>
             <Button
               onClick={() => logout()}
               variant="outline"
