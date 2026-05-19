@@ -364,7 +364,9 @@ export function ChatWidget() {
               content: data.reply,
               timestamp: new Date(),
             },
-          ])          setShowSuggestions(true) // re-show options after every AI reply        } else throw new Error(data.error)
+          ])
+          setShowSuggestions(true)
+        } else throw new Error(data.error)
       } catch {
         setMessages(prev => [
           ...prev,
