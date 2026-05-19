@@ -1,27 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server'
 import dbConnect from '@/lib/mongodb'
 import ChatSession from '@/lib/models/ChatSession'
+import { sendWhatsAppMessage } from '@/lib/whatsappService'
 
 /**
- * Green API Webhook — receives incoming WhatsApp messages from admin.
+ * Green API Webhook — receives WhatsApp replies from admin and routes them
+ * to the correct visitor chat session.
  *
- * Admin reply format:
- *   "ABC123: Hello visitor, here is your answer..."  → routes to session ABC123
- *   "ABC123: END"                                    → ends session ABC123
+ * Multi-session routing rules:
+ *   1 active session  → admin can type freely, auto-routed
+ *   2+ active sessions → admin must prefix: "ABC123: your message"
+ *                         if no prefix, admin receives a reminder listing all sessions
  *
- * Configure this webhook URL in your Green API dashboard:
- *   https://console.green-api.com → Instance Settings → Webhooks
- *   URL: https://your-domain.com/api/chat/webhook/whatsapp
- *   Enable: "Incoming messages" webhook
+ * End a session: "ABC123: END"  (or just "END" when only 1 session is active)
  */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
 
-    // Accept both "sent from phone" (self-chat replies) and incoming messages.
-    // When the server sends a notification to the admin's own number (self-chat),
-    // the admin's reply comes back as 'outgoingMessageReceived' — NOT 'incomingMessageReceived'.
-    // We also ignore messages sent via the API (outgoingAPIMessageReceived) to avoid loops.
+    // Accept replies typed from phone (outgoingMessageReceived = self-chat reply)
+    // and standard incoming messages. API-sent messages (outgoingAPIMessageReceived)
+    // are excluded to prevent feedback loops.
     const allowedTypes = ['incomingMessageReceived', 'outgoingMessageReceived']
     if (!allowedTypes.includes(body.typeWebhook)) {
       return NextResponse.json({ received: true })
@@ -35,51 +34,73 @@ export async function POST(request: NextRequest) {
     const rawText: string = messageData.textMessageData?.textMessage || ''
     if (!rawText.trim()) return NextResponse.json({ received: true })
 
-    // Skip messages that look like our own API-sent notifications (they start with 🔔 or 👤)
-    if (rawText.startsWith('🔔') || rawText.startsWith('👤')) {
+    // Skip our own API-sent notifications to avoid echo loops
+    if (
+      rawText.startsWith('🔔') ||
+      rawText.startsWith('👤') ||
+      rawText.startsWith('⚠️') ||
+      rawText.startsWith('📋')
+    ) {
       return NextResponse.json({ received: true })
     }
 
     await dbConnect()
 
-    // ── Try to parse "SESSION_ID: message" prefix ──────────────────────────
-    const match = rawText.match(/^([A-Za-z0-9]{4,8})\s*:\s*(.+)/s)
-    const hasPrefix = match && /^[A-Z0-9]{5,7}$/.test(match[1].toUpperCase())
+    // ── Fetch all currently active sessions ─────────────────────────────────
+    const activeSessions = await ChatSession.find({
+      status: { $in: ['waiting', 'live'] },
+    }).sort({ lastActivity: -1 })
 
-    let session = null
-    let messageContent = rawText.trim()
-
-    if (hasPrefix) {
-      // Admin used the session prefix — route to that specific session
-      const potentialSessionId = match![1].toUpperCase()
-      messageContent = match![2].trim()
-      session = await ChatSession.findOne({ sessionId: potentialSessionId })
-      if (!session || session.status === 'ai') {
-        return NextResponse.json({ received: true })
-      }
-    } else {
-      // No prefix — route to the most recently active waiting/live session.
-      // This lets admin just type naturally without remembering a session code.
-      session = await ChatSession.findOne({
-        status: { $in: ['waiting', 'live'] },
-      }).sort({ lastActivity: -1 })
-
-      if (!session) {
-        // No active session to route to — ignore
-        return NextResponse.json({ received: true })
-      }
-    }
-
-    if (!messageContent) {
+    if (activeSessions.length === 0) {
       return NextResponse.json({ received: true })
     }
 
-    // Handle session end command ("END" or "SESSION_ID: END")
+    // ── Parse optional "SESSION_ID: message" prefix ─────────────────────────
+    const prefixMatch = rawText.match(/^([A-Za-z0-9]{4,8})\s*:\s*(.+)/s)
+    const prefixId = prefixMatch && /^[A-Z0-9]{5,7}$/.test(prefixMatch[1].toUpperCase())
+      ? prefixMatch[1].toUpperCase()
+      : null
+
+    let session: (typeof activeSessions)[0] | null = null
+    let messageContent = rawText.trim()
+
+    if (prefixId) {
+      // Admin specified a session — find it
+      session = activeSessions.find(s => s.sessionId === prefixId) ?? null
+      if (!session) {
+        return NextResponse.json({ received: true }) // unknown session ID
+      }
+      messageContent = prefixMatch![2].trim()
+    } else if (activeSessions.length === 1) {
+      // Only one active session — auto-route, no prefix needed
+      session = activeSessions[0]
+    } else {
+      // Multiple active sessions and no prefix — send admin a reminder
+      const adminPhone = process.env.WHATSAPP_NUMBER || ''
+      if (adminPhone) {
+        const list = activeSessions
+          .map(
+            (s, i) =>
+              `${i + 1}. *${s.sessionId}* — ${s.visitorName || 'Visitor'}${s.visitorPhone ? ` (${s.visitorPhone})` : ''} [${s.status}]\n   Reply: *${s.sessionId}: your message*\n   End:   *${s.sessionId}: END*`
+          )
+          .join('\n\n')
+
+        await sendWhatsAppMessage(
+          adminPhone,
+          `⚠️ *${activeSessions.length} active chats — which one did you mean?*\n\nPrefix your message with the session ID:\n\n${list}\n\nYour message was:\n"${rawText.slice(0, 200)}"`
+        )
+      }
+      return NextResponse.json({ received: true })
+    }
+
+    if (!messageContent) return NextResponse.json({ received: true })
+
+    // ── Handle END command ──────────────────────────────────────────────────
     if (messageContent.toUpperCase() === 'END') {
       session.status = 'ended'
       session.messages.push({
         role: 'system',
-        content: 'The admin has ended this chat session. Thank you for chatting with us!',
+        content: 'The support agent has ended this chat. Thank you for chatting with D-lighter Tutor!',
         timestamp: new Date(),
       })
       session.lastActivity = new Date()
@@ -87,7 +108,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ received: true })
     }
 
-    // Admin is joining for the first time — mark as live and add a welcome system message
+    // ── Admin joins for the first time ──────────────────────────────────────
     if (session.status === 'waiting') {
       session.status = 'live'
       const welcomeName = session.visitorName && session.visitorName !== 'Visitor'
@@ -100,7 +121,7 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Store admin reply
+    // ── Store admin reply ───────────────────────────────────────────────────
     session.messages.push({
       role: 'admin',
       content: messageContent,
@@ -112,12 +133,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ received: true })
   } catch (error) {
     console.error('WhatsApp webhook error:', error)
-    // Always return 200 to Green API to prevent retries
     return NextResponse.json({ received: true })
   }
 }
-
-// Green API also sends GET requests to verify webhook URL
 export async function GET() {
   return NextResponse.json({ status: 'ok', service: 'd-lighter-chat-webhook' })
 }
