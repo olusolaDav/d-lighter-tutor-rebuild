@@ -72,9 +72,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ received: true })
     }
 
-    // Admin is joining for the first time — mark as live
+    // Admin is joining for the first time — mark as live and add a welcome system message
     if (session.status === 'waiting') {
       session.status = 'live'
+      const welcomeName = session.visitorName && session.visitorName !== 'Visitor'
+        ? `, ${session.visitorName}`
+        : ''
+      session.messages.push({
+        role: 'system',
+        content: `🟢 A D-lighter support agent has joined the chat${welcomeName}! They can see your full conversation.`,
+        timestamp: new Date(),
+      })
     }
 
     // Store admin reply

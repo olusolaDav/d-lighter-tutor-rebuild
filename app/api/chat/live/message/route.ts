@@ -35,10 +35,14 @@ export async function POST(request: NextRequest) {
     session.lastActivity = new Date()
     await session.save()
 
-    // Forward visitor message to admin via WhatsApp
+    // Forward visitor message to admin via WhatsApp, clearly labelled with visitor identity
     const adminPhone = process.env.WHATSAPP_NUMBER || ''
     if (adminPhone && (session.status === 'live' || session.status === 'waiting')) {
-      const whatsappMsg = `💬 *[${sessionId}] Visitor:*\n${message.trim()}`
+      const nameLabel = session.visitorName && session.visitorName !== 'Visitor'
+        ? session.visitorName
+        : 'Visitor'
+      const phoneLabel = session.visitorPhone ? ` | ${session.visitorPhone}` : ''
+      const whatsappMsg = `👤 *${nameLabel}${phoneLabel} [${sessionId}]*:\n${message.trim()}`
       await sendWhatsAppMessage(adminPhone, whatsappMsg)
     }
 

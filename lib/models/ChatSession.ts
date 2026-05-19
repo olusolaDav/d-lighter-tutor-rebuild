@@ -11,6 +11,7 @@ export interface IChatSession extends Document {
   status: 'ai' | 'waiting' | 'live' | 'ended'
   visitorPage: string
   visitorName: string
+  visitorPhone: string
   messages: IMessage[]
   lastActivity: Date
   createdAt: Date
@@ -37,6 +38,7 @@ const ChatSessionSchema = new Schema<IChatSession>(
     },
     visitorPage: { type: String, default: '/' },
     visitorName: { type: String, default: 'Visitor' },
+    visitorPhone: { type: String, default: '' },
     messages: [MessageSchema],
     lastActivity: { type: Date, default: () => new Date() },
   },

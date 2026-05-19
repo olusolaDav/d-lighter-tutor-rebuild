@@ -11,7 +11,7 @@ function generateSessionId(): string {
 
 export async function POST(request: NextRequest) {
   try {
-    const { sessionId: existingSessionId, visitorMessage, visitorPage, visitorName } = await request.json()
+    const { sessionId: existingSessionId, visitorMessage, visitorPage, visitorName, visitorPhone } = await request.json()
 
     if (!existingSessionId) {
       return NextResponse.json({ success: false, error: 'Session ID required' }, { status: 400 })
@@ -27,14 +27,18 @@ export async function POST(request: NextRequest) {
         status: 'ai',
         visitorPage: visitorPage || '/',
         visitorName: visitorName || 'Visitor',
+        visitorPhone: visitorPhone || '',
         messages: [],
         lastActivity: new Date(),
       })
     }
 
-    // Update visitor name if provided
+    // Update visitor info if provided
     if (visitorName && visitorName !== 'Visitor') {
       session.visitorName = visitorName
+    }
+    if (visitorPhone) {
+      session.visitorPhone = visitorPhone
     }
 
     if (session.status === 'ended') {
@@ -75,23 +79,20 @@ export async function POST(request: NextRequest) {
       .map((m: { role: string; content: string }) => `${m.role === 'visitor' ? '👤 Visitor' : '🤖 AI'}: ${m.content.slice(0, 100)}`)
       .join('\n')
 
+    const phoneDisplay = session.visitorPhone ? `📞 ${session.visitorPhone}` : '📞 Not provided'
+
     const whatsappMsg = `🔔 *D-lighter Tutor — New Live Chat*
 ━━━━━━━━━━━━━━
 Session: *${session.sessionId}*
-Visitor: *${session.visitorName || 'Visitor'}*
+👤 Visitor: *${session.visitorName || 'Visitor'}*
+${phoneDisplay}
 Page: ${session.visitorPage || '/'}
 Time: ${new Date().toLocaleTimeString('en-GB', { timeZone: 'Africa/Lagos' })} (Lagos)
 
-💬 *Visitor says:*
-${preview}
-
-${recentExchanges ? `📋 *Recent AI conversation:*\n${recentExchanges}\n` : ''}
+${recentExchanges ? `📋 *Recent AI conversation:*\n${recentExchanges}\n\n` : ''}
 ━━━━━━━━━━━━━━
-✅ *To reply to visitor:*
-${session.sessionId}: your message here
-
-🔴 *To end session:*
-${session.sessionId}: END`
+✅ *To reply:* ${session.sessionId}: your message
+🔴 *To end:* ${session.sessionId}: END`
 
     if (adminPhone) {
       await sendWhatsAppMessage(adminPhone, whatsappMsg)
