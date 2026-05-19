@@ -35,35 +35,46 @@ export async function POST(request: NextRequest) {
     const rawText: string = messageData.textMessageData?.textMessage || ''
     if (!rawText.trim()) return NextResponse.json({ received: true })
 
-    // Parse: "SESSION_ID: message content" (case-insensitive, tolerant of spaces)
-    // Support formats: "ABC123: hi", "abc123: hi", "ABC123 : hi"
-    const match = rawText.match(/^([A-Za-z0-9]{4,8})\s*:\s*(.+)/s)
-    if (!match) {
-      // Doesn't look like a session reply — ignore
+    // Skip messages that look like our own API-sent notifications (they start with 🔔 or 👤)
+    if (rawText.startsWith('🔔') || rawText.startsWith('👤')) {
       return NextResponse.json({ received: true })
     }
 
-    const potentialSessionId = match[1].toUpperCase()
-    const messageContent = match[2].trim()
+    await dbConnect()
 
-    // Validate session ID format (5–7 alphanumeric chars to cover edge cases)
-    if (!/^[A-Z0-9]{5,7}$/.test(potentialSessionId)) {
-      return NextResponse.json({ received: true })
+    // ── Try to parse "SESSION_ID: message" prefix ──────────────────────────
+    const match = rawText.match(/^([A-Za-z0-9]{4,8})\s*:\s*(.+)/s)
+    const hasPrefix = match && /^[A-Z0-9]{5,7}$/.test(match[1].toUpperCase())
+
+    let session = null
+    let messageContent = rawText.trim()
+
+    if (hasPrefix) {
+      // Admin used the session prefix — route to that specific session
+      const potentialSessionId = match![1].toUpperCase()
+      messageContent = match![2].trim()
+      session = await ChatSession.findOne({ sessionId: potentialSessionId })
+      if (!session || session.status === 'ai') {
+        return NextResponse.json({ received: true })
+      }
+    } else {
+      // No prefix — route to the most recently active waiting/live session.
+      // This lets admin just type naturally without remembering a session code.
+      session = await ChatSession.findOne({
+        status: { $in: ['waiting', 'live'] },
+      }).sort({ lastActivity: -1 })
+
+      if (!session) {
+        // No active session to route to — ignore
+        return NextResponse.json({ received: true })
+      }
     }
 
     if (!messageContent) {
       return NextResponse.json({ received: true })
     }
 
-    await dbConnect()
-
-    const session = await ChatSession.findOne({ sessionId: potentialSessionId })
-    if (!session || session.status === 'ai') {
-      // Session not found or still in AI mode — ignore
-      return NextResponse.json({ received: true })
-    }
-
-    // Handle session end command
+    // Handle session end command ("END" or "SESSION_ID: END")
     if (messageContent.toUpperCase() === 'END') {
       session.status = 'ended'
       session.messages.push({
