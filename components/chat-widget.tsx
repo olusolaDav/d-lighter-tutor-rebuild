@@ -648,33 +648,6 @@ export function ChatWidget() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* ── Quick suggestions + CTA — shown in AI mode after every AI reply ── */}
-          {mode === 'ai' && humanSetup === null && showSuggestions && !isLoading && (
-            <div className="px-4 pb-2 flex-shrink-0 border-t border-gray-100 dark:border-gray-800 pt-2 space-y-2">
-              {messages.some(m => m.role === 'ai') && (
-                <p className="text-xs text-gray-400 text-center">Is there anything else I can help you with?</p>
-              )}
-              <div className="flex flex-wrap gap-1.5">
-                {SUGGESTIONS.map(s => (
-                  <button
-                    key={s}
-                    onClick={() => { setShowSuggestions(false); sendAiMessage(s) }}
-                    className="text-xs px-2.5 py-1 rounded-full border border-blue-200 dark:border-blue-700 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
-                  >
-                    {s}
-                  </button>
-                ))}
-              </div>
-              <button
-                onClick={startHumanSetup}
-                className="w-full text-xs py-2 rounded-lg border border-green-300 dark:border-green-700 text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30 transition-colors flex items-center justify-center gap-1.5 font-medium"
-              >
-                <Headphones size={13} />
-                Chat with a Live Person
-              </button>
-            </div>
-          )}
-
           {/* ── Input area ── */}
           {mode !== 'ended' ? (
             <div className="flex items-end gap-2 px-3 py-3 border-t border-gray-100 dark:border-gray-800 flex-shrink-0">
@@ -718,6 +691,33 @@ export function ChatWidget() {
               >
                 Continue on WhatsApp →
               </a>
+            </div>
+          )}
+
+          {/* ── Quick suggestions + CTA — shown in AI mode after every AI reply ── */}
+          {mode === 'ai' && humanSetup === null && showSuggestions && !isLoading && (
+            <div className="px-4 pt-2 pb-2 flex-shrink-0 border-t border-gray-100 dark:border-gray-800 space-y-2">
+              {messages.some(m => m.role === 'ai') && (
+                <p className="text-xs text-gray-400 text-center">Is there anything else I can help you with?</p>
+              )}
+              <div className="flex flex-wrap gap-1.5">
+                {SUGGESTIONS.map(s => (
+                  <button
+                    key={s}
+                    onClick={() => { setShowSuggestions(false); sendAiMessage(s) }}
+                    className="text-xs px-2.5 py-1 rounded-full border border-blue-200 dark:border-blue-700 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={startHumanSetup}
+                className="w-full text-xs py-2 rounded-lg border border-green-300 dark:border-green-700 text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30 transition-colors flex items-center justify-center gap-1.5 font-medium"
+              >
+                <Headphones size={13} />
+                Chat with a Live Person
+              </button>
             </div>
           )}
 
