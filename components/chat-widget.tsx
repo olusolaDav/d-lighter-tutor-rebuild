@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import {
-  MessageCircle, X, Send, Bot, User, Headphones,
+  MessageCircle, Send, Bot, User, Headphones,
   ChevronDown, Loader2, RotateCcw,
 } from 'lucide-react'
 
@@ -584,22 +584,24 @@ export function ChatWidget() {
   // ─────────────────────────────────────────────────────────────────────────
   return (
     <>
-      {/* ── Floating button ── */}
-      <button
-        onClick={() => setIsOpen(v => !v)}
-        aria-label="Open chat"
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2"
-      >
-        {isOpen ? <X size={22} /> : <MessageCircle size={24} />}
-        {!isOpen && hasUnread && (
-          <span className="absolute top-0 right-0 w-4 h-4 bg-red-500 rounded-full border-2 border-white animate-pulse" />
-        )}
-      </button>
+      {/* ── Floating button — only shown when chat is closed ── */}
+      {!isOpen && (
+        <button
+          onClick={() => setIsOpen(true)}
+          aria-label="Open chat"
+          className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2"
+        >
+          <MessageCircle size={24} />
+          {hasUnread && (
+            <span className="absolute top-0 right-0 w-4 h-4 bg-red-500 rounded-full border-2 border-white animate-pulse" />
+          )}
+        </button>
+      )}
 
       {/* ── Chat panel ── */}
       {isOpen && (
         <div
-          className="fixed bottom-24 right-6 z-50 w-[360px] max-w-[calc(100vw-1.5rem)] h-[520px] max-h-[calc(100vh-8rem)] flex flex-col rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 overflow-hidden"
+          className="fixed bottom-6 right-6 z-50 w-[400px] max-w-[calc(100vw-1rem)] h-[620px] max-h-[calc(100vh-2rem)] flex flex-col rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 overflow-hidden"
           role="dialog"
           aria-label="D-lighter Tutor Chat"
         >
@@ -696,7 +698,7 @@ export function ChatWidget() {
 
           {/* ── Quick suggestions + CTA — shown in AI mode after every AI reply ── */}
           {mode === 'ai' && humanSetup === null && showSuggestions && !isLoading && (
-            <div className="px-4 pt-2 pb-2 flex-shrink-0 border-t border-gray-100 dark:border-gray-800 space-y-2">
+            <div className="px-4 pt-2 pb-2 flex-shrink-0 border-t border-gray-100 dark:border-gray-800 space-y-2 bg-white dark:bg-gray-900">
               {messages.some(m => m.role === 'ai') && (
                 <p className="text-xs text-gray-400 text-center">Is there anything else I can help you with?</p>
               )}
