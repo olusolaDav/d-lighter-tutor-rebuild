@@ -91,7 +91,7 @@ function formatTime(date: Date): string {
 
 // ─── Message bubble ──────────────────────────────────────────────────────────
 
-function MessageBubble({ msg }: { msg: Message }) {
+function MessageBubble({ msg, agentName }: { msg: Message; agentName?: string }) {
   const isVisitor = msg.role === 'visitor'
   const isSystem = msg.role === 'system'
 
@@ -122,7 +122,7 @@ function MessageBubble({ msg }: { msg: Message }) {
       <div className={`max-w-[78%] ${isVisitor ? 'items-end' : 'items-start'} flex flex-col`}>
         {!isVisitor && (
           <span className="text-[10px] text-gray-400 mb-0.5 ml-1">
-            {msg.role === 'ai' ? 'D-lighter AI' : 'Support Agent'}
+            {msg.role === 'ai' ? 'D-lighter AI' : agentName ? agentName : 'Support Agent'}
           </span>
         )}
         <div
@@ -189,6 +189,7 @@ export function ChatWidget() {
   const [visitorName, setVisitorName] = useState(stored.current.visitorName || '')
   const [visitorPhone, setVisitorPhone] = useState(stored.current.visitorPhone || '')
   const [isConnecting, setIsConnecting] = useState(false)
+  const [agentName, setAgentName] = useState('')
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -299,6 +300,7 @@ export function ChatWidget() {
 
         setMessages(serverMsgs)
         setMode(newMode)
+        if (data.agentName) setAgentName(data.agentName)
 
         if (serverMsgs.length > lastMsgCountRef.current && !isOpenRef.current) {
           setHasUnread(true)
@@ -336,7 +338,6 @@ export function ChatWidget() {
       setInput('')
       setShowSuggestions(false)
       setIsLoading(true)
-
       try {
         const res = await fetch('/api/chat/ai', {
           method: 'POST',
@@ -363,8 +364,7 @@ export function ChatWidget() {
               content: data.reply,
               timestamp: new Date(),
             },
-          ])
-        } else throw new Error(data.error)
+          ])          setShowSuggestions(true) // re-show options after every AI reply        } else throw new Error(data.error)
       } catch {
         setMessages(prev => [
           ...prev,
@@ -635,7 +635,7 @@ export function ChatWidget() {
           {/* ── Messages area ── */}
           <div className="flex-1 overflow-y-auto px-4 py-3 space-y-0 scroll-smooth">
             {messages.map(msg => (
-              <MessageBubble key={msg.id} msg={msg} />
+              <MessageBubble key={msg.id} msg={msg} agentName={agentName} />
             ))}
 
             {isLoading && <TypingIndicator label="Thinking…" />}
@@ -647,30 +647,29 @@ export function ChatWidget() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* ── Quick suggestions (AI mode, before any interaction) ── */}
-          {mode === 'ai' && humanSetup === null && showSuggestions && messages.length <= 1 && !isLoading && (
-            <div className="px-4 pb-2 flex flex-wrap gap-1.5 flex-shrink-0">
-              {SUGGESTIONS.map(s => (
-                <button
-                  key={s}
-                  onClick={() => sendAiMessage(s)}
-                  className="text-xs px-2.5 py-1 rounded-full border border-blue-200 dark:border-blue-700 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {/* ── Talk to real person CTA — always shown in AI mode ── */}
-          {mode === 'ai' && humanSetup === null && !isLoading && (
-            <div className="px-4 pb-2 flex-shrink-0">
+          {/* ── Quick suggestions + CTA — shown in AI mode after every AI reply ── */}
+          {mode === 'ai' && humanSetup === null && showSuggestions && !isLoading && (
+            <div className="px-4 pb-2 flex-shrink-0 border-t border-gray-100 dark:border-gray-800 pt-2 space-y-2">
+              {messages.some(m => m.role === 'ai') && (
+                <p className="text-xs text-gray-400 text-center">Is there anything else I can help you with?</p>
+              )}
+              <div className="flex flex-wrap gap-1.5">
+                {SUGGESTIONS.map(s => (
+                  <button
+                    key={s}
+                    onClick={() => { setShowSuggestions(false); sendAiMessage(s) }}
+                    className="text-xs px-2.5 py-1 rounded-full border border-blue-200 dark:border-blue-700 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
               <button
                 onClick={startHumanSetup}
                 className="w-full text-xs py-2 rounded-lg border border-green-300 dark:border-green-700 text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30 transition-colors flex items-center justify-center gap-1.5 font-medium"
               >
                 <Headphones size={13} />
-                Talk to a real person
+                Chat with a Live Person
               </button>
             </div>
           )}

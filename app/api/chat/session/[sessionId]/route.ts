@@ -26,6 +26,7 @@ export async function GET(
       status: session.status,
       visitorName: session.visitorName,
       visitorPhone: session.visitorPhone,
+      agentName: session.agentName || '',
       messages: session.messages.map((m: { role: string; content: string; timestamp: Date }) => ({
         role: m.role,
         content: m.content,

@@ -83,6 +83,10 @@ export async function POST(request: NextRequest) {
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.d-lightertutor.com'
     const dashboardLink = `${siteUrl}/admin/chat?session=${session.sessionId}`
 
+    // Pre-filled greeting template — admin can personalise the name before sending
+    const greetingTemplate = `${session.sessionId}: Hello 👋\nThank you for contacting D-lighter Tutor Support.\nMy name is Blessing. How may I assist you today?`
+    const greetingLink = `https://wa.me/${adminPhone}?text=${encodeURIComponent(greetingTemplate)}`
+
     const whatsappMsg = `🔔 *D-lighter Tutor — New Live Chat*
 ━━━━━━━━━━━━━━
 Session: *${session.sessionId}*
@@ -95,7 +99,9 @@ ${recentExchanges ? `📋 *Recent AI conversation:*\n${recentExchanges}\n\n` : '
 ━━━━━━━━━━━━━━
 🖥️ *Open dashboard:* ${dashboardLink}
 
-✅ *Or reply here:* ${session.sessionId}: your message
+👋 *Send greeting:* ${greetingLink}
+
+✅ *Or reply directly:* ${session.sessionId}: your message
 🔴 *To end:* ${session.sessionId}: END`
 
     if (adminPhone) {

@@ -12,6 +12,7 @@ export interface IChatSession extends Document {
   visitorPage: string
   visitorName: string
   visitorPhone: string
+  agentName: string
   messages: IMessage[]
   lastActivity: Date
   createdAt: Date
@@ -39,6 +40,7 @@ const ChatSessionSchema = new Schema<IChatSession>(
     visitorPage: { type: String, default: '/' },
     visitorName: { type: String, default: 'Visitor' },
     visitorPhone: { type: String, default: '' },
+    agentName: { type: String, default: '' },
     messages: [MessageSchema],
     lastActivity: { type: Date, default: () => new Date() },
   },

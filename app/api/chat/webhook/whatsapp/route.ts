@@ -99,9 +99,10 @@ export async function POST(request: NextRequest) {
     // ── Handle END command ──────────────────────────────────────────────────
     if (messageContent.toUpperCase() === 'END') {
       session.status = 'ended'
+      const agentLabel = session.agentName ? session.agentName : 'the D-lighter team'
       session.messages.push({
         role: 'system',
-        content: 'The support agent has ended this chat. Thank you for chatting with D-lighter Tutor!',
+        content: `Thank you for choosing D-lighter Tutor 🌟\nWe look forward to supporting your child's learning journey. If you need further assistance, don't hesitate to reach out. Have a wonderful day! — ${agentLabel}`,
         timestamp: new Date(),
       })
       session.lastActivity = new Date()
@@ -123,6 +124,13 @@ export async function POST(request: NextRequest) {
     }
 
     // ── Store admin reply ───────────────────────────────────────────────────
+    // Parse agent name from greeting (e.g. "My name is Blessing")
+    if (!session.agentName) {
+      const nameMatch = messageContent.match(/my name is ([A-Za-z]+)/i)
+      if (nameMatch) {
+        session.agentName = nameMatch[1].trim()
+      }
+    }
     session.messages.push({
       role: 'admin',
       content: messageContent,
