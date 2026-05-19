@@ -18,8 +18,12 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
 
-    // Only handle incoming text messages
-    if (body.typeWebhook !== 'incomingMessageReceived') {
+    // Accept both "sent from phone" (self-chat replies) and incoming messages.
+    // When the server sends a notification to the admin's own number (self-chat),
+    // the admin's reply comes back as 'outgoingMessageReceived' — NOT 'incomingMessageReceived'.
+    // We also ignore messages sent via the API (outgoingAPIMessageReceived) to avoid loops.
+    const allowedTypes = ['incomingMessageReceived', 'outgoingMessageReceived']
+    if (!allowedTypes.includes(body.typeWebhook)) {
       return NextResponse.json({ received: true })
     }
 
