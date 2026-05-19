@@ -80,6 +80,8 @@ export async function POST(request: NextRequest) {
       .join('\n')
 
     const phoneDisplay = session.visitorPhone ? `📞 ${session.visitorPhone}` : '📞 Not provided'
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.d-lightertutor.com'
+    const dashboardLink = `${siteUrl}/admin/chat?session=${session.sessionId}`
 
     const whatsappMsg = `🔔 *D-lighter Tutor — New Live Chat*
 ━━━━━━━━━━━━━━
@@ -91,7 +93,9 @@ Time: ${new Date().toLocaleTimeString('en-GB', { timeZone: 'Africa/Lagos' })} (L
 
 ${recentExchanges ? `📋 *Recent AI conversation:*\n${recentExchanges}\n\n` : ''}
 ━━━━━━━━━━━━━━
-✅ *To reply:* ${session.sessionId}: your message
+🖥️ *Open dashboard:* ${dashboardLink}
+
+✅ *Or reply here:* ${session.sessionId}: your message
 🔴 *To end:* ${session.sessionId}: END`
 
     if (adminPhone) {

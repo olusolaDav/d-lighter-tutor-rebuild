@@ -78,10 +78,11 @@ export async function POST(request: NextRequest) {
       // Multiple active sessions and no prefix — send admin a reminder
       const adminPhone = process.env.WHATSAPP_NUMBER || ''
       if (adminPhone) {
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.d-lightertutor.com'
         const list = activeSessions
           .map(
             (s, i) =>
-              `${i + 1}. *${s.sessionId}* — ${s.visitorName || 'Visitor'}${s.visitorPhone ? ` (${s.visitorPhone})` : ''} [${s.status}]\n   Reply: *${s.sessionId}: your message*\n   End:   *${s.sessionId}: END*`
+              `${i + 1}. *${s.sessionId}* — ${s.visitorName || 'Visitor'}${s.visitorPhone ? ` (${s.visitorPhone})` : ''} [${s.status}]\n   🖥️ Open: ${siteUrl}/admin/chat?session=${s.sessionId}\n   💬 Reply: *${s.sessionId}: your message*\n   🔴 End:   *${s.sessionId}: END*`
           )
           .join('\n\n')
 

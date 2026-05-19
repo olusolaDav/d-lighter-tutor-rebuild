@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { withAuth } from '@/lib/auth/AuthContext'
 import {
   MessageCircle, Send, Bot, User, Headphones, RefreshCw,
@@ -166,8 +167,11 @@ function MessageBubble({ msg }: { msg: Message }) {
 // ─── Main Admin Chat Dashboard ────────────────────────────────────────────────
 
 function AdminChatPage() {
+  const searchParams = useSearchParams()
   const [sessions, setSessions] = useState<SessionSummary[]>([])
-  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [selectedId, setSelectedId] = useState<string | null>(
+    () => searchParams.get('session')
+  )
   const [activeSession, setActiveSession] = useState<FullSession | null>(null)
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
