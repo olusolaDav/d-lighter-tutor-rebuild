@@ -195,6 +195,11 @@ export function ChatWidget() {
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const lastMsgCountRef = useRef(stored.current.messages?.length || 0)
   const prevModeRef = useRef<ChatMode>(stored.current.mode || 'ai')
+  // Refs so the poll closure always reads the latest value without triggering effect re-runs
+  const isOpenRef = useRef(isOpen)
+  const visitorNameRef = useRef(visitorName)
+  isOpenRef.current = isOpen
+  visitorNameRef.current = visitorName
 
   // ── Persist to localStorage on every relevant state change ───────────────
   useEffect(() => {
@@ -263,16 +268,19 @@ export function ChatWidget() {
   }, [])
 
   // ── Poll for admin replies (live / waiting modes) ─────────────────────────
+  // shouldPoll only flips between false↔true (ai/ended ↔ waiting/live)
+  // so the interval is NOT destroyed on every mode change (e.g. waiting→live)
+  const shouldPoll = mode === 'waiting' || mode === 'live'
   useEffect(() => {
     if (pollIntervalRef.current) {
       clearInterval(pollIntervalRef.current)
       pollIntervalRef.current = null
     }
-    if (!sessionId || mode === 'ai') return
+    if (!sessionId || !shouldPoll) return
 
     const poll = async () => {
       try {
-        const res = await fetch(`/api/chat/session/${sessionId}`)
+        const res = await fetch(`/api/chat/session/${sessionId}`, { cache: 'no-store' })
         if (!res.ok) return
         const data = await res.json()
         if (!data.success) return
@@ -287,23 +295,12 @@ export function ChatWidget() {
         )
 
         const newMode = data.status as ChatMode
-
-        // Inject a client-side welcome when admin first joins
-        if (prevModeRef.current === 'waiting' && newMode === 'live') {
-          const greeting = visitorName ? `, ${visitorName}` : ''
-          serverMsgs.push({
-            id: uid(),
-            role: 'system',
-            content: `🟢 A D-lighter support agent has joined the chat${greeting}! They can see your full conversation above.`,
-            timestamp: new Date(),
-          })
-        }
         prevModeRef.current = newMode
 
         setMessages(serverMsgs)
         setMode(newMode)
 
-        if (serverMsgs.length > lastMsgCountRef.current && !isOpen) {
+        if (serverMsgs.length > lastMsgCountRef.current && !isOpenRef.current) {
           setHasUnread(true)
         }
         lastMsgCountRef.current = serverMsgs.length
@@ -317,11 +314,12 @@ export function ChatWidget() {
       }
     }
 
+    poll() // fetch immediately — don't wait for first interval tick
     pollIntervalRef.current = setInterval(poll, 3000)
     return () => {
       if (pollIntervalRef.current) clearInterval(pollIntervalRef.current)
     }
-  }, [sessionId, mode, isOpen, visitorName])
+  }, [sessionId, shouldPoll])
 
   // ── Send AI message ──────────────────────────────────────────────────────
   const sendAiMessage = useCallback(
