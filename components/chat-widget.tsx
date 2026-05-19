@@ -455,8 +455,7 @@ export function ChatWidget() {
             {
               id: uid(),
               role: 'system',
-              content:
-                '✅ Our team has been notified! An agent will join the chat shortly. Feel free to type any additional details below.',
+              content: `You're all connected, ${name}! 🎉 A support representative will be with you shortly. Feel free to share any additional details while you wait.`,
               timestamp: new Date(),
             },
           ])
@@ -538,7 +537,7 @@ export function ChatWidget() {
         {
           id: uid(),
           role: 'system',
-          content: 'Connecting you now — please hold on a moment…',
+          content: `Please hold, ${visitorName}! We're connecting you with a support representative right now... ⏳`,
           timestamp: new Date(Date.now() + 100),
         },
       ])
