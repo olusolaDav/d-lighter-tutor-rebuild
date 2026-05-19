@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
 
     // Generate and save OTP for email verification
     const otp = generateOTP();
-    const hashedOTP = hashOTP(otp);
+    const hashedOTP = await hashOTP(otp);
 
     // Remove any existing OTPs for this email and purpose
     await OTP.deleteMany({ 

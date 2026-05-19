@@ -42,7 +42,10 @@ export async function POST(request: NextRequest) {
         ? session.visitorName
         : 'Visitor'
       const phoneLabel = session.visitorPhone ? ` | ${session.visitorPhone}` : ''
-      const whatsappMsg = `👤 *${nameLabel}${phoneLabel} [${sessionId}]*:\n${message.trim()}`
+      // Pre-filled reply link — tapping opens WhatsApp with "SESSION_ID: " ready to type
+      const replyText = encodeURIComponent(`${sessionId}: `)
+      const replyLink = `https://wa.me/${adminPhone}?text=${replyText}`
+      const whatsappMsg = `👤 *${nameLabel}${phoneLabel}*\n🆔 Session: *${sessionId}*\n\n${message.trim()}\n\n💬 _Tap to reply:_ ${replyLink}`
       await sendWhatsAppMessage(adminPhone, whatsappMsg)
     }
 

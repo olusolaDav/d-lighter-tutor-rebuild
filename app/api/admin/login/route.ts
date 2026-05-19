@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
 
     // Generate and send OTP for 2FA
     const otp = generateOTP();
-    const hashedOTP = hashOTP(otp);
+    const hashedOTP = await hashOTP(otp);
 
     // Remove any existing login verification OTPs for this email
     await OTP.deleteMany({ 
