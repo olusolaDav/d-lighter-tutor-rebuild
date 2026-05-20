@@ -3,8 +3,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import {
   MessageCircle, Send, Bot, User, Headphones,
-  ChevronDown, Loader2, RotateCcw,
+  ChevronDown, Loader2, RotateCcw, CalendarCheck,
 } from 'lucide-react'
+import { useBookingForm } from '@/components/booking-form-modal'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -75,9 +76,10 @@ const SUGGESTIONS = [
   'What subjects do you offer?',
   'How much are your lessons?',
   'What ages do you teach?',
-  'How do I book a free trial?',
   'Can I pay in pounds/dollars?',
 ]
+
+const BOOKING_CHIP = 'Book a Free Trial 🎓'
 
 // ─── Utility ─────────────────────────────────────────────────────────────────
 
@@ -91,7 +93,13 @@ function formatTime(date: Date): string {
 
 // ─── Message bubble ──────────────────────────────────────────────────────────
 
-function MessageBubble({ msg, agentName }: { msg: Message; agentName?: string }) {
+function MessageBubble({
+  msg, agentName, onBookNow,
+}: {
+  msg: Message
+  agentName?: string
+  onBookNow?: () => void
+}) {
   const isVisitor = msg.role === 'visitor'
   const isSystem = msg.role === 'system'
 
@@ -104,6 +112,10 @@ function MessageBubble({ msg, agentName }: { msg: Message; agentName?: string })
       </div>
     )
   }
+
+  // Split out [BOOK_NOW] token so we can render a CTA button
+  const hasBookNow = msg.role === 'ai' && msg.content.includes('[BOOK_NOW]')
+  const displayContent = msg.content.replace('[BOOK_NOW]', '').trimEnd()
 
   return (
     <div className={`flex items-end gap-2 mb-3 ${isVisitor ? 'flex-row-reverse' : 'flex-row'}`}>
@@ -134,7 +146,16 @@ function MessageBubble({ msg, agentName }: { msg: Message; agentName?: string })
               : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 rounded-bl-sm border border-gray-200 dark:border-gray-700 shadow-sm'
             }`}
         >
-          {msg.content}
+          {displayContent}
+          {hasBookNow && onBookNow && (
+            <button
+              onClick={onBookNow}
+              className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition-colors"
+            >
+              <CalendarCheck size={13} />
+              Book Your Free Trial Now
+            </button>
+          )}
         </div>
         <span className="text-[10px] text-gray-400 mt-0.5 mx-1">{formatTime(msg.timestamp)}</span>
       </div>
@@ -190,6 +211,7 @@ export function ChatWidget() {
   const [visitorPhone, setVisitorPhone] = useState(stored.current.visitorPhone || '')
   const [isConnecting, setIsConnecting] = useState(false)
   const [agentName, setAgentName] = useState('')
+  const { openModal } = useBookingForm()
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -638,7 +660,7 @@ export function ChatWidget() {
           {/* ── Messages area ── */}
           <div className="flex-1 overflow-y-auto px-4 py-3 space-y-0 scroll-smooth">
             {messages.map(msg => (
-              <MessageBubble key={msg.id} msg={msg} agentName={agentName} />
+              <MessageBubble key={msg.id} msg={msg} agentName={agentName} onBookNow={openModal} />
             ))}
 
             {isLoading && <TypingIndicator label="Thinking…" />}
@@ -712,6 +734,12 @@ export function ChatWidget() {
                     {s}
                   </button>
                 ))}
+                <button
+                  onClick={() => { setShowSuggestions(false); openModal() }}
+                  className="text-xs px-2.5 py-1 rounded-full border border-orange-300 dark:border-orange-600 text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/30 transition-colors font-medium"
+                >
+                  {BOOKING_CHIP}
+                </button>
               </div>
               <button
                 onClick={startHumanSetup}
