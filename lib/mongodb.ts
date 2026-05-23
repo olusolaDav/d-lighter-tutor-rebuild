@@ -1,4 +1,5 @@
 import mongoose from "mongoose"
+import type { Db } from "mongodb"
 
 const MONGODB_URI = process.env.MONGODB_URI!
 
@@ -47,3 +48,14 @@ async function dbConnect(): Promise<typeof mongoose> {
 }
 
 export default dbConnect
+
+/**
+ * Returns the native MongoDB Db instance.
+ * Reuses the mongoose connection under the hood so no second connection is created.
+ */
+export async function getDb(): Promise<Db> {
+  await dbConnect()
+  const db = mongoose.connection.db
+  if (!db) throw new Error("MongoDB connection not ready")
+  return db as unknown as Db
+}

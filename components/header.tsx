@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { MessageCircle, Menu, GraduationCap, Gift, ArrowRight } from "lucide-react"
+import { MessageCircle, Menu, GraduationCap, Gift, ArrowRight, HelpCircle, BookOpen } from "lucide-react"
 import Image from "next/image"
 import {
   Sheet,
@@ -13,10 +13,20 @@ import {
   SheetFooter,
 } from "@/components/ui/sheet"
 import { useBookingForm } from "@/components/booking-form-modal"
+import { usePathname } from "next/navigation"
 
 export function Header() {
   const { openModal } = useBookingForm()
-  
+  const pathname = usePathname()
+
+  const openChat = () => {
+    window.dispatchEvent(new CustomEvent('dlighter-open-chat'))
+  }
+
+  /** Resolve hash links so they always land on the homepage section */
+  const href = (raw: string) =>
+    raw.startsWith('#') ? (pathname === '/' ? raw : `/${raw}`) : raw
+
   const navLinks = [
     { href: "#subjects", label: "Subjects" },
     { href: "#how-it-works", label: "How It Works" },
@@ -24,6 +34,7 @@ export function Header() {
     { href: "#testimonials", label: "Reviews" },
     { href: "#faq", label: "FAQ" },
     { href: "#become-tutor", label: "Become a Tutor" },
+    { href: "/blog", label: "Blog" },
   ]
 
   return (
@@ -43,7 +54,7 @@ export function Header() {
           {navLinks.map((link) => (
             <Link 
               key={link.href}
-              href={link.href} 
+              href={href(link.href)} 
               className="px-3 py-2 text-sm font-medium text-foreground hover:text-secondary transition-colors"
             >
               {link.label}
@@ -72,12 +83,19 @@ export function Header() {
                 {navLinks.map((link) => (
                   <Link 
                     key={link.href}
-                    href={link.href} 
+                    href={href(link.href)} 
                     className="flex items-center gap-3 text-base font-medium text-foreground hover:text-secondary px-4 py-3 rounded-lg transition-colors"
                   >
                     {link.label}
                   </Link>
                 ))}
+                <button
+                  onClick={openChat}
+                  className="flex items-center gap-3 text-base font-medium text-foreground hover:text-secondary px-4 py-3 rounded-lg transition-colors w-full text-left"
+                >
+                  <HelpCircle className="h-5 w-5" />
+                  Help Centre
+                </button>
               </nav>
               <SheetFooter className="mt-4">
                 <div className="flex flex-col gap-3 w-full">
@@ -103,6 +121,13 @@ export function Header() {
         </div>
 
         <div className="hidden lg:flex items-center gap-3">
+          <button
+            onClick={openChat}
+            className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-foreground hover:text-secondary transition-colors"
+          >
+            <HelpCircle className="h-4 w-4" />
+            Help Centre
+          </button>
           <Button
             asChild
             variant="ghost"

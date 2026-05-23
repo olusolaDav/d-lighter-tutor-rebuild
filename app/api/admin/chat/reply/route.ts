@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import dbConnect from '@/lib/mongodb'
 import ChatSession from '@/lib/models/ChatSession'
+import { Admin } from '@/lib/models/Admin'
 import { withAuth, AuthenticatedRequest } from '@/lib/middleware/auth'
 
 async function handler(request: AuthenticatedRequest) {
@@ -52,11 +53,11 @@ async function handler(request: AuthenticatedRequest) {
       })
     }
 
-    // Parse agent name from greeting message if not yet set
-    if (!session.agentName) {
-      const nameMatch = message.trim().match(/my name is ([A-Za-z]+)/i)
-      if (nameMatch) {
-        session.agentName = nameMatch[1].trim()
+    // Set agentName from the authenticated admin's profile on first reply
+    if (!session.agentName && request.admin?.adminId) {
+      const adminDoc = await Admin.findById(request.admin.adminId, { firstName: 1 }).lean() as { firstName?: string } | null
+      if (adminDoc?.firstName) {
+        session.agentName = adminDoc.firstName
       }
     }
 

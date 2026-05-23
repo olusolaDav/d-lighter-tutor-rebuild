@@ -1,163 +1,54 @@
 "use client"
 
-import { Briefcase, GraduationCap, TrendingUp, Users, ArrowRight, Globe, Clock, Heart, CheckCircle } from "lucide-react"
+import { ArrowRight, TrendingUp, Globe, Clock, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { websiteContent } from "@/content/website-content"
-import { useScrollAnimation } from "@/hooks/use-scroll-animation"
 import Link from "next/link"
 
 export function TutorRecruitmentCTA() {
-  const { ref, isVisible } = useScrollAnimation()
-
-  const handleApply = () => {
-    window.open(
-      `https://wa.me/2348030461904?text=${encodeURIComponent(
-        "Hi! I'm interested in becoming a tutor at D-lighter Tutor. I'd like to learn more about the opportunity.",
-      )}`,
-      "_blank",
-    )
-  }
-
-  const benefits = [
-    {
-      icon: TrendingUp,
-      title: "Competitive Pay",
-      description: "Earn great rates with flexible payment options",
-      color: "from-amber-400 to-amber-500",
-    },
-    {
-      icon: Globe,
-      title: "Work Anywhere",
-      description: "Teach from the comfort of your home",
-      color: "from-blue-400 to-indigo-500",
-    },
-    {
-      icon: Users,
-      title: "Amazing Community",
-      description: "Join passionate educators worldwide",
-      color: "from-slate-500 to-slate-700",
-    },
-    {
-      icon: GraduationCap,
-      title: "Grow Your Skills",
-      description: "Access training & development",
-      color: "from-amber-300 to-amber-500",
-    },
+  const perks = [
+    { icon: TrendingUp, label: "Competitive Pay" },
+    { icon: Globe, label: "Work Remotely" },
+    { icon: Clock, label: "Flexible Hours" },
+    { icon: Users, label: "50+ Tutors Team" },
   ]
 
   return (
-    <section id="become-tutor" className="py-20 bg-gradient-to-b from-blue-50/60 to-white relative overflow-hidden" ref={ref}>
-
-      <div className="container mx-auto px-4 relative z-10">
-        <div className="max-w-6xl mx-auto">
-          {/* Section header */}
-          <div
-            className={`text-center mb-12 transition-all duration-700 ${
-              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-            }`}
-          >
-            <p className="text-secondary font-semibold text-sm uppercase tracking-wider mb-4">Join Our Team</p>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Become a <span className="text-secondary">D-lighter Tutor</span>
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-              {websiteContent.tutorRecruitment.subtitle}
-            </p>
+    <section id="become-tutor" className="py-16 bg-blue-50/60 border-t border-blue-100">
+      <div className="container mx-auto px-4">
+        <div className="max-w-4xl mx-auto">
+          {/* Main row */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-8 text-center sm:text-left">
+            <div>
+              <p className="text-xs font-semibold text-secondary uppercase tracking-wider mb-1">Join Our Team</p>
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground">
+                Become a <span className="text-secondary">D-lighter Tutor</span>
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1.5 max-w-md">
+                Help African children in diaspora thrive academically — on your schedule, from anywhere.
+              </p>
+            </div>
+            <Link href="https://forms.gle/w1ffKrwYe1Asgz3K9" target="_blank" rel="noopener noreferrer" className="flex-shrink-0">
+              <Button
+                size="lg"
+                className="bg-secondary text-white hover:bg-secondary/90 rounded-full shadow-sm gap-2 whitespace-nowrap cursor-pointer"
+              >
+                Apply Now
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
           </div>
 
-          {/* Benefits grid */}
-          <div
-            className={`grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-12 transition-all duration-700 delay-200 ${
-              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-            }`}
-          >
-            {benefits.map((benefit, index) => {
-              const Icon = benefit.icon
-              return (
-                <Card
-                  key={index}
-                  className="p-6 border border-border hover:border-secondary/50 bg-white rounded-2xl shadow-sm hover:shadow-md transition-all group"
-                  style={{ transitionDelay: `${index * 100}ms` }}
-                >
-                  <div className="flex items-start gap-4">
-                    <div className="bg-blue-50 w-12 h-12 rounded-xl flex items-center justify-center">
-                      <Icon className="h-6 w-6 text-secondary" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-bold text-foreground mb-1">{benefit.title}</h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">{benefit.description}</p>
-                    </div>
-                  </div>
-                </Card>
-              )
-            })}
-          </div>
-
-          {/* Main CTA card */}
-          <div
-            className={`transition-all duration-700 delay-400 ${
-              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-            }`}
-          >
-            <Card className="p-8 md:p-10 bg-white border border-border rounded-2xl shadow-sm overflow-hidden">
-              <div className="grid md:grid-cols-2 gap-8 items-center">
-                <div>
-                  <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                    <CheckCircle className="h-6 w-6 text-secondary" /> What We're Looking For
-                  </h3>
-                  <ul className="space-y-4">
-                    {[
-                      "Passionate about teaching children ages 3-16",
-                      "Experience in early childhood or primary education",
-                      "Comfortable with online teaching technology",
-                      "Patient, engaging, and culturally aware",
-                      "Flexible schedule availability",
-                      "Degree or certification in relevant subject",
-                    ].map((item, index) => (
-                      <li key={index} className="flex items-start gap-3">
-                        <div className="h-6 w-6 rounded-full bg-secondary/10 flex items-center justify-center shrink-0 mt-0.5">
-                          <CheckCircle className="h-4 w-4 text-secondary" />
-                        </div>
-                        <span className="text-muted-foreground leading-relaxed">{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                
-                <div className="text-center">
-                  <div className="bg-blue-50 rounded-3xl p-8 mb-6 border border-secondary/10">
-                    <div className="h-14 w-14 mx-auto mb-4 rounded-full bg-secondary/20 flex items-center justify-center">
-                      <Briefcase className="h-7 w-7 text-secondary" />
-                    </div>
-                    <p className="text-xl font-bold mb-2 text-foreground">Ready to Inspire Young Minds?</p>
-                    <p className="text-muted-foreground mb-6 leading-relaxed">
-                      Join our growing team and help African children in diaspora achieve academic excellence
-                    </p>
-                     <Link href="https://forms.gle/w1ffKrwYe1Asgz3K9">
-                      <Button
-                        size="lg"
-                        className="bg-secondary text-white hover:bg-secondary/90 w-full rounded-full shadow-md"
-                      >
-                        Apply to Become a Tutor
-                        <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                      </Button>
-                    </Link>
-                  </div>
-                  
-                  <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <Clock className="h-4 w-4" />
-                      48hr response
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Heart className="h-4 w-4 text-red-400" />
-                      Join 50+ tutors
-                    </span>
-                  </div>
-                </div>
+          {/* Perk chips */}
+          <div className="flex flex-wrap justify-center sm:justify-start gap-3">
+            {perks.map(({ icon: Icon, label }) => (
+              <div
+                key={label}
+                className="flex items-center gap-2 bg-white border border-blue-100 rounded-full px-4 py-2 text-sm text-foreground shadow-sm"
+              >
+                <Icon className="h-4 w-4 text-secondary" />
+                {label}
               </div>
-            </Card>
+            ))}
           </div>
         </div>
       </div>

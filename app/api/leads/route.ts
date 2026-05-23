@@ -7,84 +7,124 @@ export async function POST(request: NextRequest) {
     await dbConnect()
 
     const body = await request.json()
-    
+
     const {
-      name,
-      email,
-      phone,
-      studentAge,
-      subjects,
-      gradeLevel,
-      country,
-      otherCountry,
-      preferredDays,
-      preferredTime,
-      curriculum,
+      // Step 1 — Parent
+      parentName, parentEmail, parentPhone, parentCountry, parentOtherCountry,
+      // Step 1 — Learner
+      learnerName, learnerEmail, learnerAge, learnerGrade, learnerSchool, learnerCountry,
+      // Step 2 — Subjects
+      subjects, otherSubject,
+      // Step 2 — Exam
+      examType, otherExamType, examDate, gcseSubjects, otherGcseSubject,
+      // Step 3 — Learning needs
+      weakAreas, learningGoals,
+      // Step 3 — Tester session
+      testerDate, testerTime, testerAmPm,
+      // Step 3 — Schedule
+      preferredDays, preferredClassTime, hoursPerWeek,
+      // Step 4
+      urgentNeeds, specificResources, additionalInfo,
+      referralSource, otherReferralSource,
+      // Meta
       plan,
-      learningGoal,
-      source = "sales-page",
+      source = "website",
     } = body
 
-    // Compute the final country value
-    const finalCountry = country === "Other" && otherCountry ? otherCountry : country
-
     // Validate required fields
-    if (!name || !email || !phone || !studentAge || !subjects?.length || !gradeLevel || !country || !preferredDays?.length || !preferredTime || !curriculum) {
+    if (
+      !parentName || !parentEmail || !parentPhone || !parentCountry ||
+      !learnerName || !learnerEmail || !learnerAge || !learnerGrade || !learnerSchool || !learnerCountry ||
+      !subjects?.length || !examType ||
+      !weakAreas || !learningGoals || !testerDate || !testerTime ||
+      !preferredDays?.length || !preferredClassTime || !hoursPerWeek ||
+      !urgentNeeds || !specificResources || !additionalInfo || !referralSource
+    ) {
       return NextResponse.json(
-        { success: false, error: "All fields are required" },
+        { success: false, error: "Please complete all required fields" },
         { status: 400 }
       )
     }
 
-    // Validate otherCountry if country is "Other"
-    if (country === "Other" && !otherCountry) {
-      return NextResponse.json(
-        { success: false, error: "Please specify your country" },
-        { status: 400 }
-      )
-    }
+    const resolvedParentCountry = parentCountry === "Other" && parentOtherCountry
+      ? parentOtherCountry
+      : parentCountry
 
-    // Create lead in database
+    const allSubjects = otherSubject
+      ? [...subjects, `Other: ${otherSubject}`]
+      : subjects
+
+    const resolvedExamType = examType === "Other" && otherExamType
+      ? `Other: ${otherExamType}`
+      : examType
+
     const lead = await Lead.create({
-      name,
-      email,
-      phone,
-      studentAge,
-      subjects,
-      gradeLevel,
-      country: finalCountry,
-      preferredDays,
-      preferredTime,
-      curriculum,
+      parentName, parentEmail, parentPhone,
+      parentCountry: resolvedParentCountry,
+      learnerName, learnerEmail, learnerAge, learnerGrade, learnerSchool, learnerCountry,
+      subjects: allSubjects, otherSubject,
+      examType: resolvedExamType, otherExamType, examDate,
+      gcseSubjects: gcseSubjects ?? [], otherGcseSubject,
+      weakAreas, learningGoals,
+      testerDate, testerTime, testerAmPm,
+      preferredDays, preferredClassTime, hoursPerWeek,
+      urgentNeeds, specificResources, additionalInfo,
+      referralSource: referralSource === "Other" && otherReferralSource
+        ? `Other: ${otherReferralSource}`
+        : referralSource,
+      otherReferralSource,
       plan,
-      learningGoal,
       source,
       status: "new",
+      // Legacy aliases so existing dashboard views still work
+      name: parentName,
+      email: parentEmail,
+      phone: parentPhone,
+      country: resolvedParentCountry,
+      studentAge: learnerAge,
+      gradeLevel: learnerGrade,
     })
 
-    // Generate WhatsApp message
+    // WhatsApp notification to admin
+    const gcseNote = gcseSubjects?.length
+      ? `\nGCSE Options: ${gcseSubjects.join(", ")}`
+      : ""
+
     const whatsappMessage = `
-🎓 *NEW LEAD FROM SALES PAGE*
+🎓 *NEW ENROLMENT ENQUIRY*
 
-👤 *Parent Details:*
-Name: ${name}
-Email: ${email}
-Phone: ${phone}
-Country: ${finalCountry}
+👤 *Parent/Guardian:*
+Name: ${parentName}
+Email: ${parentEmail}
+Phone: ${parentPhone}
+Country: ${resolvedParentCountry}
 
-👨‍🎓 *Student Details:*
-Age: ${studentAge}
-Grade/Class: ${gradeLevel}
-Subjects: ${subjects.join(", ")}
-Curriculum: ${curriculum}
-${plan ? `Plan: ${plan}` : ''}
-${learningGoal ? `Learning Goal: ${learningGoal}` : ''}
+👨‍🎓 *Learner:*
+Name: ${learnerName}
+Email: ${learnerEmail}
+Age: ${learnerAge} | Grade: ${learnerGrade}
+School: ${learnerSchool} | Country: ${learnerCountry}
 
-📅 *Schedule Preferences:*
-Days: ${preferredDays.join(", ")}
-Time: ${preferredTime}
+📚 *Subjects:* ${allSubjects.join(", ")}
 
-📊 Status: New Lead
+📝 *Exam Prep:* ${resolvedExamType}${examDate ? ` (${examDate})` : ""}${gcseNote}
+
+🎯 *Weak Areas:* ${weakAreas}
+🎯 *Learning Goals:* ${learningGoals}
+
+📅 *Tester Session:* ${testerDate} at ${testerTime} ${testerAmPm}
+📅 *Class Days:* ${preferredDays.join(", ")}
+⏰ *Class Time:* ${preferredClassTime}
+⏱ *Hours/Week:* ${hoursPerWeek}
+
+ℹ️ *Additional:*
+Urgent needs: ${urgentNeeds}
+Resources: ${specificResources}
+${additionalInfo ? `Extra info: ${additionalInfo}` : ""}
+
+📣 *Heard about us via:* ${referralSource}
+${plan ? `📦 Plan: ${plan}` : ""}
+
 🆔 Lead ID: ${lead._id}
 `.trim()
 
@@ -93,10 +133,7 @@ Time: ${preferredTime}
 
     return NextResponse.json({
       success: true,
-      data: {
-        leadId: lead._id,
-        whatsappUrl,
-      },
+      data: { leadId: lead._id, whatsappUrl },
     })
   } catch (error) {
     console.error("Error creating lead:", error)

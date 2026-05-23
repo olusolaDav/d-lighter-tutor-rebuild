@@ -8,11 +8,10 @@ import { WhyChooseSection } from "@/components/why-choose-section"
 import { PricingSection } from "@/components/pricing-section"
 import { TestimonialsSection } from "@/components/testimonials-section"
 import { FAQSection } from "@/components/faq-section"
-//import { BlogSection } from "@/components/blog-section"
+import { BlogSection } from "@/components/blog-section"
 import { TutorRecruitmentCTA } from "@/components/tutor-recruitment-cta"
-import { CTASection } from "@/components/cta-section"
 import { Footer } from "@/components/footer"
-import { BookingFormProvider } from "@/components/booking-form-modal"
+import { HelpCentreSection } from "@/components/help-centre-section"
 
 // Page-specific metadata that overrides/extends the root layout metadata
 export const metadata: Metadata = {
@@ -102,8 +101,7 @@ export default function Home() {
           __html: JSON.stringify(breadcrumbJsonLd),
         }}
       />
-      <BookingFormProvider>
-        <main className="min-h-screen">
+      <main className="min-h-screen">
           <Header />
           <HeroSection />
           <StatsSection />
@@ -115,10 +113,9 @@ export default function Home() {
           <FAQSection />
           {/* <BlogSection /> */}
           <TutorRecruitmentCTA />
-          <CTASection />
+          <HelpCentreSection />
           <Footer />
         </main>
-      </BookingFormProvider>
     </>
   )
 }

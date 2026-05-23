@@ -582,6 +582,13 @@ export function ChatWidget() {
     }
   }
 
+  // ── Listen for external open-chat trigger (e.g. navbar Help Centre) ────
+  useEffect(() => {
+    const handler = () => setIsOpen(true)
+    window.addEventListener('dlighter-open-chat', handler)
+    return () => window.removeEventListener('dlighter-open-chat', handler)
+  }, [])
+
   // ── Status badge ─────────────────────────────────────────────────────────
   const statusInfo = {
     ai: { label: 'AI Assistant', dot: 'bg-purple-300' },
@@ -611,7 +618,7 @@ export function ChatWidget() {
         <button
           onClick={() => setIsOpen(true)}
           aria-label="Open chat"
-          className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2"
+          className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-secondary hover:bg-secondary/90 shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary/50 focus-visible:ring-offset-2"
         >
           <MessageCircle size={24} />
           {hasUnread && (
@@ -628,7 +635,7 @@ export function ChatWidget() {
           aria-label="D-lighter Tutor Chat"
         >
           {/* ── Header ── */}
-          <div className="flex items-center gap-3 px-4 py-3 bg-blue-600 text-white flex-shrink-0">
+          <div className="flex items-center gap-3 px-4 py-3 bg-secondary text-white flex-shrink-0">
             <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">
               {mode === 'live' ? <Headphones size={18} /> : <Bot size={18} />}
             </div>
@@ -695,7 +702,7 @@ export function ChatWidget() {
                 onClick={handleSend}
                 disabled={sendDisabled}
                 aria-label="Send message"
-                className="w-10 h-10 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center justify-center text-white flex-shrink-0"
+                className="w-10 h-10 rounded-xl bg-secondary hover:bg-secondary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center justify-center text-white flex-shrink-0"
               >
                 {isLoading && humanSetup === null ? (
                   <Loader2 size={16} className="animate-spin" />

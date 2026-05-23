@@ -15,40 +15,31 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { toast } from "sonner"
-import { generateWhatsAppUrl, redirectToWhatsApp } from "@/lib/utils"
 import {
-  Gift,
   ArrowRight,
   ArrowLeft,
   CheckCircle2,
   Loader2,
   User,
-  Mail,
-  Phone,
-  MapPin,
-  GraduationCap,
+  Users,
   BookOpen,
   Calendar,
-  Clock,
-  Sparkles,
-  Target,
-  Zap,
+  Info,
+  MessageCircle,
 } from "lucide-react"
 import {
-  SUBJECTS,
-  GRADE_LEVELS,
+  FORM_SUBJECTS,
+  EXAM_TYPES,
+  GCSE_OPTIONS,
+  REFERRAL_SOURCES,
   COUNTRIES,
   DAYS_OF_WEEK,
-  TIME_SLOTS,
-  CURRICULA,
-  INITIAL_FORM_DATA,
-  type BookingFormData,
+  INITIAL_ENROLLMENT_FORM_DATA,
+  type EnrollmentFormData,
 } from "@/lib/constants/form-data"
+import { cn } from "@/lib/utils"
 
-// Plans available for selection
-const PLANS = ["Starter Plan", "Standard", "Intensive"] as const
-
-// Context for managing modal state
+// ── Context ──────────────────────────────────────────────────────────────────
 interface BookingFormContextType {
   isOpen: boolean
   selectedPlan: string
@@ -60,9 +51,7 @@ const BookingFormContext = createContext<BookingFormContextType | undefined>(und
 
 export function useBookingForm() {
   const context = useContext(BookingFormContext)
-  if (!context) {
-    throw new Error("useBookingForm must be used within a BookingFormProvider")
-  }
+  if (!context) throw new Error("useBookingForm must be used within a BookingFormProvider")
   return context
 }
 
@@ -88,610 +77,556 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
   )
 }
 
+// ── Step progress ─────────────────────────────────────────────────────────────
+const STEP_LABELS = ["Parent & Learner", "Subjects & Exams", "Needs & Schedule", "Final Details"]
+
+function StepProgress({ step }: { step: number }) {
+  return (
+    <div className="mb-6">
+      <div className="flex items-start justify-between mb-3">
+        {STEP_LABELS.map((label, i) => {
+          const n = i + 1
+          const done = n < step
+          const active = n === step
+          return (
+            <div key={n} className="flex flex-col items-center gap-1 flex-1">
+              <div className={cn(
+                "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all border-2",
+                done && "bg-secondary border-secondary text-white",
+                active && "bg-secondary border-secondary text-white ring-4 ring-secondary/20",
+                !done && !active && "bg-gray-100 border-gray-200 text-gray-400",
+              )}>
+                {done ? <CheckCircle2 className="w-4 h-4" /> : n}
+              </div>
+              <span className={cn("text-[10px] text-center leading-tight hidden sm:block font-medium",
+                active ? "text-secondary" : done ? "text-gray-500" : "text-gray-400"
+              )}>{label}</span>
+            </div>
+          )
+        })}
+      </div>
+      <div className="relative h-1.5 bg-gray-100 rounded-full">
+        <div className="absolute inset-y-0 left-0 bg-secondary rounded-full transition-all duration-500"
+          style={{ width: `${((step - 1) / 3) * 100}%` }} />
+      </div>
+      <p className="text-xs text-gray-400 mt-1 text-right">Step {step} of 4</p>
+    </div>
+  )
+}
+
+// ── Field wrapper ─────────────────────────────────────────────────────────────
+function Field({ label, required, error, children, className }: {
+  label: string; required?: boolean; error?: string; children: ReactNode; className?: string
+}) {
+  return (
+    <div className={cn("space-y-1.5", className)}>
+      <Label className="text-sm font-medium text-gray-700">
+        {label}{required && <span className="text-red-500 ml-0.5">*</span>}
+      </Label>
+      {children}
+      {error && <p className="text-xs text-red-500 flex items-center gap-1"><Info className="w-3 h-3 flex-shrink-0" />{error}</p>}
+    </div>
+  )
+}
+
+const inputCls = (err?: boolean) => cn(
+  "h-11 border rounded-lg transition-colors focus-visible:ring-secondary/30",
+  err ? "border-red-400 bg-red-50/30 focus-visible:ring-red-200" : "border-gray-200 focus:border-secondary/60"
+)
+const textareaCls = (err?: boolean) => cn(
+  "border rounded-lg transition-colors resize-none focus-visible:ring-secondary/30",
+  err ? "border-red-400 bg-red-50/30 focus-visible:ring-red-200" : "border-gray-200 focus:border-secondary/60"
+)
+
+function SectionHeader({ icon: Icon, title }: { icon: React.ElementType; title: string }) {
+  return (
+    <div className="flex items-center gap-2 py-2 border-b border-gray-100 mb-1">
+      <div className="w-7 h-7 rounded-lg bg-secondary/10 flex items-center justify-center flex-shrink-0">
+        <Icon className="w-4 h-4 text-secondary" />
+      </div>
+      <h3 className="font-semibold text-gray-800 text-sm uppercase tracking-wide">{title}</h3>
+    </div>
+  )
+}
+
+// ── Main modal ────────────────────────────────────────────────────────────────
 function BookingFormModal() {
   const { isOpen, selectedPlan, closeModal } = useBookingForm()
   const [step, setStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [formData, setFormData] = useState<BookingFormData>(INITIAL_FORM_DATA)
-  const [showSuccessModal, setShowSuccessModal] = useState(false)
-  const [submittedFormData, setSubmittedFormData] = useState<BookingFormData | null>(null)
+  const [showSuccess, setShowSuccess] = useState(false)
+  const [successWhatsAppUrl, setSuccessWhatsAppUrl] = useState("")
+  const [form, setForm] = useState<EnrollmentFormData>(INITIAL_ENROLLMENT_FORM_DATA)
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
-  // Update plan when selectedPlan changes
   useEffect(() => {
-    if (selectedPlan) {
-      setFormData((prev) => ({ ...prev, plan: selectedPlan }))
-    }
+    if (selectedPlan) setForm(prev => ({ ...prev, plan: selectedPlan }))
   }, [selectedPlan])
 
-  const handleSubjectToggle = (subject: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      subjects: prev.subjects.includes(subject)
-        ? prev.subjects.filter((s) => s !== subject)
-        : [...prev.subjects, subject],
-    }))
+  const set = (k: keyof EnrollmentFormData, v: unknown) =>
+    setForm(prev => ({ ...prev, [k]: v }))
+
+  const toggleArr = (k: "subjects" | "preferredDays" | "gcseSubjects", v: string) =>
+    setForm(prev => {
+      const arr = prev[k] as string[]
+      return { ...prev, [k]: arr.includes(v) ? arr.filter(x => x !== v) : [...arr, v] }
+    })
+
+  // Validation
+  function validate(s: number) {
+    const e: Record<string, string> = {}
+    if (s === 1) {
+      if (!form.parentName.trim()) e.parentName = "Required"
+      if (!form.parentEmail.trim()) e.parentEmail = "Required"
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.parentEmail)) e.parentEmail = "Invalid email"
+      if (!form.parentPhone.trim()) e.parentPhone = "Required"
+      if (!form.parentCountry) e.parentCountry = "Required"
+      if (form.parentCountry === "Other" && !form.parentOtherCountry.trim()) e.parentOtherCountry = "Please specify"
+      if (!form.learnerName.trim()) e.learnerName = "Required"
+      if (!form.learnerEmail.trim()) e.learnerEmail = "Required"
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.learnerEmail)) e.learnerEmail = "Invalid email"
+      if (!form.learnerAge.trim()) e.learnerAge = "Required"
+      if (!form.learnerGrade.trim()) e.learnerGrade = "Required"
+      if (!form.learnerSchool.trim()) e.learnerSchool = "Required"
+      if (!form.learnerCountry.trim()) e.learnerCountry = "Required"
+    }
+    if (s === 2) {
+      if (!form.subjects.length && !form.otherSubject.trim()) e.subjects = "Select at least one subject"
+      if (!form.examType) e.examType = "Required"
+    }
+    if (s === 3) {
+      if (!form.weakAreas.trim()) e.weakAreas = "Required"
+      if (!form.learningGoals.trim()) e.learningGoals = "Required"
+      if (!form.testerDate) e.testerDate = "Required"
+      if (!form.testerTime.trim()) e.testerTime = "Required"
+      if (!form.preferredDays.length) e.preferredDays = "Select at least one day"
+      if (!form.preferredClassTime.trim()) e.preferredClassTime = "Required"
+      if (!form.hoursPerWeek.trim()) e.hoursPerWeek = "Required"
+    }
+    if (s === 4) {
+      if (!form.urgentNeeds.trim()) e.urgentNeeds = "Required"
+      if (!form.specificResources.trim()) e.specificResources = "Required"
+      if (!form.additionalInfo.trim()) e.additionalInfo = "Required"
+      if (!form.referralSource) e.referralSource = "Required"
+      if (form.referralSource === "Other" && !form.otherReferralSource.trim()) e.otherReferralSource = "Please specify"
+    }
+    setErrors(e)
+    return Object.keys(e).length === 0
   }
 
-  const handleDayToggle = (day: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      preferredDays: prev.preferredDays.includes(day)
-        ? prev.preferredDays.filter((d) => d !== day)
-        : [...prev.preferredDays, day],
-    }))
+  function next() {
+    if (validate(step)) setStep(s => s + 1)
+    else toast.error("Please fill in all required fields before continuing")
   }
+  function back() { setStep(s => s - 1); setErrors({}) }
 
-  const handleSubmit = async () => {
+  async function handleSubmit() {
+    if (!validate(4)) { toast.error("Please fill in all required fields"); return }
     setIsSubmitting(true)
     try {
-      const response = await fetch("/api/send-email", {
+      const res = await fetch("/api/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, plan: selectedPlan || formData.plan }),
+        body: JSON.stringify({ ...form, plan: selectedPlan || form.plan }),
       })
-
-      const data = await response.json()
-
+      const data = await res.json()
       if (data.success) {
-        const submittedData = { ...formData, plan: selectedPlan || formData.plan }
-        setSubmittedFormData(submittedData)
-        setShowSuccessModal(true)
-        
-        // Generate WhatsApp URL and try to open immediately
-        const whatsappUrl = generateWhatsAppUrl(submittedData, "main-page")
-        
-        toast.success("Request Submitted! 🎉", {
-          description: "Click the WhatsApp button to continue the conversation...",
-        })
-        
-        // Try to open WhatsApp immediately
-        const newWindow = window.open(whatsappUrl, "_blank", "noopener,noreferrer")
-        
-        if (!newWindow) {
-          // Show a more prominent message to click the WhatsApp button
-          setTimeout(() => {
-            toast.info("Click the WhatsApp button below to continue! 👇", {
-              description: "Your browser blocked the automatic redirect",
-              duration: 5000
-            })
-          }, 1000)
+        setSuccessWhatsAppUrl(data.data?.whatsappUrl ?? "")
+        setShowSuccess(true)
+        if (data.data?.whatsappUrl) {
+          const w = window.open(data.data.whatsappUrl, "_blank", "noopener,noreferrer")
+          if (!w) setTimeout(() => toast.info("Click WhatsApp button to continue!", { duration: 5000 }), 800)
         }
       } else {
-        toast.error("Submission Failed", {
-          description: data.error || "Please try again or contact us on WhatsApp.",
-        })
+        toast.error("Submission failed", { description: data.error || "Please try again." })
       }
     } catch {
-      toast.error("Submission Failed", {
-        description: "Please try again or contact us on WhatsApp.",
-      })
+      toast.error("Network error", { description: "Please check your connection and try again." })
     } finally {
       setIsSubmitting(false)
     }
   }
 
-  const canProceedStep1 =
-    formData.name &&
-    formData.email &&
-    formData.phone &&
-    formData.country &&
-    (formData.country !== "Other" || formData.otherCountry) &&
-    formData.studentAge &&
-    formData.gradeLevel &&
-    formData.curriculum
-  const canProceedStep2 = formData.subjects.length > 0
-  const canProceedStep3 = formData.preferredDays.length > 0 && formData.preferredTime
+  function handleClose() {
+    closeModal(); setStep(1); setForm(INITIAL_ENROLLMENT_FORM_DATA); setErrors({}); setShowSuccess(false)
+  }
 
-  const handleClose = () => {
-    closeModal()
-    setStep(1)
-    setFormData(INITIAL_FORM_DATA)
-    setShowSuccessModal(false)
-    setSubmittedFormData(null)
+  // GCSE groups
+  const gcseGroups: Record<string, string[]> = {}
+  for (const opt of GCSE_OPTIONS) {
+    const g = opt.startsWith("Maths") ? "Maths"
+      : opt.startsWith("English") ? "English"
+      : opt.includes("Triple") ? "Triple Science"
+      : opt.includes("Combined") ? "Combined Science"
+      : "Computer Science"
+    if (!gcseGroups[g]) gcseGroups[g] = []
+    gcseGroups[g].push(opt)
+  }
+
+  // Success screen
+  if (showSuccess) {
+    return (
+      <Dialog open onOpenChange={handleClose}>
+        <DialogContent className="sm:max-w-md text-center">
+          <DialogHeader>
+            <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-3">
+              <CheckCircle2 className="w-8 h-8 text-green-600" />
+            </div>
+            <DialogTitle className="text-2xl font-bold">Enquiry Submitted! 🎉</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-left">
+              <p className="text-green-800 text-sm font-semibold mb-1">✅ Your enquiry has been received</p>
+              <ul className="text-xs text-green-700 space-y-0.5 list-disc list-inside">
+                <li>Our team will review your details</li>
+                <li>Continue on WhatsApp for instant support</li>
+                <li>We will help you schedule your FREE tester session</li>
+              </ul>
+            </div>
+            {successWhatsAppUrl && (
+              <Button onClick={() => window.open(successWhatsAppUrl, "_blank")}
+                className="w-full bg-green-600 hover:bg-green-700 text-white gap-2 h-11">
+                <MessageCircle className="w-4 h-4" />Continue on WhatsApp
+              </Button>
+            )}
+            <Button variant="outline" onClick={handleClose} className="w-full h-11">Close</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    )
   }
 
   return (
-    <>
-      <Dialog open={isOpen && !showSuccessModal} onOpenChange={handleClose}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold flex items-center gap-2">
-              <Gift className="h-6 w-6 text-secondary" />
-              Book Your FREE Trial Class
-            </DialogTitle>
-            {selectedPlan && (
-              <p className="text-sm text-muted-foreground mt-1">
-                Selected Plan: <span className="font-semibold text-secondary">{selectedPlan}</span>
-              </p>
-            )}
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogContent className="sm:max-w-[640px] max-h-[92vh] overflow-y-auto p-5 sm:p-6">
+        <DialogHeader className="mb-1">
+          <DialogTitle className="text-xl font-bold text-gray-900">
+            Book a FREE Tester Session
+          </DialogTitle>
+          {selectedPlan && (
+            <p className="text-sm text-gray-500 mt-0.5">
+              Plan: <span className="font-semibold text-secondary">{selectedPlan}</span>
+            </p>
+          )}
         </DialogHeader>
 
-        {/* Progress indicator */}
-        <div className="flex items-center justify-between mb-6">
-          {[1, 2, 3].map((s) => (
-            <div key={s} className="flex items-center">
-              <div
-                className={`h-10 w-10 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
-                  step >= s
-                    ? "bg-secondary text-secondary-foreground shadow-lg"
-                    : "bg-muted text-muted-foreground"
-                }`}
-              >
-                {step > s ? <CheckCircle2 className="h-5 w-5" /> : s}
-              </div>
-              {s < 3 && (
-                <div
-                  className={`h-1 w-16 sm:w-24 mx-2 rounded-full transition-all ${
-                    step > s ? "bg-secondary" : "bg-muted"
-                  }`}
-                />
-              )}
-            </div>
-          ))}
-        </div>
+        <StepProgress step={step} />
 
-        {/* Step 1: Contact Information */}
+        {/* ── Step 1: Parent & Learner ─────────────────────────── */}
         {step === 1 && (
           <div className="space-y-5">
-            <div className="text-center mb-4">
-              <h3 className="text-lg font-semibold flex items-center justify-center gap-2">
-                <User className="h-5 w-5 text-secondary" />
-                Parent & Student Details
-              </h3>
-              <p className="text-sm text-muted-foreground">Tell us about yourself and your child</p>
-            </div>
-
-            <div className="grid gap-5 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="name" className="flex items-center gap-2 text-sm font-medium">
-                  <User className="h-4 w-4 text-muted-foreground" />
-                  Parent&apos;s Full Name
-                </Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="John Adeyemi"
-                  className="h-12 border-2 bg-background focus:border-secondary"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email" className="flex items-center gap-2 text-sm font-medium">
-                  <Mail className="h-4 w-4 text-muted-foreground" />
-                  Email Address
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="john@example.com"
-                  className="h-12 border-2 bg-background focus:border-secondary"
-                />
-              </div>
-            </div>
-
-            <div className="grid gap-5 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="phone" className="flex items-center gap-2 text-sm font-medium">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
-                  WhatsApp Number
-                </Label>
-                <Input
-                  id="phone"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder="+44 7123 456789"
-                  className="h-12 border-2 bg-background focus:border-secondary"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="country" className="flex items-center gap-2 text-sm font-medium">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
-                  Country of Residence
-                </Label>
-                <Select
-                  value={formData.country}
-                  onValueChange={(v) =>
-                    setFormData({
-                      ...formData,
-                      country: v,
-                      otherCountry: v !== "Other" ? "" : formData.otherCountry,
-                    })
-                  }
-                >
-                  <SelectTrigger className="h-12 border-2 bg-background">
-                    <SelectValue placeholder="Select country" />
+            <SectionHeader icon={User} title="Section 1: Parent/Guardian Information" />
+            <div className="grid sm:grid-cols-2 gap-4">
+              <Field label="Parent/Guardian Full Name" required error={errors.parentName}>
+                <Input value={form.parentName} onChange={e => set("parentName", e.target.value)}
+                  placeholder="Your full name" className={inputCls(!!errors.parentName)} />
+              </Field>
+              <Field label="Email Address" required error={errors.parentEmail}>
+                <Input type="email" value={form.parentEmail} onChange={e => set("parentEmail", e.target.value)}
+                  placeholder="you@example.com" className={inputCls(!!errors.parentEmail)} />
+              </Field>
+              <Field label="Phone Number / WhatsApp Number" required error={errors.parentPhone}>
+                <Input value={form.parentPhone} onChange={e => set("parentPhone", e.target.value)}
+                  placeholder="+44 7xxx xxxxxx" className={inputCls(!!errors.parentPhone)} />
+              </Field>
+              <Field label="Country of Residence" required error={errors.parentCountry}>
+                <Select value={form.parentCountry} onValueChange={v => set("parentCountry", v)}>
+                  <SelectTrigger className={cn("h-11 rounded-lg", errors.parentCountry ? "border-red-400" : "border-gray-200")}>
+                    <SelectValue placeholder="Choose country" />
                   </SelectTrigger>
-                  <SelectContent className="max-h-[300px]">
-                    {COUNTRIES.map((country) => (
-                      <SelectItem key={country.value} value={country.value}>
-                        {country.label}
-                      </SelectItem>
-                    ))}
+                  <SelectContent className="max-h-72">
+                    {COUNTRIES.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
                   </SelectContent>
                 </Select>
-                {formData.country === "Other" && (
-                  <Input
-                    id="otherCountry"
-                    value={formData.otherCountry}
-                    onChange={(e) => setFormData({ ...formData, otherCountry: e.target.value })}
-                    placeholder="Please specify your country"
-                    className="h-12 border-2 bg-background focus:border-secondary mt-2"
-                  />
-                )}
-              </div>
+              </Field>
             </div>
+            {form.parentCountry === "Other" && (
+              <Field label="Please specify your country" required error={errors.parentOtherCountry}>
+                <Input value={form.parentOtherCountry} onChange={e => set("parentOtherCountry", e.target.value)}
+                  placeholder="Your country" className={inputCls(!!errors.parentOtherCountry)} />
+              </Field>
+            )}
 
-            <div className="grid gap-5 sm:grid-cols-3">
-              <div className="space-y-2">
-                <Label htmlFor="studentAge" className="flex items-center gap-2 text-sm font-medium">
-                  <GraduationCap className="h-4 w-4 text-muted-foreground" />
-                  Child&apos;s Age
-                </Label>
-                <Select
-                  value={formData.studentAge}
-                  onValueChange={(v) => setFormData({ ...formData, studentAge: v })}
-                >
-                  <SelectTrigger className="h-12 border-2 bg-background">
-                    <SelectValue placeholder="Age" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Array.from({ length: 14 }, (_, i) => i + 3).map((age) => (
-                      <SelectItem key={age} value={age.toString()}>
-                        {age} years
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="gradeLevel" className="flex items-center gap-2 text-sm font-medium">
-                  <BookOpen className="h-4 w-4 text-muted-foreground" />
-                  Grade/Year
-                </Label>
-                <Select
-                  value={formData.gradeLevel}
-                  onValueChange={(v) => setFormData({ ...formData, gradeLevel: v })}
-                >
-                  <SelectTrigger className="h-12 border-2 bg-background">
-                    <SelectValue placeholder="Grade" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {GRADE_LEVELS.map((level) => (
-                      <SelectItem key={level} value={level}>
-                        {level}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="curriculum" className="flex items-center gap-2 text-sm font-medium">
-                  <Sparkles className="h-4 w-4 text-muted-foreground" />
-                  Curriculum
-                </Label>
-                <Select
-                  value={formData.curriculum}
-                  onValueChange={(v) => setFormData({ ...formData, curriculum: v })}
-                >
-                  <SelectTrigger className="h-12 border-2 bg-background">
-                    <SelectValue placeholder="Curriculum" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CURRICULA.map((curr) => (
-                      <SelectItem key={curr} value={curr}>
-                        {curr}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            <SectionHeader icon={Users} title="Section 2: Learner's Information" />
+            <div className="grid sm:grid-cols-2 gap-4">
+              <Field label="Learner's Full Name" required error={errors.learnerName}>
+                <Input value={form.learnerName} onChange={e => set("learnerName", e.target.value)}
+                  placeholder="Child's full name" className={inputCls(!!errors.learnerName)} />
+              </Field>
+              <Field label="Learner's Email Address" required error={errors.learnerEmail}>
+                <Input type="email" value={form.learnerEmail} onChange={e => set("learnerEmail", e.target.value)}
+                  placeholder="child@example.com" className={inputCls(!!errors.learnerEmail)} />
+              </Field>
+              <Field label="Learner's Age" required error={errors.learnerAge}>
+                <Input type="number" min="3" max="25" value={form.learnerAge}
+                  onChange={e => set("learnerAge", e.target.value)}
+                  placeholder="e.g. 12" className={inputCls(!!errors.learnerAge)} />
+              </Field>
+              <Field label="Learner's Current Class / Grade" required error={errors.learnerGrade}>
+                <Input value={form.learnerGrade} onChange={e => set("learnerGrade", e.target.value)}
+                  placeholder="e.g. Year 9 / Grade 10" className={inputCls(!!errors.learnerGrade)} />
+              </Field>
+              <Field label="Name of Learner's School" required error={errors.learnerSchool}>
+                <Input value={form.learnerSchool} onChange={e => set("learnerSchool", e.target.value)}
+                  placeholder="School name" className={inputCls(!!errors.learnerSchool)} />
+              </Field>
+              <Field label="Country where learner attends school" required error={errors.learnerCountry}>
+                <Input value={form.learnerCountry} onChange={e => set("learnerCountry", e.target.value)}
+                  placeholder="e.g. United Kingdom" className={inputCls(!!errors.learnerCountry)} />
+              </Field>
             </div>
-
-            <div className="mt-8 pt-4 border-t">
-              <Button
-                onClick={() => setStep(2)}
-                disabled={!canProceedStep1}
-                className="w-full h-12 bg-secondary hover:bg-secondary/90 text-secondary-foreground rounded-full"
-              >
-                Continue to Subjects
-                <ArrowRight className="ml-2 h-5 w-5" />
+            <div className="flex justify-end pt-1">
+              <Button onClick={next} className="bg-secondary hover:bg-secondary/90 text-white px-8 h-11 gap-2">
+                Next <ArrowRight className="w-4 h-4" />
               </Button>
             </div>
           </div>
         )}
 
-        {/* Step 2: Subjects */}
+        {/* ── Step 2: Subjects & Exams ─────────────────────────── */}
         {step === 2 && (
           <div className="space-y-5">
-            <div className="text-center mb-4">
-              <h3 className="text-lg font-semibold flex items-center justify-center gap-2">
-                <BookOpen className="h-5 w-5 text-secondary" />
-                What would you like your child to learn?
-              </h3>
-              <p className="text-sm text-muted-foreground">Select all subjects that apply</p>
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              {SUBJECTS.map((subject) => (
-                <label
-                  key={subject}
-                  className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all bg-muted/30 hover:bg-muted/50 ${
-                    formData.subjects.includes(subject)
-                      ? "border-secondary bg-secondary/10"
-                      : "border-border"
-                  }`}
-                >
-                  <Checkbox
-                    checked={formData.subjects.includes(subject)}
-                    onCheckedChange={() => handleSubjectToggle(subject)}
-                    className="h-5 w-5"
-                  />
-                  <span className="text-sm font-medium">{subject}</span>
+            <SectionHeader icon={BookOpen} title="Section 3: Subjects Enrolling For" />
+            <Field label="Which subject(s) would the learner like tutoring in?" required error={errors.subjects}>
+              <div className="grid grid-cols-2 gap-2 mt-1">
+                {FORM_SUBJECTS.map(s => (
+                  <label key={s} className={cn(
+                    "flex items-center gap-2.5 p-3 rounded-lg border cursor-pointer transition-colors text-sm",
+                    form.subjects.includes(s) ? "border-secondary bg-secondary/5 text-secondary font-medium" : "border-gray-200 hover:border-secondary/40 hover:bg-gray-50"
+                  )}>
+                    <Checkbox checked={form.subjects.includes(s)} onCheckedChange={() => toggleArr("subjects", s)}
+                      className="data-[state=checked]:bg-secondary data-[state=checked]:border-secondary flex-shrink-0" />
+                    <span className="text-xs">{s}</span>
+                  </label>
+                ))}
+                <label className={cn(
+                  "flex items-center gap-2.5 p-3 rounded-lg border cursor-pointer col-span-2 text-sm",
+                  form.otherSubject ? "border-secondary bg-secondary/5 text-secondary" : "border-gray-200 hover:border-secondary/40 hover:bg-gray-50"
+                )}>
+                  <Checkbox checked={!!form.otherSubject} onCheckedChange={c => { if (!c) set("otherSubject", "") }}
+                    className="data-[state=checked]:bg-secondary data-[state=checked]:border-secondary flex-shrink-0" />
+                  <span className="flex-shrink-0 text-xs">Other:</span>
+                  <Input value={form.otherSubject} onChange={e => set("otherSubject", e.target.value)}
+                    placeholder="Please specify" onClick={e => e.stopPropagation()}
+                    className="h-6 border-0 border-b border-gray-300 rounded-none focus-visible:ring-0 px-1 text-xs" />
                 </label>
-              ))}
-            </div>
+              </div>
+            </Field>
 
-            <div className="mt-8 pt-4 border-t flex gap-3">
-              <Button
-                variant="outline"
-                onClick={() => setStep(1)}
-                className="flex-1 h-12 rounded-full"
-              >
-                <ArrowLeft className="mr-2 h-5 w-5" />
-                Back
+            <SectionHeader icon={BookOpen} title="Section 4: Exams Preparation" />
+            <Field label="Is the learner preparing for any exam?" required error={errors.examType}>
+              <div className="space-y-1.5 mt-1">
+                {EXAM_TYPES.map(t => (
+                  <label key={t} className={cn(
+                    "flex items-center gap-3 px-4 py-2.5 rounded-lg border cursor-pointer transition-colors text-sm",
+                    form.examType === t ? "border-secondary bg-secondary/5 text-secondary font-medium" : "border-gray-200 hover:border-secondary/40 hover:bg-gray-50"
+                  )}>
+                    <input type="radio" name="examType" value={t} checked={form.examType === t}
+                      onChange={() => { set("examType", t); if (t !== "GCSE") set("gcseSubjects", []) }}
+                      className="accent-secondary" />
+                    {t}
+                  </label>
+                ))}
+                <label className={cn(
+                  "flex items-center gap-3 px-4 py-2.5 rounded-lg border cursor-pointer text-sm",
+                  form.examType === "Other" ? "border-secondary bg-secondary/5 text-secondary font-medium" : "border-gray-200 hover:border-secondary/40 hover:bg-gray-50"
+                )}>
+                  <input type="radio" name="examType" value="Other" checked={form.examType === "Other"}
+                    onChange={() => set("examType", "Other")} className="accent-secondary" />
+                  <span className="flex-shrink-0">Other:</span>
+                  <Input value={form.otherExamType} onChange={e => set("otherExamType", e.target.value)}
+                    placeholder="Please specify" onClick={e => e.stopPropagation()}
+                    className="h-6 border-0 border-b border-gray-300 rounded-none focus-visible:ring-0 px-1 text-sm" />
+                </label>
+              </div>
+            </Field>
+
+            {form.examType && form.examType !== "Not currently preparing for exams" && (
+              <Field label="If yes, what exam and when is the exam date?" required error={errors.examDate}>
+                <Input type="date" value={form.examDate} onChange={e => set("examDate", e.target.value)}
+                  className={inputCls(!!errors.examDate)} />
+              </Field>
+            )}
+
+            {form.examType === "GCSE" && (
+              <Field label="If preparing for GCSE, choose subject(s), exam board and tier">
+                <div className="space-y-4 mt-1 max-h-72 overflow-y-auto pr-1">
+                  {Object.entries(gcseGroups).map(([group, opts]) => (
+                    <div key={group}>
+                      <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2 sticky top-0 bg-white py-0.5">{group}</p>
+                      <div className="space-y-1">
+                        {opts.map(opt => (
+                          <label key={opt} className={cn(
+                            "flex items-center gap-2.5 px-3 py-2 rounded-lg border cursor-pointer transition-colors",
+                            form.gcseSubjects.includes(opt) ? "border-secondary bg-secondary/5 text-secondary" : "border-gray-100 hover:border-secondary/30 hover:bg-gray-50"
+                          )}>
+                            <Checkbox checked={form.gcseSubjects.includes(opt)} onCheckedChange={() => toggleArr("gcseSubjects", opt)}
+                              className="data-[state=checked]:bg-secondary data-[state=checked]:border-secondary flex-shrink-0" />
+                            <span className="text-xs">{opt}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                  <label className="flex items-center gap-2.5 px-3 py-2 rounded-lg border border-gray-100 hover:border-secondary/30 cursor-pointer">
+                    <Checkbox checked={!!form.otherGcseSubject} onCheckedChange={c => { if (!c) set("otherGcseSubject", "") }}
+                      className="data-[state=checked]:bg-secondary data-[state=checked]:border-secondary flex-shrink-0" />
+                    <span className="text-xs flex-shrink-0">Other:</span>
+                    <Input value={form.otherGcseSubject} onChange={e => set("otherGcseSubject", e.target.value)}
+                      placeholder="Please specify" onClick={e => e.stopPropagation()}
+                      className="h-6 border-0 border-b border-gray-300 rounded-none focus-visible:ring-0 px-1 text-xs" />
+                  </label>
+                </div>
+              </Field>
+            )}
+
+            <div className="flex justify-between gap-3 pt-1">
+              <Button variant="outline" onClick={back} className="px-6 h-11 gap-2">
+                <ArrowLeft className="w-4 h-4" />Back
               </Button>
-              <Button
-                onClick={() => setStep(3)}
-                disabled={!canProceedStep2}
-                className="flex-1 h-12 bg-secondary hover:bg-secondary/90 text-secondary-foreground rounded-full"
-              >
-                Continue to Schedule
-                <ArrowRight className="ml-2 h-5 w-5" />
+              <Button onClick={next} className="bg-secondary hover:bg-secondary/90 text-white px-8 h-11 gap-2">
+                Next <ArrowRight className="w-4 h-4" />
               </Button>
             </div>
           </div>
         )}
 
-        {/* Step 3: Schedule */}
+        {/* ── Step 3: Learning Needs & Schedule ────────────────── */}
         {step === 3 && (
           <div className="space-y-5">
-            <div className="text-center mb-4">
-              <h3 className="text-lg font-semibold flex items-center justify-center gap-2">
-                <Calendar className="h-5 w-5 text-secondary" />
-                Schedule & Goals
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                Select preferred days, time, and your learning goal
-              </p>
+            <SectionHeader icon={BookOpen} title="Section 5: Learning Needs" />
+            <Field label="What are the learner's weak areas or challenges?" required error={errors.weakAreas}>
+              <p className="text-xs text-gray-400 -mt-1">e.g. Algebra, Essay writing, Reading comprehension, Exam confidence</p>
+              <Textarea value={form.weakAreas} onChange={e => set("weakAreas", e.target.value)}
+                placeholder="Describe the learner's weak areas..." rows={3} className={textareaCls(!!errors.weakAreas)} />
+            </Field>
+            <Field label="What learning goals do you want the tutor to focus on?" required error={errors.learningGoals}>
+              <Textarea value={form.learningGoals} onChange={e => set("learningGoals", e.target.value)}
+                placeholder="Describe desired learning outcomes..." rows={3} className={textareaCls(!!errors.learningGoals)} />
+            </Field>
+
+            <SectionHeader icon={Calendar} title="Section 6: Tester Session Scheduling" />
+            <div className="grid sm:grid-cols-2 gap-4">
+              <Field label="Preferred date for tester session" required error={errors.testerDate}>
+                <Input type="date" value={form.testerDate} min={new Date().toISOString().split("T")[0]}
+                  onChange={e => set("testerDate", e.target.value)} className={inputCls(!!errors.testerDate)} />
+              </Field>
+              <Field label="Preferred Time for tester session (Time zone)" required error={errors.testerTime}>
+                <div className="flex gap-2">
+                  <Input type="time" value={form.testerTime} onChange={e => set("testerTime", e.target.value)}
+                    className={cn("flex-1", inputCls(!!errors.testerTime))} />
+                  <Select value={form.testerAmPm} onValueChange={v => set("testerAmPm", v)}>
+                    <SelectTrigger className="w-20 h-11 border-gray-200 rounded-lg"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="AM">AM</SelectItem>
+                      <SelectItem value="PM">PM</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </Field>
             </div>
 
-            {/* Plan Selection */}
-            <div className="space-y-2">
-              <Label htmlFor="plan" className="flex items-center gap-2 text-sm font-medium">
-                <Zap className="h-4 w-4 text-muted-foreground" />
-                Preferred Plan
-              </Label>
-              <Select
-                value={formData.plan}
-                onValueChange={(v) => setFormData({ ...formData, plan: v })}
-              >
-                <SelectTrigger className="h-12 border-2 bg-background">
-                  <SelectValue placeholder="Select a plan (optional)" />
-                </SelectTrigger>
-                <SelectContent>
-                  {PLANS.map((plan) => (
-                    <SelectItem key={plan} value={plan}>
-                      {plan}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {selectedPlan && (
-                <p className="text-xs text-secondary">Pre-selected from your choice</p>
-              )}
-            </div>
-
-            <div>
-              <Label className="text-sm font-medium mb-3 block">Preferred Days</Label>
-              <div className="flex flex-wrap gap-2">
-                {DAYS_OF_WEEK.map((day) => (
-                  <button
-                    key={day}
-                    type="button"
-                    onClick={() => handleDayToggle(day)}
-                    className={`px-4 py-3 rounded-xl text-sm font-medium transition-all border-2 ${
-                      formData.preferredDays.includes(day)
-                        ? "bg-secondary text-secondary-foreground border-secondary shadow-md"
-                        : "bg-background text-foreground border-border hover:border-secondary/50 hover:bg-muted/50"
-                    }`}
-                  >
+            <SectionHeader icon={Calendar} title="Section 7: Weekly Class Schedule" />
+            <Field label="Preferred days for classes" required error={errors.preferredDays}>
+              <div className="flex flex-wrap gap-2 mt-1">
+                {DAYS_OF_WEEK.map(day => (
+                  <button key={day} type="button" onClick={() => toggleArr("preferredDays", day)}
+                    className={cn("px-4 py-2 rounded-lg text-sm font-medium border transition-all",
+                      form.preferredDays.includes(day) ? "bg-secondary text-white border-secondary shadow-sm"
+                        : "bg-white text-gray-700 border-gray-200 hover:border-secondary/50"
+                    )}>
                     {day}
                   </button>
                 ))}
               </div>
+            </Field>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <Field label="Preferred class time (state each day and time)" required error={errors.preferredClassTime}>
+                <Textarea value={form.preferredClassTime} onChange={e => set("preferredClassTime", e.target.value)}
+                  placeholder="e.g. Mon: 4–5 PM, Wed: 3–4 PM" rows={2} className={textareaCls(!!errors.preferredClassTime)} />
+              </Field>
+              <Field label="How many hours per week? (state subject and duration)" required error={errors.hoursPerWeek}>
+                <Textarea value={form.hoursPerWeek} onChange={e => set("hoursPerWeek", e.target.value)}
+                  placeholder="e.g. Maths: 2 hrs, English: 1 hr" rows={2} className={textareaCls(!!errors.hoursPerWeek)} />
+              </Field>
             </div>
 
-            <div className="space-y-2">
-              <Label
-                htmlFor="preferredTime"
-                className="flex items-center gap-2 text-sm font-medium"
-              >
-                <Clock className="h-4 w-4 text-muted-foreground" />
-                Preferred Time (Your Local Time)
-              </Label>
-              <Select
-                value={formData.preferredTime}
-                onValueChange={(v) => setFormData({ ...formData, preferredTime: v })}
-              >
-                <SelectTrigger className="h-12 border-2 bg-background">
-                  <SelectValue placeholder="Select time slot" />
-                </SelectTrigger>
-                <SelectContent>
-                  {TIME_SLOTS.map((slot) => (
-                    <SelectItem key={slot} value={slot}>
-                      {slot}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Learning Goal */}
-            <div className="space-y-2">
-              <Label
-                htmlFor="learningGoal"
-                className="flex items-center gap-2 text-sm font-medium"
-              >
-                <Target className="h-4 w-4 text-muted-foreground" />
-                Learning Goal (Optional)
-              </Label>
-              <Textarea
-                id="learningGoal"
-                value={formData.learningGoal}
-                onChange={(e) => setFormData({ ...formData, learningGoal: e.target.value })}
-                placeholder="e.g., Improve grades in Mathematics, Prepare for GCSE exams, Build confidence in English..."
-                className="min-h-[80px] border-2 bg-background focus:border-secondary resize-none"
-              />
-              <p className="text-xs text-muted-foreground">
-                Tell us what you hope your child will achieve
-              </p>
-            </div>
-
-            <div className="bg-secondary/10 border-2 border-secondary/20 rounded-2xl p-4">
-              <div className="flex items-start gap-3">
-                <Gift className="h-6 w-6 text-secondary shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-semibold text-foreground">Your First Class is FREE!</p>
-                  <p className="text-sm text-muted-foreground">
-                    No payment required. Try us risk-free and see your child shine!
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-8 pt-4 border-t flex gap-3">
-              <Button
-                variant="outline"
-                onClick={() => setStep(2)}
-                className="flex-1 h-12 rounded-full"
-              >
-                <ArrowLeft className="mr-2 h-5 w-5" />
-                Back
+            <div className="flex justify-between gap-3 pt-1">
+              <Button variant="outline" onClick={back} className="px-6 h-11 gap-2">
+                <ArrowLeft className="w-4 h-4" />Back
               </Button>
-              <Button
-                onClick={handleSubmit}
-                disabled={!canProceedStep3 || isSubmitting}
-                className="flex-1 h-12 bg-secondary hover:bg-secondary/90 text-secondary-foreground rounded-full"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Submitting...
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle2 className="mr-2 h-5 w-5" />
-                    Book FREE Trial
-                  </>
-                )}
+              <Button onClick={next} className="bg-secondary hover:bg-secondary/90 text-white px-8 h-11 gap-2">
+                Next <ArrowRight className="w-4 h-4" />
               </Button>
             </div>
           </div>
         )}
-      </DialogContent>
-    </Dialog>
-      
-    <SuccessModal 
-      isOpen={showSuccessModal}
-      onClose={handleClose}
-      formData={submittedFormData}
-    />
-  </>
-  )
-}
 
-// Success Modal Component
-function SuccessModal({ 
-  isOpen, 
-  onClose, 
-  formData 
-}: { 
-  isOpen: boolean
-  onClose: () => void
-  formData: BookingFormData | null
-}) {
-  if (!formData) return null
+        {/* ── Step 4: Additional Info & Referral ───────────────── */}
+        {step === 4 && (
+          <div className="space-y-5">
+            <SectionHeader icon={Info} title="Section 8: Additional Information" />
+            <Field label="Any urgent academic needs we should be aware of?" required error={errors.urgentNeeds}>
+              <Textarea value={form.urgentNeeds} onChange={e => set("urgentNeeds", e.target.value)}
+                placeholder="e.g. Exam in 3 weeks, needs intensive support..." rows={2} className={textareaCls(!!errors.urgentNeeds)} />
+            </Field>
+            <Field label="Do you have specific resources or curriculum you want the learner to use?" required error={errors.specificResources}>
+              <Textarea value={form.specificResources} onChange={e => set("specificResources", e.target.value)}
+                placeholder="e.g. CGP books, school textbooks, specific syllabus..." rows={2} className={textareaCls(!!errors.specificResources)} />
+            </Field>
+            <Field label="Any additional information you would like to share?" required error={errors.additionalInfo}>
+              <Textarea value={form.additionalInfo} onChange={e => set("additionalInfo", e.target.value)}
+                placeholder="Anything else we should know..." rows={2} className={textareaCls(!!errors.additionalInfo)} />
+            </Field>
 
-  const generateWhatsAppMessage = (data: BookingFormData) => {
-    const finalCountry = data.country === "Other" && data.otherCountry ? data.otherCountry : data.country
-    const message = `Hi! I just submitted a trial class request form on your website. Here are my details:
+            <SectionHeader icon={Info} title="Section 9: Referral Information" />
+            <Field label="How did you hear about D-lighter Tutor?" required error={errors.referralSource}>
+              <div className="space-y-1.5 mt-1">
+                {REFERRAL_SOURCES.map(src => (
+                  <label key={src} className={cn(
+                    "flex items-center gap-3 px-4 py-2.5 rounded-lg border cursor-pointer transition-colors text-sm",
+                    form.referralSource === src ? "border-secondary bg-secondary/5 text-secondary font-medium" : "border-gray-200 hover:border-secondary/40 hover:bg-gray-50"
+                  )}>
+                    <input type="radio" name="referral" value={src} checked={form.referralSource === src}
+                      onChange={() => set("referralSource", src)} className="accent-secondary" />
+                    {src}
+                  </label>
+                ))}
+                <label className={cn(
+                  "flex items-center gap-3 px-4 py-2.5 rounded-lg border cursor-pointer text-sm",
+                  form.referralSource === "Other" ? "border-secondary bg-secondary/5 text-secondary font-medium" : "border-gray-200 hover:border-secondary/40 hover:bg-gray-50"
+                )}>
+                  <input type="radio" name="referral" value="Other" checked={form.referralSource === "Other"}
+                    onChange={() => set("referralSource", "Other")} className="accent-secondary" />
+                  <span className="flex-shrink-0">Other:</span>
+                  <Input value={form.otherReferralSource} onChange={e => set("otherReferralSource", e.target.value)}
+                    placeholder="Please specify" onClick={e => e.stopPropagation()}
+                    className="h-6 border-0 border-b border-gray-300 rounded-none focus-visible:ring-0 px-1 text-sm" />
+                </label>
+              </div>
+            </Field>
 
-📧 Name: ${data.name}
-📞 Phone: ${data.phone}
-📍 Country: ${finalCountry}
-👨‍🎓 Student Age: ${data.studentAge}
-📚 Grade Level: ${data.gradeLevel}
-📖 Curriculum: ${data.curriculum}
-🎯 Subjects: ${data.subjects.join(', ')}
-📅 Preferred Days: ${data.preferredDays.join(', ')}
-⏰ Preferred Time: ${data.preferredTime}${data.plan ? `
-💼 Plan: ${data.plan}` : ''}${data.learningGoal ? `
-🎯 Learning Goal: ${data.learningGoal}` : ''}
+            <div className="bg-secondary/5 border border-secondary/20 rounded-xl p-4 flex items-start gap-3">
+              <CheckCircle2 className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold text-gray-800 text-sm">Your first session is FREE!</p>
+                <p className="text-xs text-gray-500 mt-0.5">No payment required. Try us risk-free and see your child thrive.</p>
+              </div>
+            </div>
 
-I'm looking forward to hearing from you about scheduling the FREE trial class!`
-    
-    return encodeURIComponent(message)
-  }
-
-  const whatsappUrl = `https://wa.me/2348129517392?text=${generateWhatsAppMessage(formData)}`
-
-  return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px] text-center">
-        <DialogHeader>
-          <div className="mx-auto w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mb-4">
-            <CheckCircle2 className="w-8 h-8 text-amber-600" />
+            <div className="flex justify-between gap-3 pt-1">
+              <Button variant="outline" onClick={back} className="px-6 h-11 gap-2">
+                <ArrowLeft className="w-4 h-4" />Back
+              </Button>
+              <Button onClick={handleSubmit} disabled={isSubmitting}
+                className="bg-secondary hover:bg-secondary/90 text-white px-8 h-11 gap-2">
+                {isSubmitting
+                  ? <><Loader2 className="w-4 h-4 animate-spin" />Submitting…</>
+                  : <><CheckCircle2 className="w-4 h-4" />Submit Enquiry</>}
+              </Button>
+            </div>
           </div>
-          <DialogTitle className="text-2xl font-bold text-gray-900">
-            Request Submitted Successfully! 🎉
-          </DialogTitle>
-        </DialogHeader>
-        
-        <div className="space-y-6">
-          <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
-            <p className="text-amber-800 font-medium mb-2">✅ Request Submitted Successfully!</p>
-            <ul className="text-sm text-amber-700 space-y-1 text-left">
-              <li>• Your booking request has been received</li>
-              <li>• Continue the conversation on WhatsApp for instant support</li>
-              <li>• Our team will help you schedule the FREE trial class</li>
-            </ul>
-          </div>
-          
-          <div className="space-y-3">
-            <p className="text-gray-600 font-medium text-center">
-              👇 Click below to continue on WhatsApp
-            </p>
-            
-            <Button 
-              onClick={() => window.open(whatsappUrl, '_blank')}
-              className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-lg flex items-center justify-center gap-3 text-lg shadow-lg hover:shadow-xl transition-all whatsapp-pulse"
-              size="lg"
-            >
-              <span className="text-2xl">💬</span>
-              Continue on WhatsApp
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              onClick={onClose}
-              className="w-full"
-            >
-              Close
-            </Button>
-          </div>
-        </div>
+        )}
       </DialogContent>
     </Dialog>
   )

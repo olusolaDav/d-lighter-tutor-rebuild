@@ -1,7 +1,10 @@
+"use client"
+
 import Link from "next/link"
 import Image from "next/image"
-import { Facebook, Instagram, Mail, Phone, MessageCircle, Heart, MapPin, Clock, Linkedin, Youtube } from "lucide-react"
+import { Facebook, Instagram, Mail, Phone, MessageCircle, Heart, MapPin, Clock, Linkedin, Youtube, HelpCircle } from "lucide-react"
 import { websiteContent } from "@/content/website-content"
+import { usePathname } from "next/navigation"
 
 function TikTokIcon({ className }: { className?: string }) {
   return (
@@ -28,6 +31,15 @@ function MediumIcon({ className }: { className?: string }) {
 }
 
 export function Footer() {
+  const pathname = usePathname()
+
+  const navHref = (raw: string) =>
+    raw.startsWith('#') ? (pathname === '/' ? raw : `/${raw}`) : raw
+
+  const openChat = () => {
+    window.dispatchEvent(new CustomEvent('dlighter-open-chat'))
+  }
+
   const getSocialIcon = (iconName: string) => {
     switch (iconName) {
       case "facebook":
@@ -102,7 +114,7 @@ export function Footer() {
               ].map((link) => (
                 <li key={link.href}>
                   <Link 
-                    href={link.href} 
+                    href={navHref(link.href)} 
                     className="flex items-center gap-2 hover:text-secondary transition-colors group cursor-pointer"
                   >
                     <span className="h-1.5 w-1.5 rounded-full bg-secondary/50 group-hover:bg-secondary transition-colors" />
@@ -110,6 +122,15 @@ export function Footer() {
                   </Link>
                 </li>
               ))}
+              <li>
+                <button
+                  onClick={openChat}
+                  className="flex items-center gap-2 hover:text-secondary transition-colors group cursor-pointer w-full text-left"
+                >
+                  <HelpCircle className="h-3.5 w-3.5 text-secondary/60 group-hover:text-secondary transition-colors" />
+                  Help Centre
+                </button>
+              </li>
             </ul>
           </div>
 

@@ -1,20 +1,31 @@
 import mongoose, { Document, Schema, Types } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
+export type UserRole = 'super_admin' | 'admin' | 'tutor' | 'student' | 'parent';
+
 export interface IAdmin extends Document {
   _id: Types.ObjectId;
   firstName: string;
   lastName: string;
   email: string;
+  username?: string;          // unique login username for students (DLT-{name}{3digits})
+  phone?: string;
+  gender?: 'male' | 'female' | 'other';
+  age?: number;               // for students
   password: string;
-  role: 'super_admin' | 'admin';
+  role: UserRole;
   isActive: boolean;
   isEmailVerified: boolean;
+  twoFactorEnabled: boolean;
+  mustChangePassword: boolean; // true when account created by another user
   lastLogin?: Date;
   loginAttempts: number;
   lockUntil?: Date;
   profileImage?: string;
   permissions: string[];
+  parentId?: Types.ObjectId;  // for student: links to parent user
+  createdBy?: Types.ObjectId; // who created this account
+  subjects?: string[];        // for tutors
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -40,8 +51,8 @@ const adminSchema = new Schema<IAdmin>(
     },
     email: {
       type: String,
-      required: [true, 'Email is required'],
       unique: true,
+      sparse: true, // students may not have their own email
       lowercase: true,
       trim: true,
       match: [
@@ -49,49 +60,40 @@ const adminSchema = new Schema<IAdmin>(
         'Please enter a valid email address',
       ],
     },
+    username: {
+      type: String,
+      unique: true,
+      sparse: true,  // allow null/undefined (only students have usernames)
+      trim: true,
+      uppercase: true,
+    },
+    phone: { type: String, trim: true },
+    gender: { type: String, enum: ['male', 'female', 'other'] },
+    age: { type: Number, min: 1, max: 120 },
     password: {
       type: String,
       required: [true, 'Password is required'],
       minlength: [8, 'Password must be at least 8 characters'],
-      select: false, // Don't return password in queries by default
+      select: false,
     },
     role: {
       type: String,
-      enum: ['super_admin', 'admin'],
+      enum: ['super_admin', 'admin', 'tutor', 'student', 'parent'],
       default: 'admin',
     },
-    isActive: {
-      type: Boolean,
-      default: true,
-    },
-    isEmailVerified: {
-      type: Boolean,
-      default: false,
-    },
-    lastLogin: {
-      type: Date,
-    },
-    loginAttempts: {
-      type: Number,
-      default: 0,
-    },
-    lockUntil: {
-      type: Date,
-    },
-    profileImage: {
-      type: String,
-    },
+    isActive: { type: Boolean, default: true },
+    isEmailVerified: { type: Boolean, default: false },
+    twoFactorEnabled: { type: Boolean, default: false },
+    mustChangePassword: { type: Boolean, default: false },
+    lastLogin: { type: Date },
+    loginAttempts: { type: Number, default: 0 },
+    lockUntil: { type: Date },
+    profileImage: { type: String },
+    parentId: { type: Schema.Types.ObjectId, ref: 'Admin' },
+    createdBy: { type: Schema.Types.ObjectId, ref: 'Admin' },
+    subjects: [{ type: String }],
     permissions: [{
       type: String,
-      enum: [
-        'read_dashboard',
-        'manage_leads',
-        'manage_bookings',
-        'manage_content',
-        'manage_users',
-        'manage_admins',
-        'system_settings'
-      ]
     }],
   },
   {
@@ -121,24 +123,18 @@ adminSchema.pre('save', async function (this: IAdmin, next) {
 
 // Middleware to set default permissions
 adminSchema.pre('save', function (this: IAdmin, next) {
-  if (this.isNew) {
-    if (this.role === 'super_admin') {
-      this.permissions = [
-        'read_dashboard',
-        'manage_leads',
-        'manage_bookings',
-        'manage_content',
-        'manage_users',
-        'manage_admins',
-        'system_settings'
-      ];
-    } else {
-      this.permissions = [
-        'read_dashboard',
-        'manage_leads',
-        'manage_bookings'
-      ];
-    }
+  if (this.isNew && (!this.permissions || this.permissions.length === 0)) {
+    const rolePermissions: Record<string, string[]> = {
+      super_admin: [
+        'read_dashboard', 'manage_leads', 'manage_bookings',
+        'manage_content', 'manage_users', 'manage_admins', 'system_settings',
+      ],
+      admin: ['read_dashboard', 'manage_leads', 'manage_bookings', 'manage_content', 'manage_users'],
+      tutor: ['read_dashboard', 'view_sessions', 'manage_sessions'],
+      student: ['read_dashboard', 'view_sessions', 'view_progress'],
+      parent: ['read_dashboard', 'manage_children', 'view_sessions', 'manage_billing'],
+    };
+    this.permissions = rolePermissions[this.role] ?? ['read_dashboard'];
   }
   next();
 });
@@ -175,17 +171,12 @@ adminSchema.methods.incrementLoginAttempts = async function () {
 // Index for performance
 adminSchema.index({ isActive: 1 });
 adminSchema.index({ role: 1 });
+adminSchema.index({ parentId: 1 });
+adminSchema.index({ username: 1 });
 
-// Limit to maximum 4 admins
-adminSchema.pre('save', async function(next) {
-  if (this.isNew) {
-    const adminCount = await mongoose.model('Admin').countDocuments();
-    if (adminCount >= 4) {
-      const error = new Error('Maximum number of admin accounts (4) has been reached');
-      return next(error);
-    }
-  }
-  next();
-});
+// In development, always use the latest schema (avoids stale cached model after edits)
+if (process.env.NODE_ENV !== 'production' && mongoose.models.Admin) {
+  delete (mongoose.models as any).Admin;
+}
 
-export const Admin = mongoose.models.Admin || mongoose.model<IAdmin>('Admin', adminSchema);
+export const Admin = mongoose.model<IAdmin>('Admin', adminSchema);

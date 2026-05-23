@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useCallback } from "react"
+import { useBookingForm } from "@/components/booking-form-modal"
 import {
   StickyHeader,
   HeroSection,
@@ -12,53 +13,43 @@ import {
 
   FinalCTASection,
   SalesFooter,
-  SalesBookingModal,
 } from "@/components/sales"
 
 export default function SalesPage() {
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const { openModal } = useBookingForm()
 
-  const openModal = useCallback(() => {
-    setIsModalOpen(true)
-  }, [])
-
-  const closeModal = useCallback(() => {
-    setIsModalOpen(false)
-  }, [])
+  const openModalCb = useCallback(() => {
+    openModal()
+  }, [openModal])
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
       {/* Sticky CTA Header */}
-      <StickyHeader onBookTrial={openModal} />
+      <StickyHeader onBookTrial={openModalCb} />
 
       {/* Hero Section */}
-      <HeroSection onBookTrial={openModal} />
+      <HeroSection onBookTrial={openModalCb} />
 
       {/* Solution Section */}
-      <SolutionSection onBookTrial={openModal} />
+      <SolutionSection onBookTrial={openModalCb} />
 
       {/* How It Works Section */}
-      <HowItWorksSection onBookTrial={openModal} />
+      <HowItWorksSection onBookTrial={openModalCb} />
 
       {/* Testimonials Section */}
-      <TestimonialsSection onBookTrial={openModal} />
+      <TestimonialsSection onBookTrial={openModalCb} />
 
       {/* Video Section */}
-      <VideoSection onBookTrial={openModal} />
+      <VideoSection onBookTrial={openModalCb} />
 
       {/* Guarantee Section */}
-      <GuaranteeSection onBookTrial={openModal} />
-
-    
+      <GuaranteeSection onBookTrial={openModalCb} />
 
       {/* Final CTA Section */}
-      <FinalCTASection onBookTrial={openModal} />
+      <FinalCTASection onBookTrial={openModalCb} />
 
       {/* Footer */}
       <SalesFooter />
-
-      {/* Lead Capture Modal */}
-      <SalesBookingModal isOpen={isModalOpen} onClose={closeModal} />
     </div>
   )
 }

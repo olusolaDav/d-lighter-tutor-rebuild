@@ -1,0 +1,15 @@
+app/admin/leads/page.tsx(326,9): error TS18048: 'lead.name' is possibly 'undefined'.
+app/admin/leads/page.tsx(327,9): error TS18048: 'lead.email' is possibly 'undefined'.
+app/admin/leads/page.tsx(328,9): error TS18048: 'lead.phone' is possibly 'undefined'.
+app/api/admin/login/route.ts(62,44): error TS18048: 'admin.lockUntil' is possibly 'undefined'.
+app/api/admin/users/[id]/route.ts(79,9): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+app/api/blog/route.ts(12,24): error TS2339: Property 'posts' does not exist on type '{ _id: string; }[]'.
+app/api/blog/route.ts(18,63): error TS2339: Property 'total' does not exist on type '{ _id: string; }[]'.
+app/api/chat/ai/route.ts(220,37): error TS2339: Property 'sessionId' does not exist on type '{}'.
+app/api/chat/ai/route.ts(231,31): error TS2339: Property 'messages' does not exist on type '{}'.
+app/api/chat/ai/route.ts(271,17): error TS2339: Property 'messages' does not exist on type '{}'.
+app/api/chat/ai/route.ts(272,17): error TS2339: Property 'messages' does not exist on type '{}'.
+app/api/chat/ai/route.ts(273,17): error TS2339: Property 'lastActivity' does not exist on type '{}'.
+app/api/chat/ai/route.ts(274,23): error TS2339: Property 'save' does not exist on type '{}'.
+app/api/chat/webhook/whatsapp/route.ts(59,71): error TS1501: This regular expression flag is only available when targeting 'es2018' or later.

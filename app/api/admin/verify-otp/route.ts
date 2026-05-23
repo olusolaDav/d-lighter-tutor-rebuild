@@ -190,16 +190,28 @@ export async function POST(request: NextRequest) {
         response.data.lastLogin = admin.lastLogin;
 
         // Set secure HTTP-only cookies for tokens
-        const accessTokenCookie = `accessToken=${accessToken}; HttpOnly; Secure; SameSite=Strict; Max-Age=${15 * 60}`; // 15 minutes
-        const refreshTokenCookie = `refreshToken=${refreshToken}; HttpOnly; Secure; SameSite=Strict; Max-Age=${7 * 24 * 60 * 60}`; // 7 days
-
-        return new NextResponse(JSON.stringify(response), {
+        const nextResponse = new NextResponse(JSON.stringify(response), {
           status: 200,
-          headers: {
-            'Content-Type': 'application/json',
-            'Set-Cookie': [accessTokenCookie, refreshTokenCookie].join(', '),
-          },
+          headers: { 'Content-Type': 'application/json' },
         });
+
+        nextResponse.cookies.set('accessToken', accessToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict',
+          maxAge: 15 * 60, // 15 minutes
+          path: '/',
+        });
+
+        nextResponse.cookies.set('refreshToken', refreshToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict',
+          maxAge: 7 * 24 * 60 * 60, // 7 days
+          path: '/',
+        });
+
+        return nextResponse;
 
       case 'password_reset':
         // Return a temporary token for password reset

@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import dbConnect from '@/lib/mongodb'
 import ChatSession from '@/lib/models/ChatSession'
+import { Admin } from '@/lib/models/Admin'
 import { sendWhatsAppMessage } from '@/lib/whatsappService'
+import { emailService } from '@/lib/emailService'
 
 export async function POST(request: NextRequest) {
   try {
@@ -35,18 +37,44 @@ export async function POST(request: NextRequest) {
     session.lastActivity = new Date()
     await session.save()
 
+    const nameLabel = session.visitorName && session.visitorName !== 'Visitor'
+      ? session.visitorName
+      : 'Visitor'
+
     // Forward visitor message to admin via WhatsApp, clearly labelled with visitor identity
     const adminPhone = process.env.WHATSAPP_NUMBER || ''
     if (adminPhone && (session.status === 'live' || session.status === 'waiting')) {
-      const nameLabel = session.visitorName && session.visitorName !== 'Visitor'
-        ? session.visitorName
-        : 'Visitor'
       const phoneLabel = session.visitorPhone ? ` | ${session.visitorPhone}` : ''
-      // Pre-filled reply link — tapping opens WhatsApp with "SESSION_ID: " ready to type
       const replyText = encodeURIComponent(`${sessionId}: `)
       const replyLink = `https://wa.me/${adminPhone}?text=${replyText}`
       const whatsappMsg = `👤 *${nameLabel}${phoneLabel}*\n🆔 Session: *${sessionId}*\n\n${message.trim()}\n\n💬 _Tap to reply:_ ${replyLink}`
       await sendWhatsAppMessage(adminPhone, whatsappMsg)
+    }
+
+    // Email all active admin/super_admin users
+    if (session.status === 'live' || session.status === 'waiting') {
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://d-lightertutor.com'
+      const dashboardUrl = `${baseUrl}/admin/chat?session=${sessionId}`
+
+      const admins = await Admin.find(
+        { role: { $in: ['admin', 'super_admin'] }, isActive: true },
+        { email: 1, firstName: 1, lastName: 1 }
+      ).lean()
+
+      // Fire all emails in parallel; failures are non-fatal
+      await Promise.allSettled(
+        admins.map((admin: any) =>
+          emailService.sendChatMessageNotification({
+            adminEmail: admin.email,
+            adminName: `${admin.firstName} ${admin.lastName}`,
+            visitorName: nameLabel,
+            visitorPhone: session.visitorPhone || undefined,
+            sessionId,
+            message: message.trim(),
+            dashboardUrl,
+          })
+        )
+      )
     }
 
     return NextResponse.json({ success: true })

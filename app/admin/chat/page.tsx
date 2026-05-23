@@ -3,12 +3,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { withAuth } from '@/lib/auth/AuthContext'
+import { useAuth } from '@/lib/auth/AuthContext'
+import { DashboardHeader } from '@/components/dashboard/dashboard-header'
 import {
   MessageCircle, Send, Bot, User, Headphones, RefreshCw,
-  Phone, Globe, Clock, Search, XCircle, Loader2, LogOut,
+  Phone, Globe, Clock, Search, XCircle, Loader2,
   ChevronRight,
 } from 'lucide-react'
-import Link from 'next/link'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -164,9 +165,13 @@ function MessageBubble({ msg }: { msg: Message }) {
   )
 }
 
+// Customer representative name used in greeting templates
+const REPRESENTATIVE_NAME = 'Blessing'
+
 // ─── Main Admin Chat Dashboard ────────────────────────────────────────────────
 
 function AdminChatPage() {
+  const { user } = useAuth()
   const searchParams = useSearchParams()
   const [sessions, setSessions] = useState<SessionSummary[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(
@@ -183,6 +188,7 @@ function AdminChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const autoFilledRef = useRef<Set<string>>(new Set())
 
   // ── Load session list ───────────────────────────────────────────────────
   const loadSessions = useCallback(async () => {
@@ -237,6 +243,23 @@ function AdminChatPage() {
     }
   }, [selectedId, loadFullSession])
 
+  // ── Auto-fill greeting on first admin response ─────────────────────────
+  useEffect(() => {
+    if (!activeSession) return
+    if (activeSession.status === 'ended' || activeSession.status === 'ai') return
+    // Only auto-fill if no admin message has been sent yet in this session
+    const hasAdminMsg = activeSession.messages.some((m) => m.role === 'admin')
+    if (hasAdminMsg) return
+    // Only do it once per session (don't overwrite if admin already started typing)
+    if (autoFilledRef.current.has(activeSession.sessionId)) return
+    autoFilledRef.current.add(activeSession.sessionId)
+    const agentName = user?.firstName || REPRESENTATIVE_NAME
+    const visitorFirst = (activeSession.visitorName || 'there').split(' ')[0]
+    const greeting = `Hi ${visitorFirst}! 👋 I'm ${agentName} from D-lighter Tutor's support team. I've just joined our chat — how can I help you today?`
+    setInput((prev) => (prev.trim() === '' ? greeting : prev))
+    setTimeout(() => inputRef.current?.focus(), 50)
+  }, [activeSession, user])
+
   // ── Scroll to bottom when messages change ───────────────────────────────
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -288,14 +311,28 @@ function AdminChatPage() {
 
   // ──────────────────────────────────────────────────────────────────────────
   return (
-    <div className="flex h-screen bg-gray-50 dark:bg-gray-950 overflow-hidden">
-      {/* ── Sidebar ── */}
-      <div className="w-80 flex-shrink-0 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col">
-        {/* Sidebar header */}
-        <div className="px-4 py-4 border-b border-gray-100 dark:border-gray-800">
+    <div className="flex flex-col h-full">
+      <DashboardHeader
+        title="Support Chat"
+        subtitle="Manage live visitor conversations"
+        actions={
+          <button
+            onClick={() => { setLoadingSessions(true); loadSessions() }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+          >
+            <RefreshCw size={14} className={loadingSessions ? 'animate-spin' : ''} />
+            Refresh
+          </button>
+        }
+      />
+      <div className="flex flex-1 overflow-hidden">
+      {/* ── Session list panel ── */}
+      <div className="w-72 xl:w-80 flex-shrink-0 bg-white border-r border-gray-100 flex flex-col">
+        {/* Panel header */}
+        <div className="px-4 py-4 border-b border-gray-100">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <h1 className="font-bold text-gray-900 dark:text-white text-sm">Live Chat</h1>
+              <h2 className="font-semibold text-gray-900 text-sm">Live Chat</h2>
               <p className="text-xs text-gray-400">
                 {activeCount} active · {sessions.length} total
               </p>
@@ -303,32 +340,25 @@ function AdminChatPage() {
             <div className="flex items-center gap-1">
               <button
                 onClick={() => { setLoadingSessions(true); loadSessions() }}
-                className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
                 title="Refresh"
               >
                 <RefreshCw size={14} className={loadingSessions ? 'animate-spin' : ''} />
               </button>
-              <Link
-                href="/admin"
-                className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                title="Back to Dashboard"
-              >
-                <LogOut size={14} />
-              </Link>
             </div>
           </div>
 
           {/* Filter tabs */}
-          <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5 mb-3 text-xs font-medium">
+          <div className="flex bg-gray-100 rounded-xl p-0.5 mb-3 text-xs font-medium">
             <button
               onClick={() => setFilter('active')}
-              className={`flex-1 py-1 rounded-md transition-colors ${filter === 'active' ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500'}`}
+              className={`flex-1 py-1 rounded-lg transition-colors ${filter === 'active' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
             >
               Active
             </button>
             <button
               onClick={() => setFilter('all')}
-              className={`flex-1 py-1 rounded-md transition-colors ${filter === 'all' ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500'}`}
+              className={`flex-1 py-1 rounded-lg transition-colors ${filter === 'all' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
             >
               All
             </button>
@@ -342,7 +372,7 @@ function AdminChatPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by name or phone…"
-              className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-gray-200 bg-gray-50 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-secondary/30"
             />
           </div>
         </div>
@@ -374,25 +404,29 @@ function AdminChatPage() {
 
       {/* ── Chat panel ── */}
       {!selectedId ? (
-        <div className="flex-1 flex flex-col items-center justify-center text-gray-400 gap-3">
-          <MessageCircle size={48} strokeWidth={1} />
-          <p className="text-lg font-medium text-gray-500">Select a chat to start replying</p>
-          <p className="text-sm">
-            {activeCount > 0 ? `${activeCount} visitor${activeCount > 1 ? 's are' : ' is'} waiting` : 'No active chats right now'}
-          </p>
+        <div className="flex-1 flex flex-col items-center justify-center gap-4">
+          <div className="w-16 h-16 rounded-2xl bg-secondary/10 flex items-center justify-center">
+            <MessageCircle size={28} className="text-secondary" strokeWidth={1.5} />
+          </div>
+          <div className="text-center">
+            <p className="text-base font-semibold text-gray-700">Select a conversation</p>
+            <p className="text-sm text-gray-400 mt-1">
+              {activeCount > 0 ? `${activeCount} visitor${activeCount > 1 ? 's are' : ' is'} waiting` : 'No active chats right now'}
+            </p>
+          </div>
         </div>
       ) : (
         <div className="flex-1 flex flex-col min-w-0">
           {/* Chat header */}
-          <div className="px-5 py-3 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex items-center gap-3 flex-shrink-0">
+          <div className="px-5 py-3.5 bg-white border-b border-gray-100 flex items-center gap-3 flex-shrink-0">
             <button
               onClick={() => setSelectedId(null)}
               className="md:hidden p-1 text-gray-400 hover:text-gray-600"
             >
               <ChevronRight size={18} className="rotate-180" />
             </button>
-            <div className="w-9 h-9 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center flex-shrink-0">
-              <User size={18} className="text-blue-600" />
+            <div className="w-9 h-9 rounded-full bg-secondary/10 flex items-center justify-center flex-shrink-0">
+              <User size={18} className="text-secondary" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
@@ -427,7 +461,7 @@ function AdminChatPage() {
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto px-5 py-4 bg-gray-50 dark:bg-gray-950">
+          <div className="flex-1 overflow-y-auto px-5 py-4" style={{ background: 'oklch(0.975 0.003 250)' }}>
             {loadingChat ? (
               <div className="flex items-center justify-center h-full text-gray-400">
                 <Loader2 size={20} className="animate-spin mr-2" />
@@ -447,7 +481,14 @@ function AdminChatPage() {
 
           {/* Input area */}
           {canReply ? (
-            <div className="px-4 py-3 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 flex items-end gap-2 flex-shrink-0">
+            <div className="flex flex-col flex-shrink-0">
+              {/* Commands reference bar */}
+              <div className="px-4 py-1.5 bg-gray-50 border-t border-gray-100 flex items-center gap-3 flex-wrap text-[11px] text-gray-400">
+                <span className="font-semibold text-gray-500">Commands:</span>
+                <span className="inline-flex items-center gap-1 bg-white border border-gray-200 rounded px-1.5 py-0.5 font-mono font-medium text-gray-600">END</span>
+                <span>— end &amp; close the conversation</span>
+              </div>
+              <div className="px-4 py-3 bg-white flex items-end gap-2">
               <textarea
                 ref={inputRef}
                 value={input}
@@ -457,7 +498,7 @@ function AdminChatPage() {
                 rows={1}
                 maxLength={2000}
                 autoFocus
-                className="flex-1 resize-none rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm px-3 py-2.5 text-gray-800 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 max-h-36 overflow-y-auto leading-relaxed"
+                className="flex-1 resize-none rounded-xl border border-gray-200 bg-gray-50 text-sm px-3 py-2.5 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-secondary/30 max-h-36 overflow-y-auto leading-relaxed"
                 style={{ minHeight: '42px' }}
                 onInput={(e) => {
                   const el = e.currentTarget
@@ -468,13 +509,14 @@ function AdminChatPage() {
               <button
                 onClick={sendReply}
                 disabled={!input.trim() || sending}
-                className="w-10 h-10 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center justify-center text-white flex-shrink-0"
+                className="w-10 h-10 rounded-xl bg-secondary hover:bg-secondary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center justify-center text-white flex-shrink-0"
               >
                 {sending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
               </button>
+              </div>
             </div>
           ) : activeSession?.status === 'ended' ? (
-            <div className="px-5 py-3 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 flex-shrink-0">
+            <div className="px-5 py-3 bg-white border-t border-gray-100 flex-shrink-0">
               <div className="flex items-center gap-2 text-gray-400">
                 <XCircle size={16} />
                 <span className="text-sm">This session has ended.</span>
@@ -483,8 +525,9 @@ function AdminChatPage() {
           ) : null}
         </div>
       )}
+      </div>
     </div>
   )
 }
 
-export default withAuth(AdminChatPage)
+export default withAuth(AdminChatPage, ["admin", "super_admin"])

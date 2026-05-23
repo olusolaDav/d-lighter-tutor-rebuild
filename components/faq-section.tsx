@@ -116,7 +116,7 @@ export function FAQSection() {
               href="https://wa.me/2348129517392?text=Hi%2C%20I%20have%20a%20question%20about%20D-lighter%20Tutor"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-secondary hover:bg-secondary/90 text-white px-6 py-3 rounded-full font-semibold transition-all"
+              className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#20bc5a] text-white px-6 py-3 rounded-full font-semibold transition-all cursor-pointer"
             >
               <MessageCircle className="h-5 w-5" />
               Ask Us on WhatsApp

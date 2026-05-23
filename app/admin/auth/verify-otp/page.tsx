@@ -140,7 +140,8 @@ function VerifyOTPContent() {
               router.push('/admin/auth/login')
               break
             case 'login_verification':
-              router.push('/admin')
+              // Hard navigation so AuthProvider remounts with the new cookies
+              window.location.href = '/admin'
               break
             case 'password_reset':
               const resetParams = new URLSearchParams({

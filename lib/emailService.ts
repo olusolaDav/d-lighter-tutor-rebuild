@@ -396,6 +396,198 @@ D-lighter Tutor Team
       html
     });
   }
+
+  /**
+   * Sent to a user (or parent on behalf of student) when their account is created by an admin.
+   * Includes login credentials and instructions to change password on first login.
+   */
+  async sendAccountCreatedEmail(options: {
+    recipientEmail: string;
+    recipientName: string;
+    role: string;
+    loginIdentifier: string;   // email for most roles, username for students
+    loginIdentifierLabel: string; // 'Email' | 'Username'
+    temporaryPassword: string;
+    loginUrl: string;
+    parentName?: string;        // set when creating a student account — email goes to parent
+  }): Promise<boolean> {
+    const { recipientEmail, recipientName, role, loginIdentifier, loginIdentifierLabel, temporaryPassword, loginUrl, parentName } = options;
+    const roleLabel = role.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+    const subject = `Your D-lighter Tutor ${roleLabel} Account Has Been Created`;
+
+    const html = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Account Created - D-lighter Tutor</title>
+      <style>
+        body { margin:0; padding:0; font-family:'Segoe UI',sans-serif; background:#f4f6f9; }
+        .container { max-width:600px; margin:0 auto; background:#fff; border-radius:12px; overflow:hidden; }
+        .header { background:linear-gradient(135deg,#1e40af 0%,#3b82f6 100%); padding:32px 24px; text-align:center; }
+        .header h1 { color:#fff; margin:0; font-size:26px; font-weight:700; }
+        .header p { color:#bfdbfe; margin:6px 0 0; font-size:14px; }
+        .content { padding:36px 32px; }
+        .credentials { background:#f0f7ff; border:1.5px solid #bfdbfe; border-radius:10px; padding:24px; margin:24px 0; }
+        .cred-row { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #dbeafe; }
+        .cred-row:last-child { border-bottom:none; }
+        .cred-label { color:#6b7280; font-size:13px; font-weight:500; }
+        .cred-value { color:#1e3a8a; font-size:14px; font-weight:700; font-family:monospace; }
+        .warning { background:#fef3c7; border:1px solid #fbbf24; border-radius:8px; padding:16px; margin:20px 0; color:#92400e; font-size:13px; }
+        .btn { display:inline-block; background:linear-gradient(135deg,#1e40af,#3b82f6); color:#fff; padding:14px 32px; text-decoration:none; border-radius:8px; font-weight:600; font-size:15px; margin:16px 0; }
+        .footer { background:#f8fafc; padding:24px; text-align:center; color:#9ca3af; font-size:12px; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>🎓 D-lighter Tutor</h1>
+          <p>Account Created — ${roleLabel} Portal</p>
+        </div>
+        <div class="content">
+          <p style="font-size:16px;color:#111827;">Hello <strong>${parentName ?? recipientName}</strong>,</p>
+          ${parentName
+            ? `<p>A student account has been created for <strong>${recipientName}</strong> under your parent account on the D-lighter Tutor platform.</p>`
+            : `<p>Your <strong>${roleLabel}</strong> account has been created on the D-lighter Tutor platform. Below are your login credentials:</p>`
+          }
+          <div class="credentials">
+            <p style="margin:0 0 12px;font-weight:600;color:#1e3a8a;">🔐 Login Credentials${parentName ? ` for ${recipientName}` : ''}</p>
+            <div class="cred-row">
+              <span class="cred-label">${loginIdentifierLabel}</span>
+              <span class="cred-value">${loginIdentifier}</span>
+            </div>
+            <div class="cred-row">
+              <span class="cred-label">Temporary Password</span>
+              <span class="cred-value">${temporaryPassword}</span>
+            </div>
+          </div>
+          <div class="warning">
+            ⚠️ <strong>Important:</strong> You will be required to change this password upon your first login. Please do so immediately to secure your account.
+          </div>
+          <div style="text-align:center;">
+            <a href="${loginUrl}" class="btn">Login to Your Account</a>
+          </div>
+          <p style="font-size:13px;color:#6b7280;margin-top:24px;">
+            If you have any issues logging in, please contact the administrator. Do not share your credentials with anyone.
+          </p>
+        </div>
+        <div class="footer">
+          <p><strong>D-lighter Tutor</strong> — Expert online tutoring for African children</p>
+          <p>© ${new Date().getFullYear()} D-lighter Tutor. All rights reserved.</p>
+        </div>
+      </div>
+    </body>
+    </html>`;
+
+    return this.sendEmail({ to: recipientEmail, subject, html });
+  }
+
+  async sendChatMessageNotification(options: {
+    adminEmail: string
+    adminName: string
+    visitorName: string
+    visitorPhone?: string
+    sessionId: string
+    message: string
+    dashboardUrl: string
+  }): Promise<boolean> {
+    const { adminEmail, adminName, visitorName, visitorPhone, sessionId, message, dashboardUrl } = options
+    const subject = `💬 New visitor message — ${visitorName}`
+    const sentAt = new Date().toLocaleString('en-GB', {
+      day: 'numeric', month: 'short', year: 'numeric',
+      hour: '2-digit', minute: '2-digit',
+    })
+
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New Chat Message</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f6f9;font-family:'Segoe UI',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f9;padding:32px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+
+          <!-- Header -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#162550 0%,#2a5fc4 100%);padding:28px 32px;text-align:center;">
+              <p style="margin:0;font-size:13px;color:rgba(255,255,255,0.75);text-transform:uppercase;letter-spacing:1px;">D-lighter Tutor</p>
+              <h1 style="margin:6px 0 0;font-size:22px;font-weight:700;color:#ffffff;">New Visitor Message</h1>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding:32px;">
+              <p style="margin:0 0 8px;font-size:15px;color:#374151;">Hi <strong>${adminName}</strong>,</p>
+              <p style="margin:0 0 24px;font-size:14px;color:#6b7280;">A visitor has sent a message through the live chat. Here are the details:</p>
+
+              <!-- Visitor info -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:20px;">
+                <tr>
+                  <td style="padding:16px 20px;">
+                    <p style="margin:0 0 6px;font-size:12px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px;">Visitor</p>
+                    <p style="margin:0;font-size:16px;font-weight:700;color:#111827;">${visitorName}${visitorPhone ? ` &nbsp;·&nbsp; <span style="font-weight:400;font-size:14px;color:#6b7280;">${visitorPhone}</span>` : ''}</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:0 20px 16px;">
+                    <p style="margin:0;font-size:12px;color:#9ca3af;">Session ID: <code style="background:#e5e7eb;padding:2px 6px;border-radius:4px;font-size:11px;">${sessionId}</code> &nbsp;·&nbsp; ${sentAt}</p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Message bubble -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
+                <tr>
+                  <td style="padding:18px 20px;background:#eef2ff;border-left:4px solid #2a5fc4;border-radius:0 8px 8px 0;">
+                    <p style="margin:0 0 6px;font-size:11px;font-weight:600;color:#4f46e5;text-transform:uppercase;letter-spacing:0.5px;">Message</p>
+                    <p style="margin:0;font-size:15px;color:#1f2937;line-height:1.6;white-space:pre-wrap;">${message.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- CTA button -->
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center">
+                    <a href="${dashboardUrl}"
+                       style="display:inline-block;padding:14px 32px;background:linear-gradient(135deg,#162550 0%,#2a5fc4 100%);color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;border-radius:8px;letter-spacing:0.3px;">
+                      💬 &nbsp; Reply in Dashboard
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:24px 0 0;font-size:13px;color:#9ca3af;text-align:center;">
+                Or copy this link: <a href="${dashboardUrl}" style="color:#2a5fc4;">${dashboardUrl}</a>
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background:#f8fafc;border-top:1px solid #e5e7eb;padding:20px 32px;text-align:center;">
+              <p style="margin:0;font-size:12px;color:#9ca3af;">
+                <strong>D-lighter Tutor</strong> — Expert online tutoring for African children in the diaspora<br/>
+                © ${new Date().getFullYear()} D-lighter Tutor. All rights reserved.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`
+
+    return this.sendEmail({ to: adminEmail, subject, html })
+  }
 }
 
 export const emailService = new EmailService();
