@@ -5,7 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-// WhatsApp phone number for D-lighter Tutor
+// WhatsApp phone number for D-lighter Tutor (used in multiple places across the app)
 const WHATSAPP_NUMBER = "2348129517392"
 
 // Generate WhatsApp URL with pre-filled message
