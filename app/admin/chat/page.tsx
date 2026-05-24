@@ -8,7 +8,7 @@ import { DashboardHeader } from '@/components/dashboard/dashboard-header'
 import {
   MessageCircle, Send, Bot, User, Headphones, RefreshCw,
   Phone, Globe, Clock, Search, XCircle, Loader2,
-  ChevronRight,
+  ChevronRight, Wifi, WifiOff, AlertTriangle,
 } from 'lucide-react'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -184,11 +184,58 @@ function AdminChatPage() {
   const [loadingChat, setLoadingChat] = useState(false)
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState<'active' | 'all'>('active')
+  const [waStatus, setWaStatus] = useState<'checking' | 'authorized' | 'disconnected' | 'error'>('checking')
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const autoFilledRef = useRef<Set<string>>(new Set())
+
+  // ── Poll Green API notification queue (pull-based WhatsApp delivery) ──────
+  // Drains Green API's internal message queue so admin WhatsApp replies
+  // reach the chatbot even when HTTP push webhooks are unreliable (free plan).
+  useEffect(() => {
+    let active = true
+    async function pollWA() {
+      if (!active) return
+      try {
+        await fetch('/api/admin/chat/poll-whatsapp', {
+          method: 'POST',
+          credentials: 'include',
+        })
+      } catch {
+        // Non-fatal — next tick will retry
+      }
+    }
+    pollWA()
+    const t = setInterval(pollWA, 5000)
+    return () => {
+      active = false
+      clearInterval(t)
+    }
+  }, [])
+
+  // ── Check Green API (WhatsApp) connection status ──────────────────────
+  useEffect(() => {
+    async function checkWaStatus() {
+      try {
+        const res = await fetch('/api/chat/webhook/whatsapp')
+        const data = await res.json()
+        if (!data.greenApi?.configured) {
+          setWaStatus('error')
+        } else if (data.greenApi?.authorized === true) {
+          setWaStatus('authorized')
+        } else {
+          setWaStatus('disconnected')
+        }
+      } catch {
+        setWaStatus('error')
+      }
+    }
+    checkWaStatus()
+    const t = setInterval(checkWaStatus, 30000)
+    return () => clearInterval(t)
+  }, [])
 
   // ── Load session list ───────────────────────────────────────────────────
   const loadSessions = useCallback(async () => {
@@ -337,7 +384,28 @@ function AdminChatPage() {
                 {activeCount} active · {sessions.length} total
               </p>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-2">
+              {/* WhatsApp / Green API connection indicator */}
+              {waStatus === 'checking' && (
+                <span title="Checking WhatsApp connection…" className="flex items-center gap-1 text-[10px] text-gray-400">
+                  <Loader2 size={11} className="animate-spin" />
+                </span>
+              )}
+              {waStatus === 'authorized' && (
+                <span title="WhatsApp connected" className="flex items-center gap-1 text-[10px] text-green-600 bg-green-50 border border-green-100 rounded-full px-1.5 py-0.5">
+                  <Wifi size={10} /> WA
+                </span>
+              )}
+              {waStatus === 'disconnected' && (
+                <span title="WhatsApp disconnected — rescan QR in Green API dashboard" className="flex items-center gap-1 text-[10px] text-red-600 bg-red-50 border border-red-100 rounded-full px-1.5 py-0.5 cursor-help">
+                  <WifiOff size={10} /> WA
+                </span>
+              )}
+              {waStatus === 'error' && (
+                <span title="WhatsApp status unknown — check GREEN_API credentials" className="flex items-center gap-1 text-[10px] text-amber-600 bg-amber-50 border border-amber-100 rounded-full px-1.5 py-0.5 cursor-help">
+                  <AlertTriangle size={10} /> WA
+                </span>
+              )}
               <button
                 onClick={() => { setLoadingSessions(true); loadSessions() }}
                 className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"

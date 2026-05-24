@@ -27,11 +27,17 @@ export async function POST(request: NextRequest) {
     }
 
     const messageData = body.messageData
-    if (!messageData || messageData.typeMessage !== 'textMessage') {
+    // Support both plain text and extended text (URL previews, formatted messages)
+    const supportedMsgTypes = ['textMessage', 'extendedTextMessage']
+    if (!messageData || !supportedMsgTypes.includes(messageData.typeMessage)) {
       return NextResponse.json({ received: true })
     }
 
-    const rawText: string = messageData.textMessageData?.textMessage || ''
+    // Extract text from whichever field Green API populates
+    const rawText: string =
+      messageData.textMessageData?.textMessage ||
+      messageData.extendedTextMessageData?.text ||
+      ''
     if (!rawText.trim()) return NextResponse.json({ received: true })
 
     // Skip our own API-sent notifications to avoid echo loops
@@ -146,5 +152,44 @@ export async function POST(request: NextRequest) {
   }
 }
 export async function GET() {
-  return NextResponse.json({ status: 'ok', service: 'd-lighter-chat-webhook' })
+  const instanceId = process.env.GREEN_API_INSTANCE_ID
+  const apiToken = process.env.GREEN_API_TOKEN
+
+  if (!instanceId || !apiToken) {
+    return NextResponse.json({
+      status: 'ok',
+      service: 'd-lighter-chat-webhook',
+      greenApi: { configured: false, reason: 'GREEN_API_INSTANCE_ID or GREEN_API_TOKEN not set' },
+    })
+  }
+
+  try {
+    const [stateRes, settingsRes] = await Promise.all([
+      fetch(`https://api.green-api.com/waInstance${instanceId}/getStateInstance/${apiToken}`),
+      fetch(`https://api.green-api.com/waInstance${instanceId}/getSettings/${apiToken}`),
+    ])
+    const state = stateRes.ok ? await stateRes.json() : null
+    const settings = settingsRes.ok ? await settingsRes.json() : null
+
+    return NextResponse.json({
+      status: 'ok',
+      service: 'd-lighter-chat-webhook',
+      greenApi: {
+        configured: true,
+        instanceId,
+        instanceState: state?.stateInstance ?? 'unknown',
+        authorized: state?.stateInstance === 'authorized',
+        webhookUrl: settings?.webhookUrl ?? null,
+        outgoingWebhook: settings?.outgoingWebhook ?? null,
+        incomingWebhook: settings?.incomingWebhook ?? null,
+        outgoingAPIMessageWebhook: settings?.outgoingAPIMessageWebhook ?? null,
+      },
+    })
+  } catch {
+    return NextResponse.json({
+      status: 'ok',
+      service: 'd-lighter-chat-webhook',
+      greenApi: { configured: true, instanceId, error: 'Failed to reach Green API' },
+    })
+  }
 }

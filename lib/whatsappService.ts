@@ -42,3 +42,49 @@ export async function sendWhatsAppMessage(phone: string, message: string): Promi
     return false
   }
 }
+
+/**
+ * Pull-based notification polling — alternative to HTTP webhooks.
+ * Green API stores incoming messages in a queue; we fetch one at a time,
+ * process it, then delete it to advance the queue.
+ * This works on all Green API plans including the free Developer tier.
+ */
+export interface GreenApiNotification {
+  receiptId: number
+  body: {
+    typeWebhook: string
+    messageData?: {
+      typeMessage: string
+      textMessageData?: { textMessage: string }
+      extendedTextMessageData?: { text: string }
+    }
+  }
+}
+
+export async function receiveNotification(): Promise<GreenApiNotification | null> {
+  if (!INSTANCE_ID || !API_TOKEN) return null
+  try {
+    const res = await fetch(`${BASE_URL}/receiveNotification/${API_TOKEN}`, {
+      method: 'GET',
+      next: { revalidate: 0 },
+    })
+    if (!res.ok) return null
+    const data = await res.json()
+    // Green API returns null / empty body when queue is empty
+    if (!data || data.receiptId === undefined || data.receiptId === null) return null
+    return data as GreenApiNotification
+  } catch {
+    return null
+  }
+}
+
+export async function deleteNotification(receiptId: number): Promise<void> {
+  if (!INSTANCE_ID || !API_TOKEN) return
+  try {
+    await fetch(`${BASE_URL}/deleteNotification/${API_TOKEN}/${receiptId}`, {
+      method: 'DELETE',
+    })
+  } catch {
+    // Non-fatal — the notification will be re-fetched on next poll
+  }
+}
