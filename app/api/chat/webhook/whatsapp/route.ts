@@ -148,7 +148,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ received: true })
   } catch (error) {
     console.error('WhatsApp webhook error:', error)
-    return NextResponse.json({ received: true })
+    // Return 500 so Green API keeps the message in its queue and retries.
+    // Returning 200 on error would silently discard the message permanently.
+    return NextResponse.json({ received: false }, { status: 500 })
   }
 }
 export async function GET() {

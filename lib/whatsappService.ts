@@ -2,11 +2,27 @@
  * Green API helper for sending WhatsApp messages.
  * Setup: Register at https://green-api.com, scan QR with admin's WhatsApp,
  * then set GREEN_API_INSTANCE_ID and GREEN_API_TOKEN in .env.local
+ *
+ * GREEN_API_URL should be the instance-specific API URL shown in your Green API
+ * dashboard (e.g. https://7107.api.greenapi.com for instance 7107629807).
+ * This is required for receiveNotification / deleteNotification to work correctly.
  */
 
 const INSTANCE_ID = process.env.GREEN_API_INSTANCE_ID
 const API_TOKEN = process.env.GREEN_API_TOKEN
-const BASE_URL = `https://api.green-api.com/waInstance${INSTANCE_ID}`
+
+// Use the instance-specific URL from the dashboard (GREEN_API_URL env var).
+// Falls back to deriving it from the instance ID prefix, then the generic gateway.
+function getApiBase(): string {
+  if (process.env.GREEN_API_URL) return process.env.GREEN_API_URL.replace(/\/$/, '')
+  if (INSTANCE_ID && INSTANCE_ID.length >= 4) {
+    const region = INSTANCE_ID.substring(0, 4)
+    return `https://${region}.api.greenapi.com`
+  }
+  return 'https://api.green-api.com'
+}
+
+const BASE_URL = `${getApiBase()}/waInstance${INSTANCE_ID}`
 
 // Format phone number to Green API chatId format
 // e.g. "2348032158383" → "2348032158383@c.us"
