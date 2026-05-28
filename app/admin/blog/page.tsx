@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo, useCallback } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { withAuth } from "@/lib/auth/AuthContext"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { Button } from "@/components/ui/button"
@@ -48,6 +48,8 @@ type BlogTab = "all" | "drafts" | "published"
 
 function AdminBlogPage() {
   const router = useRouter()
+  const pathname = usePathname()
+  const basePath = pathname.startsWith("/super-admin") ? "/super-admin" : "/admin"
   const [search, setSearch] = useState("")
   const [activeTab, setActiveTab] = useState<BlogTab>("all")
   const [currentPage, setCurrentPage] = useState(1)
@@ -127,19 +129,19 @@ function AdminBlogPage() {
   const paginatedPosts = filteredPosts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
 
   const handleEdit = (post: BlogPost) => {
-    router.push(`/admin/blog/edit/${post._id}`)
+    router.push(`${basePath}/blog/edit/${post._id}`)
   }
 
   const handleView = (post: BlogPost) => {
     if (post.status === "published") {
       window.open(`/blog/${post.slug}`, "_blank")
     } else {
-      router.push(`/admin/blog/preview/${post._id}`)
+      router.push(`${basePath}/blog/preview/${post._id}`)
     }
   }
 
   const handlePublish = (post: BlogPost) => {
-    router.push(`/admin/blog/publish/${post._id}`)
+    router.push(`${basePath}/blog/publish/${post._id}`)
   }
 
   const handleUnpublish = async (postId: string) => {
@@ -208,7 +210,7 @@ function AdminBlogPage() {
   }
 
   const handleViewComments = () => {
-    router.push("/admin/blog/comments")
+    router.push(`${basePath}/blog/comments`)
   }
 
   if (loading) {
@@ -235,7 +237,7 @@ function AdminBlogPage() {
             </Button>
             <Button
               size="sm"
-              onClick={() => router.push("/admin/blog/new")}
+              onClick={() => router.push(`${basePath}/blog/new`)}
               className="gap-2 text-xs bg-secondary hover:bg-secondary/90 text-white"
             >
               <Plus className="h-3.5 w-3.5" />
@@ -311,7 +313,7 @@ function AdminBlogPage() {
             <h3 className="text-lg font-semibold">No posts found</h3>
             <p className="text-muted-foreground">Create your first blog post to get started.</p>
             <Button
-              onClick={() => router.push("/admin/blog/new")}
+              onClick={() => router.push(`${basePath}/blog/new`)}
               className="mt-4 gap-2 bg-secondary hover:bg-secondary/90 text-white"
             >
               <Plus className="h-4 w-4" />

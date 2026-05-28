@@ -1,6 +1,6 @@
 "use client"
 
-import { useParams, useRouter } from "next/navigation"
+import { useParams, useRouter, usePathname } from "next/navigation"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, Send, Loader2 } from "lucide-react"
@@ -34,6 +34,8 @@ interface BlogPost {
 export default function PreviewBlogPostPage() {
   const params = useParams()
   const router = useRouter()
+  const pathname = usePathname()
+  const basePath = pathname.startsWith("/super-admin") ? "/super-admin" : "/admin"
   const postId = params.id as string
   const [post, setPost] = useState<BlogPost | null>(null)
   const [loading, setLoading] = useState(true)
@@ -80,7 +82,7 @@ export default function PreviewBlogPostPage() {
       <div className="flex h-full flex-col items-center justify-center">
         <p className="text-muted-foreground">Post not found</p>
         <button
-          onClick={() => router.push("/admin/blog")}
+          onClick={() => router.push(`${basePath}/blog`)}
           className="mt-4 text-primary hover:underline"
         >
           Back to Blog Posts
@@ -128,11 +130,11 @@ export default function PreviewBlogPostPage() {
           <span className="text-sm text-muted-foreground">This is how the post will look when published</span>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => router.push(`/admin/blog/edit/${postId}`)} className="gap-2">
+          <Button variant="outline" size="sm" onClick={() => router.push(`${basePath}/blog/edit/${postId}`)} className="gap-2">
             <ArrowLeft className="h-4 w-4" />
             Back to Editor
           </Button>
-          <Button size="sm" onClick={() => router.push(`/admin/blog/publish/${postId}`)} className="gap-2">
+          <Button size="sm" onClick={() => router.push(`${basePath}/blog/publish/${postId}`)} className="gap-2">
             <Send className="h-4 w-4" />
             Publish
           </Button>

@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { BlogEditor } from "@/components/dashboard/blog/blog-editor"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { Button } from "@/components/ui/button"
@@ -12,6 +13,8 @@ import Link from "next/link"
 
 export default function NewBlogPostPage() {
   const router = useRouter()
+  const pathname = usePathname()
+  const basePath = pathname.startsWith("/super-admin") ? "/super-admin" : "/admin"
   const [postId, setPostId] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
   const [featured, setFeatured] = useState(false)
@@ -64,7 +67,7 @@ export default function NewBlogPostPage() {
 
   const handlePreview = async () => {
     if (postId) {
-      router.push(`/admin/blog/preview/${postId}`)
+      router.push(`${basePath}/blog/preview/${postId}`)
     } else {
       alert("Please save the post first before previewing.")
     }
@@ -72,7 +75,7 @@ export default function NewBlogPostPage() {
 
   const handlePublish = async () => {
     if (postId) {
-      router.push(`/admin/blog/publish/${postId}`)
+      router.push(`${basePath}/blog/publish/${postId}`)
     } else {
       alert("Please save the post first before publishing.")
     }
@@ -91,7 +94,7 @@ export default function NewBlogPostPage() {
                 Featured
               </Label>
             </div>
-            <Link href="/admin/blog">
+            <Link href={`${basePath}/blog`}>
               <Button variant="outline" size="sm" className="gap-2 rounded-full">
                 <ChevronLeft className="w-4 h-4" /> Back to Blog
               </Button>

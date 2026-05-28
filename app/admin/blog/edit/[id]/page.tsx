@@ -1,6 +1,6 @@
 "use client"
 
-import { useParams, useRouter } from "next/navigation"
+import { useParams, useRouter, usePathname } from "next/navigation"
 import { useState, useEffect } from "react"
 import { BlogEditor } from "@/components/dashboard/blog/blog-editor"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
@@ -25,6 +25,8 @@ interface BlogPost {
 export default function EditBlogPostPage() {
   const params = useParams()
   const router = useRouter()
+  const pathname = usePathname()
+  const basePath = pathname.startsWith("/super-admin") ? "/super-admin" : "/admin"
   const postId = params.id as string
   const [post, setPost] = useState<BlogPost | null>(null)
   const [loading, setLoading] = useState(true)
@@ -88,11 +90,11 @@ export default function EditBlogPostPage() {
   }
 
   const handlePreview = () => {
-    router.push(`/admin/blog/preview/${postId}`)
+    router.push(`${basePath}/blog/preview/${postId}`)
   }
 
   const handlePublish = () => {
-    router.push(`/admin/blog/publish/${postId}`)
+    router.push(`${basePath}/blog/publish/${postId}`)
   }
 
   if (loading) {
@@ -108,7 +110,7 @@ export default function EditBlogPostPage() {
       <div className="flex h-full flex-col items-center justify-center">
         <p className="text-muted-foreground">{error || "Post not found"}</p>
         <button
-          onClick={() => router.push("/admin/blog")}
+          onClick={() => router.push(`${basePath}/blog`)}
           className="mt-4 text-primary hover:underline"
         >
           Back to Blog Posts
@@ -130,7 +132,7 @@ export default function EditBlogPostPage() {
                 Featured
               </Label>
             </div>
-            <Link href="/admin/blog">
+            <Link href={`${basePath}/blog`}>
               <Button variant="outline" size="sm" className="gap-2 rounded-full">
                 <ChevronLeft className="w-4 h-4" /> Back to Blog
               </Button>

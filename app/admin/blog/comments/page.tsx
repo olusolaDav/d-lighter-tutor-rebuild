@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo, useCallback } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -39,6 +39,8 @@ interface BlogComment {
 
 export default function AdminBlogCommentsPage() {
   const router = useRouter()
+  const pathname = usePathname()
+  const basePath = pathname.startsWith("/super-admin") ? "/super-admin" : "/admin"
   const [search, setSearch] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const [comments, setComments] = useState<BlogComment[]>([])
@@ -214,7 +216,7 @@ export default function AdminBlogCommentsPage() {
               className="w-64 pl-9"
             />
           </div>
-          <Button variant="outline" onClick={() => router.push("/admin/blog")} className="gap-2">
+          <Button variant="outline" onClick={() => router.push(`${basePath}/blog`)} className="gap-2">
             <FileText className="h-4 w-4" />
             Posts
           </Button>
@@ -223,7 +225,7 @@ export default function AdminBlogCommentsPage() {
             Comments
           </Button>
           <Button
-            onClick={() => router.push("/admin/blog/new")}
+            onClick={() => router.push(`${basePath}/blog/new`)}
             className="gap-2 btn-gradient-primary"
           >
             <Plus className="h-4 w-4" />

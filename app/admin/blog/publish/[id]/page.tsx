@@ -1,6 +1,6 @@
 "use client"
 
-import { useParams, useRouter } from "next/navigation"
+import { useParams, useRouter, usePathname } from "next/navigation"
 import { useState, useEffect } from "react"
 import { PublishPostForm } from "@/components/dashboard/blog/publish-post-form"
 import { Loader2 } from "lucide-react"
@@ -21,6 +21,8 @@ interface BlogPost {
 export default function PublishBlogPostPage() {
   const params = useParams()
   const router = useRouter()
+  const pathname = usePathname()
+  const basePath = pathname.startsWith("/super-admin") ? "/super-admin" : "/admin"
   const postId = params.id as string
   const [post, setPost] = useState<BlogPost | null>(null)
   const [loading, setLoading] = useState(true)
@@ -71,7 +73,7 @@ export default function PublishBlogPostPage() {
       })
 
       if (publishRes.ok) {
-        router.push("/admin/blog")
+        router.push(`${basePath}/blog`)
       }
     } catch (error) {
       console.error("Error publishing post:", error)
@@ -102,7 +104,7 @@ export default function PublishBlogPostPage() {
       })
 
       if (scheduleRes.ok) {
-        router.push("/admin/blog")
+        router.push(`${basePath}/blog`)
       }
     } catch (error) {
       console.error("Error scheduling post:", error)
@@ -112,7 +114,7 @@ export default function PublishBlogPostPage() {
   }
 
   const handleClose = () => {
-    router.push(`/admin/blog/edit/${postId}`)
+    router.push(`${basePath}/blog/edit/${postId}`)
   }
 
   if (loading) {
@@ -128,7 +130,7 @@ export default function PublishBlogPostPage() {
       <div className="flex h-[calc(100vh-4rem)] flex-col items-center justify-center">
         <p className="text-muted-foreground">Post not found</p>
         <button
-          onClick={() => router.push("/admin/blog")}
+          onClick={() => router.push(`${basePath}/blog`)}
           className="mt-4 text-primary hover:underline"
         >
           Back to Blog Posts
