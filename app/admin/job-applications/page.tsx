@@ -155,15 +155,6 @@ export default function ApplicationsPage() {
 
       const XLSX = await import('xlsx');
 
-      // Group by position title
-      const groups: Record<string, Application[]> = {};
-      for (const app of allApps) {
-        const pos = typeof app.positionId === 'object' ? app.positionId : null;
-        const key = pos?.title || 'Unknown Position';
-        if (!groups[key]) groups[key] = [];
-        groups[key].push(app);
-      }
-
       const wb = XLSX.utils.book_new();
 
       const fmtTime = (t: string) => {
@@ -174,60 +165,46 @@ export default function ApplicationsPage() {
         return `${h12}:${String(m).padStart(2, '0')} ${period}`;
       };
 
-      const usedSheetNames = new Set<string>();
+      const rows = allApps.map(app => {
+        const exp = app.teachingExperience;
+        const edus = (app.education || []).map(e =>
+          `${e.degree}${e.fieldOfStudy ? ' (' + e.fieldOfStudy + ')' : ''} @ ${e.institution} ${e.startYear || ''}–${e.isOngoing ? 'Present' : (e.endYear || '')}`.trim()
+        ).join(' | ');
+        const schedules = (app.availability?.schedules || []).map(s =>
+          `${s.day} ${fmtTime(s.startTime)}–${fmtTime(s.endTime)}`
+        ).join(', ');
+        const pos = typeof app.positionId === 'object' ? app.positionId : null;
 
-      const makeSheetName = (value: string) => {
-        const baseName = (value || 'Applications').replace(/[:\\/?*\[\]]/g, '').trim().substring(0, 31) || 'Applications';
-        let candidate = baseName;
-        let suffix = 1;
+        return {
+          'First Name': app.personalInfo.firstName,
+          'Last Name': app.personalInfo.lastName,
+          'Email': app.personalInfo.email,
+          'Phone': app.personalInfo.phone,
+          'City': app.personalInfo.city || '',
+          'Country': app.personalInfo.country || '',
+          'Position': pos?.title || 'Unknown Position',
+          'Status': app.status,
+          'Subjects': app.subjects.join(', '),
+          'Has Teaching Experience': exp?.hasExperience ? 'Yes' : 'No',
+          'Years of Experience': exp?.hasExperience ? (exp.yearsOfExperience ?? '') : '',
+          'Experience Description': exp?.hasExperience ? (exp.description || '') : '',
+          'Education': edus,
+          'Availability Type': app.availability?.type || '',
+          'Schedule': schedules,
+          'Why Join': app.whyJoin || '',
+          'Additional Info': app.additionalInfo || '',
+          'Resume Link': app.resume?.url || '',
+          'Internal Notes': app.notes || '',
+          'Applied Date': new Date(app.createdAt).toLocaleDateString('en-GB'),
+        };
+      });
 
-        while (usedSheetNames.has(candidate)) {
-          const nextSuffix = `-${suffix}`;
-          candidate = `${baseName.substring(0, Math.max(0, 31 - nextSuffix.length))}${nextSuffix}`;
-          suffix += 1;
-        }
-
-        usedSheetNames.add(candidate);
-        return candidate;
-      };
-
-      // Sheet per position group
-      for (const [posTitle, apps] of Object.entries(groups)) {
-        const rows = apps.map(app => {
-          const exp = app.teachingExperience;
-          const edus = (app.education || []).map(e =>
-            `${e.degree}${e.fieldOfStudy ? ' (' + e.fieldOfStudy + ')' : ''} @ ${e.institution} ${e.startYear || ''}–${e.isOngoing ? 'Present' : (e.endYear || '')}`.trim()
-          ).join(' | ');
-          const schedules = (app.availability?.schedules || []).map(s =>
-            `${s.day} ${fmtTime(s.startTime)}–${fmtTime(s.endTime)}`
-          ).join(', ');
-          return {
-            'First Name': app.personalInfo.firstName,
-            'Last Name': app.personalInfo.lastName,
-            'Email': app.personalInfo.email,
-            'Phone': app.personalInfo.phone,
-            'City': app.personalInfo.city || '',
-            'Country': app.personalInfo.country || '',
-            'Position': posTitle,
-            'Status': app.status,
-            'Subjects': app.subjects.join(', '),
-            'Has Teaching Experience': exp?.hasExperience ? 'Yes' : 'No',
-            'Years of Experience': exp?.hasExperience ? (exp.yearsOfExperience ?? '') : '',
-            'Experience Description': exp?.hasExperience ? (exp.description || '') : '',
-            'Education': edus,
-            'Availability Type': app.availability?.type || '',
-            'Schedule': schedules,
-            'Why Join': app.whyJoin || '',
-            'Additional Info': app.additionalInfo || '',
-            'Resume Link': app.resume?.url || '',
-            'Internal Notes': app.notes || '',
-            'Applied Date': new Date(app.createdAt).toLocaleDateString('en-GB'),
-          };
-        });
-        const ws = XLSX.utils.json_to_sheet(rows);
-        const sheetName = makeSheetName(posTitle);
-        XLSX.utils.book_append_sheet(wb, ws, sheetName);
-      }
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const sheetName = exportPositionId === 'all' ? 'All Applications' : (positions.find((position) => position._id === exportPositionId)?.title || 'Applications')
+        .replace(/[:\\/?*\[\]]/g, '')
+        .trim()
+        .substring(0, 31) || 'Applications';
+      XLSX.utils.book_append_sheet(wb, ws, sheetName);
 
       const dateStr = new Date().toISOString().slice(0, 10);
       const selectedPosition = exportPositionId === 'all'
@@ -239,7 +216,7 @@ export default function ApplicationsPage() {
 
       XLSX.writeFile(wb, `applications-${fileSuffix}-${dateStr}.xlsx`);
       setExportDialogOpen(false);
-      toast.success('Export downloaded');
+      toast.success(`Export downloaded (${allApps.length} application${allApps.length === 1 ? '' : 's'})`);
     } catch (err) {
       console.error('Export error:', err);
       toast.error('Export failed');
