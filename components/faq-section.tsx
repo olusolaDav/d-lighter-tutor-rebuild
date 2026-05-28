@@ -10,6 +10,10 @@ export function FAQSection() {
   const [searchQuery, setSearchQuery] = useState("")
   const { ref, isVisible } = useScrollAnimation()
 
+  const openChat = () => {
+    window.dispatchEvent(new CustomEvent('dlighter-open-chat'))
+  }
+
   const toggleFAQ = (index: number) => {
     setOpenIndex(openIndex === index ? null : index)
   }
@@ -36,14 +40,13 @@ export function FAQSection() {
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
             Everything you need to know about D-lighter Tutor. Can't find what you're looking for?{" "}
-            <a 
-              href="https://wa.me/2348129517392" 
-              target="_blank" 
-              rel="noopener noreferrer"
+            <button
+              type="button"
+              onClick={openChat}
               className="text-secondary hover:underline font-medium"
             >
-              Chat with us!
-            </a>
+              Start a live chat!
+            </button>
           </p>
         </div>
 
@@ -112,15 +115,14 @@ export function FAQSection() {
               <p className="font-bold text-foreground text-lg">Still have questions?</p>
               <p className="text-muted-foreground">We're here to help! Chat with us anytime.</p>
             </div>
-            <a
-              href="https://wa.me/2348129517392?text=Hi%2C%20I%20have%20a%20question%20about%20D-lighter%20Tutor"
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              type="button"
+              onClick={openChat}
               className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#20bc5a] text-white px-6 py-3 rounded-full font-semibold transition-all cursor-pointer"
             >
               <MessageCircle className="h-5 w-5" />
-              Ask Us on WhatsApp
-            </a>
+              Start Live Chat
+            </button>
           </div>
         </div>
       </div>

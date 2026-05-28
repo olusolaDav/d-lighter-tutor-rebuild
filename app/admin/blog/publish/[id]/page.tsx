@@ -15,6 +15,7 @@ interface BlogPost {
   status: "published" | "draft" | "scheduled"
   tags: string[]
   readTime?: number
+  featured?: boolean
 }
 
 export default function PublishBlogPostPage() {
@@ -65,6 +66,7 @@ export default function PublishBlogPostPage() {
           title: data.title,
           excerpt: data.metaDescription,
           tags: data.tags,
+          featured: post?.featured,
         }),
       })
 
@@ -94,6 +96,7 @@ export default function PublishBlogPostPage() {
           title: data.title,
           excerpt: data.metaDescription,
           tags: data.tags,
+          featured: post?.featured,
           scheduledAt: new Date(data.scheduledAt).toISOString(),
         }),
       })

@@ -163,3 +163,24 @@ export const hashPassword = async (password: string) => {
 export const comparePassword = async (password: string, hashedPassword: string) => {
   return bcrypt.compare(password, hashedPassword);
 };
+
+/**
+ * Reads the access token from cookies or Authorization header and returns the
+ * decoded user payload, or null if the token is missing/invalid.
+ * Used in API routes that need optional or required authentication.
+ */
+export async function getAuthUser(
+  request: NextRequest
+): Promise<{ id: string; email: string; role: string } | null> {
+  try {
+    const token =
+      request.cookies.get('accessToken')?.value ||
+      request.headers.get('authorization')?.replace('Bearer ', '');
+    if (!token) return null;
+    const payload = verifyAccessToken(token);
+    if (!payload) return null;
+    return { id: payload.adminId, email: payload.email, role: payload.role };
+  } catch {
+    return null;
+  }
+}

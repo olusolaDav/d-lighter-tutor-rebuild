@@ -23,7 +23,7 @@ async function postHandler(req: AuthenticatedRequest) {
     const admin = req.admin!
     const body = await req.json()
 
-    const { title, content, thumbnail, tags, status = "draft", excerpt, description } = body
+    const { title, content, thumbnail, tags, status = "draft", excerpt, description, featured = false } = body
 
     if (!title || !content) {
       return NextResponse.json({ error: "title and content are required" }, { status: 400 })
@@ -44,7 +44,9 @@ async function postHandler(req: AuthenticatedRequest) {
       description,
       thumbnail,
       tags: tags || [],
+      featured: !!featured,
       status,
+      readTime,
       authorId: admin.adminId,
       authorName: `${admin.email}`,
       authorRole: "admin",

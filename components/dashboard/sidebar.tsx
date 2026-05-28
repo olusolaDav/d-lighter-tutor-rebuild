@@ -23,6 +23,7 @@ import {
   ChevronRight,
   Menu,
   X,
+  Briefcase,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -39,6 +40,8 @@ const NAV_CONFIG: Record<UserRole, NavItem[]> = {
     { href: "/admin/leads", label: "Enquiries", icon: Users2 },
     { href: "/admin/chat", label: "Support Chat", icon: MessageCircle },
     { href: "/admin/blog", label: "Blog", icon: FileText },
+    { href: "/admin/my-jobs", label: "Positions", icon: Briefcase },
+    { href: "/admin/job-applications", label: "Applications", icon: Users2 },
     { href: "/admin/settings", label: "Settings", icon: Settings },
   ],
   super_admin: [
@@ -47,6 +50,8 @@ const NAV_CONFIG: Record<UserRole, NavItem[]> = {
     { href: "/super-admin/leads", label: "Enquiries", icon: Users2 },
     { href: "/super-admin/chat", label: "Support Chat", icon: MessageCircle },
     { href: "/super-admin/blog", label: "Blog", icon: FileText },
+    { href: "/super-admin/my-jobs", label: "Positions", icon: Briefcase },
+    { href: "/super-admin/job-applications", label: "Applications", icon: Users2 },
     { href: "/super-admin/settings", label: "Settings", icon: Settings },
     { href: "/super-admin/system", label: "System", icon: ShieldCheck },
   ],

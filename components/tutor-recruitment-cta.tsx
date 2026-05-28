@@ -4,6 +4,8 @@ import { ArrowRight, TrendingUp, Globe, Clock, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
+const BECOME_TUTOR_URL = "/careers/6a16f7e798abdbb392cc216b"
+
 export function TutorRecruitmentCTA() {
   const perks = [
     { icon: TrendingUp, label: "Competitive Pay" },
@@ -27,7 +29,7 @@ export function TutorRecruitmentCTA() {
                 Help African children in diaspora thrive academically — on your schedule, from anywhere.
               </p>
             </div>
-            <Link href="https://forms.gle/w1ffKrwYe1Asgz3K9" target="_blank" rel="noopener noreferrer" className="flex-shrink-0">
+            <Link href={BECOME_TUTOR_URL} className="flex-shrink-0">
               <Button
                 size="lg"
                 className="bg-secondary text-white hover:bg-secondary/90 rounded-full shadow-sm gap-2 whitespace-nowrap cursor-pointer"

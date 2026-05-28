@@ -28,6 +28,7 @@ export interface Blog {
   updatedByAvatar?: string
   category?: string
   tags?: string[]
+  featured?: boolean
   status: BlogStatus
   likes: number
   views: number
@@ -177,8 +178,10 @@ export async function createBlog(data: {
   authorRole?: string
   category?: string
   tags?: string[]
+  featured?: boolean
   status: BlogStatus
   scheduledAt?: Date
+  readTime?: number
 }) {
   const db = await getDb()
   const now = new Date()
@@ -189,6 +192,8 @@ export async function createBlog(data: {
     views: 0,
     shares: 0,
     likedBy: [],
+    featured: data.featured || false,
+    readTime: data.readTime,
     createdAt: now,
     updatedAt: now,
     publishedAt: data.status === "published" ? now : undefined,
@@ -231,11 +236,12 @@ export async function deleteBlog(id: string) {
   return true
 }
 
-export async function publishBlog(id: string, options?: { title?: string; excerpt?: string; tags?: string[]; scheduledAt?: Date; authorId?: string; authorName?: string }) {
+export async function publishBlog(id: string, options?: { title?: string; excerpt?: string; tags?: string[]; featured?: boolean; scheduledAt?: Date; authorId?: string; authorName?: string }) {
   const updateData: Partial<Blog> = { status: "published" }
   if (options?.title !== undefined) updateData.title = options.title
   if (options?.excerpt !== undefined) updateData.excerpt = options.excerpt
   if (options?.tags !== undefined) updateData.tags = options.tags
+  if (options?.featured !== undefined) updateData.featured = options.featured
   if (options?.authorId !== undefined) (updateData as Record<string, unknown>).authorId = options.authorId
   if (options?.authorName !== undefined) (updateData as Record<string, unknown>).authorName = options.authorName
   // scheduledAt can be used for future scheduling logic

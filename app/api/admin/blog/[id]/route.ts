@@ -25,7 +25,7 @@ async function putHandler(req: AuthenticatedRequest, { params }: Params) {
     const admin = req.admin!
     const body = await req.json()
 
-    const { title, content, thumbnail, tags, status, excerpt, description } = body
+    const { title, content, thumbnail, tags, status, excerpt, description, featured } = body
 
     const updateData: Record<string, unknown> = {}
     if (title !== undefined) {
@@ -47,6 +47,7 @@ async function putHandler(req: AuthenticatedRequest, { params }: Params) {
     if (thumbnail !== undefined) updateData.thumbnail = thumbnail
     if (tags !== undefined) updateData.tags = tags
     if (status !== undefined) updateData.status = status
+    if (featured !== undefined) updateData.featured = !!featured
 
     const post = await updateBlog(id, updateData as any, { id: admin.adminId, name: admin.email })
     if (!post) return NextResponse.json({ error: "not found" }, { status: 404 })
@@ -63,11 +64,11 @@ async function patchHandler(req: AuthenticatedRequest, { params }: Params) {
     const { id } = await params
     const admin = req.admin!
     const body = await req.json()
-    const { action, title, excerpt, tags } = body
+    const { action, title, excerpt, tags, featured } = body
 
     let post
     if (action === "publish") {
-      post = await publishBlog(id, { title, excerpt, tags, authorId: admin.adminId, authorName: admin.email })
+      post = await publishBlog(id, { title, excerpt, tags, featured, authorId: admin.adminId, authorName: admin.email })
     } else if (action === "unpublish") {
       post = await unpublishBlog(id)
     } else {

@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { MessageCircle, Menu, GraduationCap, Gift, ArrowRight, HelpCircle, BookOpen } from "lucide-react"
+import { Menu, GraduationCap, Gift, ArrowRight, HelpCircle } from "lucide-react"
 import Image from "next/image"
 import {
   Sheet,
@@ -10,10 +10,11 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetFooter,
 } from "@/components/ui/sheet"
 import { useBookingForm } from "@/components/booking-form-modal"
 import { usePathname } from "next/navigation"
+
+const BECOME_TUTOR_URL = "/careers/6a16f7e798abdbb392cc216b"
 
 export function Header() {
   const { openModal } = useBookingForm()
@@ -33,7 +34,7 @@ export function Header() {
     { href: "#pricing", label: "Pricing" },
     { href: "#testimonials", label: "Reviews" },
     { href: "#faq", label: "FAQ" },
-    { href: "#become-tutor", label: "Become a Tutor" },
+    { href: BECOME_TUTOR_URL, label: "Become a Tutor" },
     { href: "/blog", label: "Blog" },
   ]
 
@@ -91,31 +92,18 @@ export function Header() {
                 ))}
                 <button
                   onClick={openChat}
-                  className="flex items-center gap-3 text-base font-medium text-foreground hover:text-secondary px-4 py-3 rounded-lg transition-colors w-full text-left"
+                  className="flex items-center gap-3 text-base font-medium text-foreground hover:text-secondary px-4 py-3 rounded-lg transition-colors w-full text-left cursor-pointer"
                 >
                   <HelpCircle className="h-5 w-5" />
                   Help Centre
                 </button>
               </nav>
-              <SheetFooter className="mt-4">
-                <div className="flex flex-col gap-3 w-full">
-                  <Button onClick={() => openModal()} size="lg" className="bg-secondary hover:bg-secondary/90 text-white rounded-full w-full">
-                    <Gift className="h-5 w-5 mr-2" />
-                    <span>Book Free Trial</span>
-                  </Button>
-                  <Button asChild size="lg" variant="outline" className="rounded-full w-full">
-                    <a
-                      href="https://wa.me/2348129517392"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 justify-center"
-                    >
-                      <MessageCircle className="h-5 w-5" />
-                      <span>Chat on WhatsApp</span>
-                    </a>
-                  </Button>
-                </div>
-              </SheetFooter>
+              <div className="mt-4 p-4">
+                <Button onClick={() => openModal()} size="lg" className="bg-secondary hover:bg-secondary/90 text-white rounded-full w-full">
+                  <Gift className="h-5 w-5 mr-2" />
+                  <span>Book Free Trial</span>
+                </Button>
+              </div>
             </SheetContent>
           </Sheet>
         </div>
@@ -123,27 +111,11 @@ export function Header() {
         <div className="hidden lg:flex items-center gap-3">
           <button
             onClick={openChat}
-            className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-foreground hover:text-secondary transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-foreground hover:text-secondary transition-colors cursor-pointer"
           >
             <HelpCircle className="h-4 w-4" />
             Help Centre
           </button>
-          <Button
-            asChild
-            variant="ghost"
-            size="sm"
-            className="text-sm font-medium"
-          >
-            <a
-              href="https://wa.me/2348129517392"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2"
-            >
-              <MessageCircle className="h-4 w-4" />
-              WhatsApp
-            </a>
-          </Button>
           <Button onClick={() => openModal()} size="sm" className="bg-secondary hover:bg-secondary/90 text-white rounded-full px-6">
             Get Started
             <ArrowRight className="h-4 w-4 ml-1" />

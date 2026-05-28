@@ -48,6 +48,7 @@
       const [wordCount, setWordCount] = useState(0)
       const [readingTime, setReadingTime] = useState(0)
       const [isUploading, setIsUploading] = useState(false)
+      const [uploadTarget, setUploadTarget] = useState<"image" | "video">("image")
       const quillRef = useRef<any>(null)
       const fileInputRef = useRef<HTMLInputElement>(null)
       
@@ -91,11 +92,15 @@
 
       // Calculate word count and reading time
       useEffect(() => {
-        const safeContent = content || ""
-        const text = safeContent.replace(/<[^>]+>/g, "")
-        const words = text.trim().split(/\s+/).filter(Boolean).length
+        const parser = new DOMParser()
+        const doc = parser.parseFromString(content || "", "text/html")
+        const plainText = (doc.body.textContent || "")
+          .replace(/\u00a0/g, " ")
+          .replace(/\s+/g, " ")
+          .trim()
+        const words = plainText ? plainText.split(/\s+/).filter(Boolean).length : 0
         setWordCount(words)
-        setReadingTime(Math.ceil(words / 200)) // 200 WPM average reading speed
+        setReadingTime(words > 0 ? Math.max(1, Math.ceil(words / 200)) : 0)
       }, [content])
 
       // Get first image from content for thumbnail
@@ -107,11 +112,24 @@
 
       // Image upload handler - triggers hidden file input
       const imageHandler = useCallback(() => {
+        setUploadTarget("image")
+        if (fileInputRef.current) {
+          fileInputRef.current.accept = "image/*"
+        }
         fileInputRef.current?.click()
       }, [])
 
-      // Handle image file upload
-      const handleImageUpload = useCallback(async () => {
+      // Video upload handler - triggers hidden file input
+      const videoHandler = useCallback(() => {
+        setUploadTarget("video")
+        if (fileInputRef.current) {
+          fileInputRef.current.accept = "video/*"
+        }
+        fileInputRef.current?.click()
+      }, [])
+
+      // Handle media file upload
+      const handleMediaUpload = useCallback(async () => {
         const file = fileInputRef.current?.files?.[0]
         if (!file) return
 
@@ -120,9 +138,9 @@
         try {
           const formData = new FormData()
           formData.append("file", file)
-          formData.append("folder", "blog_content")
+          formData.append("mediaType", uploadTarget)
 
-          const res = await fetch("/api/upload/file", {
+          const res = await fetch("/api/uploads/blog-media", {
             method: "POST",
             body: formData,
           })
@@ -132,26 +150,16 @@
           const data = await res.json()
           const imageUrl = data.data.url
 
-          // Insert image into editor
+          // Insert media into editor
           const quill = quillRef.current?.getEditor?.()
           if (quill) {
             const range = quill.getSelection(true)
-            quill.insertEmbed(range.index, "image", imageUrl)
+            const embedType = uploadTarget === "video" ? "video" : "image"
+            quill.insertEmbed(range.index, embedType, imageUrl)
             quill.setSelection(range.index + 1)
           }
         } catch (error) {
-          console.error("Image upload error:", error)
-          // Fallback to local preview if Cloudinary fails
-          const reader = new FileReader()
-          reader.onload = (e) => {
-            const quill = quillRef.current?.getEditor?.()
-            if (quill) {
-              const range = quill.getSelection(true)
-              quill.insertEmbed(range.index, "image", e.target?.result)
-              quill.setSelection(range.index + 1)
-            }
-          }
-          reader.readAsDataURL(file)
+          console.error("Media upload error:", error)
         } finally {
           setIsUploading(false)
           // Reset file input
@@ -159,7 +167,7 @@
             fileInputRef.current.value = ""
           }
         }
-      }, [])
+      }, [uploadTarget])
 
       // Quill toolbar modules configuration - Enhanced like Google Blogger
       const modules = useMemo(
@@ -182,6 +190,7 @@
             ],
             handlers: {
               image: imageHandler,
+              video: videoHandler,
             },
           },
           history: {
@@ -193,7 +202,7 @@
             matchVisual: false,
           },
         }),
-        [imageHandler],
+        [imageHandler, videoHandler],
       )
 
       // Quill formats configuration - Enhanced
@@ -331,7 +340,7 @@
             type="file"
             accept="image/*"
             style={{ display: "none" }}
-            onChange={handleImageUpload}
+            onChange={handleMediaUpload}
           />
 
           {/* React-Quill Editor Container */}
@@ -341,7 +350,13 @@
                 ref={quillRef}
                 theme="snow"
                 value={content}
-                onChange={setContent}
+                onChange={(value, _delta, _source, editor) => {
+                  setContent(value)
+                  const plainText = editor.getText().replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim()
+                  const words = plainText ? plainText.split(/\s+/).filter(Boolean).length : 0
+                  setWordCount(words)
+                  setReadingTime(words > 0 ? Math.max(1, Math.ceil(words / 200)) : 0)
+                }}
                 modules={modules}
                 formats={formats}
                 placeholder="Start writing your blog post..."

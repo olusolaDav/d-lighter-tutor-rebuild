@@ -588,6 +588,114 @@ D-lighter Tutor Team
 
     return this.sendEmail({ to: adminEmail, subject, html })
   }
+
+  async sendCareerApplicationReceivedEmail(options: {
+    candidateEmail: string;
+    candidateName: string;
+    positionTitle: string;
+    assessmentLink?: string;
+  }): Promise<boolean> {
+    const { candidateEmail, candidateName, positionTitle, assessmentLink } = options;
+    const subject = `Application Received - ${positionTitle} | D-lighter Tutor`;
+    const firstName = candidateName.split(' ')[0] || candidateName;
+
+    const html = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Application Received</title>
+      <style>
+        body { margin:0; padding:0; font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif; background:#f4f7fa; }
+        .container { max-width:620px; margin:0 auto; background:#ffffff; border-radius:14px; overflow:hidden; }
+        .header { background:linear-gradient(135deg,#1e3a5f 0%,#2d5a87 100%); padding:32px 24px; text-align:center; }
+        .header h1 { margin:0; color:#ffffff; font-size:28px; font-weight:700; }
+        .header p { margin:10px 0 0; color:rgba(255,255,255,0.9); font-size:14px; }
+        .content { padding:32px 28px; color:#1f2937; }
+        .card { background:#f8fafc; border:1px solid #e5e7eb; border-radius:10px; padding:18px; margin:20px 0; }
+        .step { background:#fff7ed; border:1px solid #fed7aa; color:#7c2d12; border-radius:10px; padding:16px; margin:20px 0; }
+        .btn { display:inline-block; padding:12px 22px; border-radius:8px; text-decoration:none; font-weight:700; font-size:14px; }
+        .btn-primary { background:#1e3a5f; color:#ffffff; }
+        .btn-ghost { background:#eef2f7; color:#1e3a5f; }
+        .footer { background:#f8fafc; border-top:1px solid #e5e7eb; padding:20px 24px; text-align:center; color:#6b7280; font-size:12px; }
+      </style>
+    </head>
+    <body>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding:28px 14px;background:#f4f7fa;">
+        <tr>
+          <td align="center">
+            <div class="container">
+              <div class="header">
+                <h1>Application Submitted</h1>
+                <p>D-lighter Tutor Careers</p>
+              </div>
+
+              <div class="content">
+                <p style="margin:0 0 10px;font-size:16px;">Hello <strong>${firstName}</strong>,</p>
+                <p style="margin:0 0 16px;line-height:1.65;">
+                  Thank you for applying for the <strong>${positionTitle}</strong> position at D-lighter Tutor.
+                  We have received your application and our team will review it shortly.
+                </p>
+
+                <div class="card">
+                  <p style="margin:0 0 8px;font-size:13px;color:#6b7280;text-transform:uppercase;letter-spacing:.4px;">Application Details</p>
+                  <p style="margin:0 0 6px;font-size:14px;"><strong>Role:</strong> ${positionTitle}</p>
+                  <p style="margin:0;font-size:14px;"><strong>Email:</strong> ${candidateEmail}</p>
+                </div>
+
+                <div class="step">
+                  <p style="margin:0 0 6px;font-size:14px;font-weight:700;">Next Step: Assessment</p>
+                  <p style="margin:0;font-size:13px;line-height:1.6;">
+                    The next stage of our process is an online assessment. Please complete it at your earliest convenience.
+                  </p>
+                </div>
+
+                <div style="margin-top:20px;display:flex;gap:8px;flex-wrap:wrap;">
+                  ${assessmentLink
+                    ? `<a class="btn btn-primary" href="${assessmentLink}" target="_blank" rel="noopener noreferrer">Take the Assessment</a>`
+                    : `<span class="btn btn-ghost">Assessment link will be shared shortly</span>`
+                  }
+                </div>
+
+                <p style="margin:20px 0 0;font-size:13px;color:#6b7280;line-height:1.6;">
+                  If this application was not submitted by you, please reply to this email immediately.
+                </p>
+              </div>
+
+              <div class="footer">
+                <p style="margin:0 0 6px;"><strong>D-lighter Tutor</strong> - Expert online tutoring for African children in diaspora</p>
+                <p style="margin:0;">&copy; ${new Date().getFullYear()} D-lighter Tutor. All rights reserved.</p>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </body>
+    </html>`;
+
+    const text = `Hello ${firstName},
+
+Thank you for applying for the ${positionTitle} position at D-lighter Tutor.
+We have received your application and our team will review it shortly.
+
+${assessmentLink
+  ? `Next step: Complete your assessment here: ${assessmentLink}`
+  : 'Next step: Assessment link will be shared with you shortly.'
+}
+
+If this application was not submitted by you, please reply to this email.
+
+Best regards,
+D-lighter Tutor Team`;
+
+    return this.sendEmail({
+      to: candidateEmail,
+      subject,
+      html,
+      text,
+    });
+  }
 }
 
 export const emailService = new EmailService();

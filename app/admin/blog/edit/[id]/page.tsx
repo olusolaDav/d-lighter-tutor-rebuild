@@ -5,6 +5,8 @@ import { useState, useEffect } from "react"
 import { BlogEditor } from "@/components/dashboard/blog/blog-editor"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { Button } from "@/components/ui/button"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
 import { Loader2, ChevronLeft } from "lucide-react"
 import Link from "next/link"
 
@@ -17,6 +19,7 @@ interface BlogPost {
   thumbnail?: string
   status: "published" | "draft" | "scheduled"
   tags?: string[]
+  featured?: boolean
 }
 
 export default function EditBlogPostPage() {
@@ -27,6 +30,7 @@ export default function EditBlogPostPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [editorKey, setEditorKey] = useState(Date.now())
+  const [featured, setFeatured] = useState(false)
 
   useEffect(() => {
     // Reset state when postId changes
@@ -45,6 +49,7 @@ export default function EditBlogPostPage() {
         console.log("Fetched post data:", data)
         if (data.ok && data.post) {
           setPost(data.post)
+          setFeatured(!!data.post.featured)
           setEditorKey(Date.now())
         } else {
           setError("Post not found")
@@ -69,6 +74,7 @@ export default function EditBlogPostPage() {
           slug: data.slug,
           content: data.content,
           thumbnail: data.thumbnail,
+          featured,
         }),
       })
       const result = await res.json()
@@ -117,11 +123,19 @@ export default function EditBlogPostPage() {
         title="Edit Blog Post"
         subtitle={post.title}
         actions={
-          <Link href="/admin/blog">
-            <Button variant="outline" size="sm" className="gap-2 rounded-full">
-              <ChevronLeft className="w-4 h-4" /> Back to Blog
-            </Button>
-          </Link>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1.5">
+              <Switch checked={featured} onCheckedChange={setFeatured} id="featured-blog" />
+              <Label htmlFor="featured-blog" className="cursor-pointer text-sm font-medium">
+                Featured
+              </Label>
+            </div>
+            <Link href="/admin/blog">
+              <Button variant="outline" size="sm" className="gap-2 rounded-full">
+                <ChevronLeft className="w-4 h-4" /> Back to Blog
+              </Button>
+            </Link>
+          </div>
         }
       />
       <div className="flex-1 min-h-0 p-4 sm:p-6 overflow-hidden">

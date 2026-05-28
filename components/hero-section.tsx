@@ -11,6 +11,10 @@ export function HeroSection() {
   const [isVisible, setIsVisible] = useState(false)
   const { openModal } = useBookingForm()
 
+  const openChat = () => {
+    window.dispatchEvent(new CustomEvent('dlighter-open-chat'))
+  }
+
   useEffect(() => {
     setIsVisible(true)
   }, [])
@@ -63,20 +67,15 @@ export function HeroSection() {
                 <ArrowRight className="h-5 w-5 ml-2" />
               </Button>
               <Button
-                asChild
                 size="lg"
                 variant="outline"
                 className="border-2 border-foreground/20 text-foreground hover:bg-muted text-lg h-14 px-8 rounded-full"
+                onClick={openChat}
               >
-                <a
-                  href="https://wa.me/2348129517392?text=Hi%2C%20I%27d%20like%20to%20know%20more%20about%20D-lighter%20Tutor"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2"
-                >
+                <span className="flex items-center gap-2">
                   <MessageCircle className="h-5 w-5" />
-                  Chat on WhatsApp
-                </a>
+                  Live Chat
+                </span>
               </Button>
             </div>
 

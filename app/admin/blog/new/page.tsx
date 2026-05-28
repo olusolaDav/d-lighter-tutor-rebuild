@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation"
 import { BlogEditor } from "@/components/dashboard/blog/blog-editor"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { Button } from "@/components/ui/button"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
 import { ChevronLeft } from "lucide-react"
 import Link from "next/link"
 
@@ -12,6 +14,7 @@ export default function NewBlogPostPage() {
   const router = useRouter()
   const [postId, setPostId] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
+  const [featured, setFeatured] = useState(false)
 
   const handleSave = async (data: { title: string; slug: string; content: string; thumbnail?: string | null }) => {
     setIsSaving(true)
@@ -25,6 +28,7 @@ export default function NewBlogPostPage() {
             slug: data.slug,
             content: data.content,
             thumbnail: data.thumbnail,
+            featured,
             status: "draft",
           }),
         })
@@ -41,6 +45,7 @@ export default function NewBlogPostPage() {
             slug: data.slug,
             content: data.content,
             thumbnail: data.thumbnail,
+            featured,
             status: "draft",
           }),
         })
@@ -79,11 +84,19 @@ export default function NewBlogPostPage() {
         title="New Blog Post"
         subtitle="Write and publish a new article for D-lighter readers"
         actions={
-          <Link href="/admin/blog">
-            <Button variant="outline" size="sm" className="gap-2 rounded-full">
-              <ChevronLeft className="w-4 h-4" /> Back to Blog
-            </Button>
-          </Link>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1.5">
+              <Switch checked={featured} onCheckedChange={setFeatured} id="featured-blog" />
+              <Label htmlFor="featured-blog" className="cursor-pointer text-sm font-medium">
+                Featured
+              </Label>
+            </div>
+            <Link href="/admin/blog">
+              <Button variant="outline" size="sm" className="gap-2 rounded-full">
+                <ChevronLeft className="w-4 h-4" /> Back to Blog
+              </Button>
+            </Link>
+          </div>
         }
       />
       <div className="flex-1 min-h-0 p-4 sm:p-6 overflow-hidden">

@@ -59,6 +59,7 @@ interface BlogPost {
   likes: number
   shares: number
   readTime: number
+  featured?: boolean
   createdAt: string
   publishedAt?: string
   updatedAt: string
@@ -104,6 +105,7 @@ export function BlogListingContent() {
               likes: p.likes || 0,
               shares: p.shares || 0,
               readTime: p.readTime || 5,
+              featured: !!p.featured,
               createdAt: p.createdAt || new Date().toISOString(),
               publishedAt: p.publishedAt,
               updatedAt: p.updatedAt || new Date().toISOString(),
@@ -151,7 +153,7 @@ export function BlogListingContent() {
       .concat(Array.from(set).filter((t) => !BLOG_CATEGORIES.includes(t)))
   }, [posts])
 
-  const featuredPost = useMemo(() => [...posts].sort((a, b) => b.views - a.views)[0] || null, [posts])
+  const featuredPost = useMemo(() => posts.find((post) => post.featured) || null, [posts])
   const popularPosts = useMemo(() => [...posts].sort((a, b) => b.views - a.views).slice(0, 4), [posts])
   const totalPages = Math.ceil(filteredPosts.length / postsPerPage)
   const paginatedPosts = filteredPosts.slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage)
@@ -279,7 +281,7 @@ export function BlogListingContent() {
                   <MediumPostRow
                     key={post._id}
                     post={post}
-                    featured={!search && !selectedCategory && i === 0 && currentPage === 1}
+                    featured={!!post.featured}
                   />
                 ))}
               </div>
