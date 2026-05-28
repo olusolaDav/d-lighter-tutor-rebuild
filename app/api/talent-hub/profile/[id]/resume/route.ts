@@ -42,17 +42,7 @@ export async function GET(
 
     if (format === 'pdf') {
       try {
-        // Use jsPDF for PDF generation
-        const jsPDF = require('jspdf').jsPDF;
-        const doc = new jsPDF('p', 'mm', 'a4');
-
-        // Set font
-        doc.setFont('helvetica');
-
-        // Generate PDF content
-        generatePDFContent(doc, profile);
-
-        const pdfBuffer = Buffer.from(doc.output('arraybuffer'));
+        const pdfBuffer = buildResumePdf(profile);
 
         return new Response(pdfBuffer, {
           headers: {
@@ -60,10 +50,10 @@ export async function GET(
             'Content-Disposition': `attachment; filename="${profile.personalInfo.firstName}_${profile.personalInfo.lastName}_Resume.pdf"`
           }
         });
-      } catch (pdfError) {
+      } catch (pdfError: any) {
         console.error('PDF generation error:', pdfError);
-        return Response.json({ 
-          error: `PDF generation failed: ${pdfError.message}. Please try again later.` 
+        return Response.json({
+          error: `PDF generation failed: ${pdfError?.message || 'Unknown error'}. Please try again later.`
         }, { status: 500 });
       }
     } else {
@@ -84,6 +74,233 @@ export async function GET(
       { status: 500 }
     );
   }
+}
+
+function buildResumePdf(profile: any): Buffer {
+  const pageWidth = 612;
+  const pageHeight = 792;
+  const leftMargin = 48;
+  const rightMargin = 48;
+  const topMargin = 48;
+  const bottomMargin = 48;
+  const contentWidth = pageWidth - leftMargin - rightMargin;
+  const lineHeight = 16;
+
+  const lines: Array<{ text: string; size?: number; bold?: boolean; indent?: number }> = [];
+
+  const addLine = (text: string, size = 12, bold = false, indent = 0) => {
+    lines.push({ text, size, bold, indent });
+  };
+
+  const addWrapped = (text: string, size = 12, bold = false, indent = 0) => {
+    const wrapped = wrapText(text, Math.max(30, Math.floor(contentWidth / (size * 0.55))));
+    if (wrapped.length === 0) {
+      addLine('', size, bold, indent);
+      return;
+    }
+
+    wrapped.forEach((line) => addLine(line, size, bold, indent));
+  };
+
+  const formatDate = (date: Date | string) => {
+    if (!date) return '';
+    const dateObj = new Date(date);
+    return dateObj.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long'
+    });
+  };
+
+  const formatLocation = (location: any) => {
+    const parts = [location?.city, location?.state, location?.country].filter(Boolean);
+    return parts.join(', ');
+  };
+
+  const fullName = `${profile.personalInfo?.firstName || ''} ${profile.personalInfo?.lastName || ''}`.trim();
+  addLine(fullName || 'Resume', 22, true);
+  addLine(profile.title || 'Professional Profile', 14, false);
+
+  const contactItems = [
+    profile.personalInfo?.email,
+    profile.personalInfo?.phone,
+    formatLocation(profile.personalInfo?.location),
+    profile.personalInfo?.nationality,
+  ].filter(Boolean);
+
+  if (contactItems.length > 0) {
+    addWrapped(contactItems.join(' | '), 10, false);
+  }
+
+  addLine('', 12);
+  addLine('PROFESSIONAL SUMMARY', 13, true);
+  if (profile.bio) {
+    addWrapped(profile.bio, 11);
+  }
+
+  if (profile.skills && profile.skills.length > 0) {
+    addLine('', 12);
+    addLine('SKILLS & EXPERTISE', 13, true);
+    profile.skills.forEach((skill: any) => {
+      const level = skill.level || skill.proficiency || 'Skill';
+      const years = skill.yearsOfExperience ? `${skill.yearsOfExperience} years` : '';
+      addWrapped(`- ${skill.name}${level || years ? ` (${[level, years].filter(Boolean).join(' • ')})` : ''}`, 11, false, 8);
+    });
+  }
+
+  if (profile.experience && profile.experience.length > 0) {
+    addLine('', 12);
+    addLine('WORK EXPERIENCE', 13, true);
+    profile.experience.forEach((exp: any) => {
+      addWrapped(exp.position || exp.title || 'Position', 11, true, 4);
+      addWrapped(`${exp.company || ''}${exp.location ? ` • ${formatLocation(exp.location)}` : ''}`, 11, false, 8);
+      if (exp.startDate || exp.endDate) {
+        addWrapped(`${formatDate(exp.startDate)}${exp.endDate ? ` - ${formatDate(exp.endDate)}` : ' - Present'}`, 10, false, 8);
+      }
+      if (exp.description) {
+        addWrapped(exp.description, 11, false, 12);
+      }
+      addLine('', 11);
+    });
+  }
+
+  if (profile.education && profile.education.length > 0) {
+    addLine('', 12);
+    addLine('EDUCATION', 13, true);
+    profile.education.forEach((edu: any) => {
+      const title = [edu.degree, edu.fieldOfStudy].filter(Boolean).join(' in ') || edu.degree || 'Education';
+      addWrapped(title, 11, true, 4);
+      addWrapped(edu.institution || '', 11, false, 8);
+      if (edu.startDate || edu.endDate || edu.startYear || edu.endYear) {
+        const dateLabel = edu.startDate || edu.startYear ? formatDate(edu.startDate || `${edu.startYear}-01-01`) : '';
+        const endLabel = edu.endDate || edu.endYear ? formatDate(edu.endDate || `${edu.endYear}-01-01`) : 'Present';
+        addWrapped(`${dateLabel}${endLabel ? ` - ${endLabel}` : ''}`, 10, false, 8);
+      }
+      addLine('', 11);
+    });
+  }
+
+  const pages: Array<string[]> = [[]];
+  let currentY = pageHeight - topMargin;
+
+  const pushPageLine = (line: string) => {
+    if (currentY < bottomMargin) {
+      pages.push([]);
+      currentY = pageHeight - topMargin;
+    }
+    pages[pages.length - 1].push(line);
+    currentY -= lineHeight;
+  };
+
+  lines.forEach((entry) => {
+    const size = entry.size || 12;
+    const leading = Math.max(lineHeight, Math.ceil(size * 1.3));
+    if (currentY < bottomMargin + leading) {
+      pages.push([]);
+      currentY = pageHeight - topMargin;
+    }
+
+    const x = leftMargin + (entry.indent || 0);
+    const y = currentY;
+    const font = entry.bold ? '/F2' : '/F1';
+    const content = `${font} ${size} Tf ${x} ${y} Td (${escapePdfText(entry.text)}) Tj`;
+    pages[pages.length - 1].push(content);
+    currentY -= leading;
+  });
+
+  const objects: string[] = [];
+  const offsets: number[] = [];
+
+  const addObject = (content: string) => {
+    offsets.push(objects.join('\n').length + 1);
+    objects.push(content);
+  };
+
+  const pageObjectCount = pages.length;
+  const fontObjectIds = { regular: 3 + pageObjectCount * 2, bold: 4 + pageObjectCount * 2 };
+  const catalogId = 1;
+  const pagesId = 2;
+
+  addObject(`${catalogId} 0 obj\n<< /Type /Catalog /Pages ${pagesId} 0 R >>\nendobj`);
+
+  const pageKids = pages.map((_, index) => `${3 + index * 2} 0 R`).join(' ');
+  addObject(`${pagesId} 0 obj\n<< /Type /Pages /Kids [${pageKids}] /Count ${pageObjectCount} >>\nendobj`);
+
+  pages.forEach((pageLines, index) => {
+    const pageId = 3 + index * 2;
+    const contentId = 4 + index * 2;
+    const stream = [
+      'BT',
+      '/F1 12 Tf',
+      ...pageLines,
+      'ET',
+    ].join('\n');
+
+    addObject(
+      `${pageId} 0 obj\n<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] /Resources << /Font << /F1 ${fontObjectIds.regular} 0 R /F2 ${fontObjectIds.bold} 0 R >> >> /Contents ${contentId} 0 R >>\nendobj`
+    );
+
+    addObject(
+      `${contentId} 0 obj\n<< /Length ${Buffer.byteLength(stream, 'utf8')} >>\nstream\n${stream}\nendstream\nendobj`
+    );
+  });
+
+  addObject(`${fontObjectIds.regular} 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj`);
+  addObject(`${fontObjectIds.bold} 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>\nendobj`);
+
+  const header = '%PDF-1.4\n';
+  const body = objects.join('\n');
+
+  const xrefOffset = Buffer.byteLength(header + body + '\n', 'utf8');
+  const xrefEntries = ['0000000000 65535 f '];
+
+  let runningOffset = Buffer.byteLength(header, 'utf8');
+  for (const object of objects) {
+    xrefEntries.push(`${runningOffset.toString().padStart(10, '0')} 00000 n `);
+    runningOffset += Buffer.byteLength(object + '\n', 'utf8');
+  }
+
+  const xref = [
+    'xref',
+    `0 ${objects.length + 1}`,
+    ...xrefEntries,
+    'trailer',
+    `<< /Size ${objects.length + 1} /Root 1 0 R >>`,
+    'startxref',
+    String(xrefOffset),
+    '%%EOF',
+  ].join('\n');
+
+  return Buffer.from(`${header}${body}\n${xref}`);
+}
+
+function escapePdfText(text: string): string {
+  return text
+    .replace(/\\/g, '\\\\')
+    .replace(/\(/g, '\\(')
+    .replace(/\)/g, '\\)')
+    .replace(/\r?\n/g, ' ');
+}
+
+function wrapText(text: string, maxChars: number): string[] {
+  const words = text.split(/\s+/).filter(Boolean);
+  const lines: string[] = [];
+  let currentLine = '';
+
+  for (const word of words) {
+    const nextLine = currentLine ? `${currentLine} ${word}` : word;
+    if (nextLine.length > maxChars && currentLine) {
+      lines.push(currentLine);
+      currentLine = word;
+    } else {
+      currentLine = nextLine;
+    }
+  }
+
+  if (currentLine) {
+    lines.push(currentLine);
+  }
+
+  return lines;
 }
 
 function generatePDFContent(doc: any, profile: any): void {
