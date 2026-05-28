@@ -1,6 +1,30 @@
 import { getDb } from "@/lib/mongodb"
 import { ObjectId } from "mongodb"
 
+function stripHtml(content: string) {
+  return content
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, " ")
+    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, " ")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/\s+/g, " ")
+    .trim()
+}
+
+export function estimateReadTime(content: string, fallback = 1) {
+  const plainText = stripHtml(content || "")
+  const wordCount = plainText ? plainText.split(/\s+/).filter(Boolean).length : 0
+
+  if (!wordCount) {
+    return fallback
+  }
+
+  return Math.max(1, Math.ceil(wordCount / 225))
+}
+
 // Types
 export type BlogStatus = "draft" | "published" | "archived"
 export type CommentStatus = "pending" | "published" | "rejected"
@@ -73,7 +97,11 @@ export async function listPublishedBlogs(limit = 20, skip = 0) {
     .toArray()
   
   return {
-    posts: blogs.map(b => ({ ...b, _id: b._id.toString() })),
+    posts: blogs.map(b => ({
+      ...b,
+      _id: b._id.toString(),
+      readTime: estimateReadTime(String(b.content || ""), Number(b.readTime) || 1),
+    })),
     total,
   }
 }
@@ -93,7 +121,11 @@ export async function listAllBlogs(limit = 50, skip = 0, status?: BlogStatus) {
     .toArray()
   
   return {
-    posts: posts.map(b => ({ ...b, _id: b._id.toString() })),
+    posts: posts.map(b => ({
+      ...b,
+      _id: b._id.toString(),
+      readTime: estimateReadTime(String(b.content || ""), Number(b.readTime) || 1),
+    })),
     total
   }
 }
@@ -142,6 +174,7 @@ export async function getBlogBySlug(slug: string): Promise<Blog | null> {
   return { 
     ...blog, 
     _id: blog._id.toString(),
+    readTime: estimateReadTime(String(blog.content || ""), Number(blog.readTime) || 1),
     authorName,
     authorAvatar,
     updatedByName,
@@ -153,7 +186,11 @@ export async function getBlogById(id: string): Promise<Blog | null> {
   const db = await getDb()
   const blog = await db.collection("blogs").findOne({ _id: new ObjectId(id) })
   if (!blog) return null
-  return { ...blog, _id: blog._id.toString() } as Blog
+  return {
+    ...blog,
+    _id: blog._id.toString(),
+    readTime: estimateReadTime(String(blog.content || ""), Number(blog.readTime) || 1),
+  } as Blog
 }
 
 export async function incrementBlogViews(id: string) {

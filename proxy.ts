@@ -30,17 +30,14 @@ function decodeJWTPayload(token: string): Record<string, any> | null {
   }
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
   const accessToken = request.cookies.get('accessToken')?.value
 
-  // ── Special bypass routes — accessible regardless of auth state ───────────
   if (AUTH_BYPASS_ROUTES.some((r) => pathname.startsWith(r))) {
     return NextResponse.next()
   }
 
-  // ── Auth routes (/auth/*) ─────────────────────────────────────────────────
-  // Redirect already-authenticated users to their dashboard
   if (pathname.startsWith('/auth')) {
     if (accessToken) {
       const payload = decodeJWTPayload(accessToken)
@@ -52,13 +49,11 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // ── Protected dashboard routes ────────────────────────────────────────────
   const protectedPrefixes = ['/admin', '/super-admin', '/tutor', '/student', '/parent']
   const isProtected = protectedPrefixes.some((prefix) => pathname.startsWith(prefix))
 
   if (!isProtected) return NextResponse.next()
 
-  // No token → login
   if (!accessToken) {
     const loginUrl = new URL('/auth/login', request.url)
     loginUrl.searchParams.set('callbackUrl', pathname)
@@ -67,7 +62,6 @@ export function middleware(request: NextRequest) {
 
   const payload = decodeJWTPayload(accessToken)
 
-  // Invalid / expired token → login
   if (!payload?.role) {
     const loginUrl = new URL('/auth/login', request.url)
     loginUrl.searchParams.set('callbackUrl', pathname)
@@ -77,14 +71,12 @@ export function middleware(request: NextRequest) {
     return response
   }
 
-  // mustChangePassword → force to change-password page
   if (payload.mustChangePassword && !pathname.startsWith('/auth/change-password')) {
     return NextResponse.redirect(new URL('/auth/change-password', request.url))
   }
 
   const userDashboard = ROLE_ROUTES[payload.role as string]
 
-  // Role mismatch → redirect to correct dashboard
   if (userDashboard && !pathname.startsWith(userDashboard)) {
     return NextResponse.redirect(new URL(userDashboard, request.url))
   }

@@ -172,7 +172,6 @@ adminSchema.methods.incrementLoginAttempts = async function () {
 adminSchema.index({ isActive: 1 });
 adminSchema.index({ role: 1 });
 adminSchema.index({ parentId: 1 });
-adminSchema.index({ username: 1 });
 
 // In development, always use the latest schema (avoids stale cached model after edits)
 if (process.env.NODE_ENV !== 'production' && mongoose.models.Admin) {

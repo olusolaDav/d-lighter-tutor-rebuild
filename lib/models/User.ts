@@ -23,7 +23,7 @@ const userSchema = new Schema<IUser>(
   {
     firstName: { type: String, trim: true, default: '' },
     lastName: { type: String, trim: true, default: '' },
-    email: { type: String, lowercase: true, trim: true, index: true },
+    email: { type: String, lowercase: true, trim: true },
     password: { type: String, select: false },
     role: { type: String, enum: ['super_admin', 'admin', 'tutor', 'student', 'parent', 'user'], default: 'user' },
     avatar: { type: String, default: '' },
