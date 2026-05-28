@@ -2,10 +2,12 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/hooks/use-auth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
@@ -47,6 +49,8 @@ const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
 
 export default function ApplicationsPage() {
   const { user, loading: authLoading } = useAuth();
+  const pathname = usePathname();
+  const basePath = pathname.startsWith('/super-admin') ? '/super-admin' : '/admin';
   const [applications, setApplications] = useState<Application[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [positions, setPositions] = useState<{ _id: string; title: string }[]>([]);
@@ -61,6 +65,8 @@ export default function ApplicationsPage() {
   const [deletePassword, setDeletePassword] = useState('');
   const [deleteError, setDeleteError] = useState('');
   const [exporting, setExporting] = useState(false);
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
+  const [exportPositionId, setExportPositionId] = useState('all');
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -75,7 +81,7 @@ export default function ApplicationsPage() {
         setApplications(data.data.applications || []);
         setStats(data.data.stats || null);
         setPositions(data.data.positions || []);
-        setTotal(data.data.total || 0);
+        setTotal(data.data.pagination?.total || 0);
       }
     } finally {
       setLoading(false);
@@ -122,12 +128,30 @@ export default function ApplicationsPage() {
   const exportToExcel = async () => {
     setExporting(true);
     try {
-      const params = new URLSearchParams({ page: '1', limit: '10000' });
-      if (statusFilter !== 'all') params.set('status', statusFilter);
-      if (positionFilter !== 'all') params.set('positionId', positionFilter);
-      const res = await fetch(`/api/admin/applications?${params}`);
-      const data = await res.json();
-      const allApps: Application[] = data.data?.applications || [];
+      const allApps: Application[] = [];
+      let currentPage = 1;
+      let totalPages = 1;
+
+      do {
+        const params = new URLSearchParams({ page: String(currentPage), limit: '250' });
+        if (exportPositionId !== 'all') params.set('positionId', exportPositionId);
+
+        const res = await fetch(`/api/admin/applications?${params}`);
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data?.error || 'Failed to fetch applications for export');
+        }
+
+        allApps.push(...(data.data?.applications || []));
+        totalPages = data.data?.pagination?.totalPages || 1;
+        currentPage += 1;
+      } while (currentPage <= totalPages);
+
+      if (allApps.length === 0) {
+        toast.error('No applications to export');
+        return;
+      }
 
       const XLSX = await import('xlsx');
 
@@ -148,6 +172,23 @@ export default function ApplicationsPage() {
         const period = h >= 12 ? 'PM' : 'AM';
         const h12 = h % 12 === 0 ? 12 : h % 12;
         return `${h12}:${String(m).padStart(2, '0')} ${period}`;
+      };
+
+      const usedSheetNames = new Set<string>();
+
+      const makeSheetName = (value: string) => {
+        const baseName = (value || 'Applications').replace(/[:\\/?*\[\]]/g, '').trim().substring(0, 31) || 'Applications';
+        let candidate = baseName;
+        let suffix = 1;
+
+        while (usedSheetNames.has(candidate)) {
+          const nextSuffix = `-${suffix}`;
+          candidate = `${baseName.substring(0, Math.max(0, 31 - nextSuffix.length))}${nextSuffix}`;
+          suffix += 1;
+        }
+
+        usedSheetNames.add(candidate);
+        return candidate;
       };
 
       // Sheet per position group
@@ -184,18 +225,20 @@ export default function ApplicationsPage() {
           };
         });
         const ws = XLSX.utils.json_to_sheet(rows);
-        // Sanitize sheet name (Excel limit: 31 chars, no special chars)
-        const sheetName = posTitle.replace(/[:\\/?*\[\]]/g, '').substring(0, 31);
+        const sheetName = makeSheetName(posTitle);
         XLSX.utils.book_append_sheet(wb, ws, sheetName);
       }
 
-      if (Object.keys(groups).length === 0) {
-        toast.error('No applications to export');
-        return;
-      }
-
       const dateStr = new Date().toISOString().slice(0, 10);
-      XLSX.writeFile(wb, `applications-${dateStr}.xlsx`);
+      const selectedPosition = exportPositionId === 'all'
+        ? null
+        : positions.find((position) => position._id === exportPositionId);
+      const fileSuffix = selectedPosition
+        ? selectedPosition.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'position'
+        : 'all-positions';
+
+      XLSX.writeFile(wb, `applications-${fileSuffix}-${dateStr}.xlsx`);
+      setExportDialogOpen(false);
       toast.success('Export downloaded');
     } catch (err) {
       console.error('Export error:', err);
@@ -221,7 +264,7 @@ export default function ApplicationsPage() {
           <p className="text-xs text-muted-foreground mt-0.5">{total} total application{total !== 1 ? 's' : ''}</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={exportToExcel} disabled={exporting} className="gap-1.5">
+          <Button variant="outline" size="sm" onClick={() => setExportDialogOpen(true)} disabled={exporting} className="gap-1.5">
             {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
             Export Excel
           </Button>
@@ -296,7 +339,7 @@ export default function ApplicationsPage() {
             const pos = typeof app.positionId === 'object' ? app.positionId : null;
             return (
               <div key={app._id} className="relative group">
-                <Link href={`/admin/job-applications/${app._id}`} className="block">
+                <Link href={`${basePath}/job-applications/${app._id}`} className="block">
                   <Card className="border-0 glass-card hover:shadow-md transition-shadow cursor-pointer">
                     <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
                       <div className="flex-1 min-w-0 space-y-1">
@@ -345,6 +388,48 @@ export default function ApplicationsPage() {
           })}
         </div>
       )}
+
+      <Dialog
+        open={exportDialogOpen}
+        onOpenChange={(open) => {
+          setExportDialogOpen(open);
+          if (open) {
+            setExportPositionId(positionFilter !== 'all' ? positionFilter : 'all');
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Export Applications</DialogTitle>
+            <DialogDescription>
+              Choose whether to export all positions or only applications for one specific position.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label htmlFor="export-position">Position Filter</Label>
+            <Select value={exportPositionId} onValueChange={setExportPositionId}>
+              <SelectTrigger id="export-position">
+                <SelectValue placeholder="Select export filter" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Positions</SelectItem>
+                {positions.map((position) => (
+                  <SelectItem key={position._id} value={position._id}>{position.title}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setExportDialogOpen(false)} disabled={exporting}>
+              Cancel
+            </Button>
+            <Button onClick={() => void exportToExcel()} disabled={exporting} className="gap-1.5">
+              {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+              Download Excel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog
         open={!!deleteTarget}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/hooks/use-auth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -84,6 +84,8 @@ function formatTime(time?: string) {
 export default function ApplicationDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const pathname = usePathname();
+  const basePath = pathname.startsWith('/super-admin') ? '/super-admin' : '/admin';
   const { user, loading: authLoading } = useAuth();
   const id = params?.id as string;
 
@@ -106,13 +108,13 @@ export default function ApplicationDetailPage() {
           setStatus(data.data.status);
         } else {
           toast.error('Application not found');
-          router.push('/admin/job-applications');
+          router.push(`${basePath}/job-applications`);
         }
       } finally {
         setLoading(false);
       }
     })();
-  }, [id, router]);
+  }, [basePath, id, router]);
 
   const saveNotes = async () => {
     setSaving(true);
@@ -167,7 +169,7 @@ export default function ApplicationDetailPage() {
 
       {/* Header */}
       <div className="flex items-start gap-3">
-        <Link href="/admin/job-applications">
+        <Link href={`${basePath}/job-applications`}>
           <Button variant="ghost" size="sm" className="gap-1.5 shrink-0"><ArrowLeft className="w-4 h-4" /> Back</Button>
         </Link>
         <Separator orientation="vertical" className="h-6 mt-1" />
@@ -305,7 +307,7 @@ export default function ApplicationDetailPage() {
                     {Math.round(app.resume.fileSize / 1024)} KB · {app.resume.fileType}
                   </p>
                 </div>
-                <a href={app.resume.url} target="_blank" rel="noopener noreferrer" download={app.resume.fileName}>
+                <a href={`/api/admin/applications/${id}/resume`} target="_blank" rel="noopener noreferrer">
                   <Button variant="outline" className="w-full gap-1.5 text-sm">
                     <ExternalLink className="w-4 h-4" /> Download Resume
                   </Button>
