@@ -322,7 +322,8 @@ function ApplicationDialog({
   const setTE = (f: keyof ApplicationForm['teachingExperience'], v: any) =>
     setForm(prev => ({ ...prev, teachingExperience: { ...prev.teachingExperience, [f]: v } }));
 
-  const subjectOptions = position.type === 'tutor' ? (position.subjects || []) : (position.subjects || []);
+  const subjectOptions = position.subjects || [];
+  const showSubjectSection = subjectOptions.length > 0;
   const allowedDays = getAllowedDaysForAvailability(form.availability.type);
 
   useEffect(() => {
@@ -623,50 +624,41 @@ function ApplicationDialog({
           </div>
         </div>
 
-        {/* Subjects (for tutor role from admin-configured position subjects) */}
-        <div className="space-y-3 rounded-xl border p-4">
-          <SectionLabel><BookOpen className="w-4 h-4 text-secondary" /> Subjects You Can Teach</SectionLabel>
-          {subjectOptions.length > 0 ? (
-            <>
-              <div className="flex flex-wrap gap-2">
-                {subjectOptions.map(s => (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => toggleSubject(s)}
-                    className={`text-xs px-3 py-1.5 rounded-full border transition-all ${
-                      form.subjects.includes(s)
-                        ? 'bg-secondary text-white border-secondary'
-                        : 'bg-card text-muted-foreground border-border hover:border-secondary/50'
-                    }`}
-                  >
-                    {s}
-                  </button>
-                ))}
+        {showSubjectSection && (
+          <div className="space-y-3 rounded-xl border p-4">
+            <SectionLabel><BookOpen className="w-4 h-4 text-secondary" /> Subjects You Can Teach</SectionLabel>
+            <div className="flex flex-wrap gap-2">
+              {subjectOptions.map(s => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => toggleSubject(s)}
+                  className={`text-xs px-3 py-1.5 rounded-full border transition-all ${
+                    form.subjects.includes(s)
+                      ? 'bg-secondary text-white border-secondary'
+                      : 'bg-card text-muted-foreground border-border hover:border-secondary/50'
+                  }`}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+            {position.type !== 'tutor' && (
+              <div className="flex gap-2 mt-2">
+                <Input
+                  value={subjectInput}
+                  onChange={e => setSubjectInput(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addCustomSubject(); } }}
+                  placeholder="Other subject (type and press Enter)"
+                  className="flex-1 text-sm"
+                />
+                <Button type="button" variant="outline" size="sm" onClick={addCustomSubject} className="shrink-0">
+                  <Plus className="w-4 h-4" />
+                </Button>
               </div>
-              {position.type !== 'tutor' && (
-                <div className="flex gap-2 mt-2">
-                  <Input
-                    value={subjectInput}
-                    onChange={e => setSubjectInput(e.target.value)}
-                    onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addCustomSubject(); } }}
-                    placeholder="Other subject (type and press Enter)"
-                    className="flex-1 text-sm"
-                  />
-                  <Button type="button" variant="outline" size="sm" onClick={addCustomSubject} className="shrink-0">
-                    <Plus className="w-4 h-4" />
-                  </Button>
-                </div>
-              )}
-            </>
-          ) : (
-            <p className="text-xs text-muted-foreground">
-              {position.type === 'tutor'
-                ? 'No subjects were configured for this tutor role by the admin yet.'
-                : 'No predefined subjects for this position.'}
-            </p>
-          )}
-        </div>
+            )}
+          </div>
+        )}
 
         {/* Teaching Experience */}
         <div className="space-y-3 rounded-xl border p-4">
