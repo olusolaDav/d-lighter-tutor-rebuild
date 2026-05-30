@@ -10,6 +10,18 @@ import { BlogEngagementButtons } from "./blog-engagement-buttons"
 // Helper function to convert video URLs into embedded iframes AND clean up ALL editor formatting
 function processVideoContent(html: string): string {
   if (!html) return html
+
+  // Convert markdown-style headings that may have been saved as plain paragraph text
+  // (e.g. <p>### Section title</p>) into semantic heading tags for proper styling.
+  html = html.replace(
+    /<p>(?:\s|&nbsp;)*(#{1,6})\s+([\s\S]*?)<\/p>/gi,
+    (_match, hashes, text) => {
+      const level = Math.min(String(hashes).length, 6)
+      const cleaned = String(text).trim()
+      if (!cleaned) return _match
+      return `<h${level}>${cleaned}</h${level}>`
+    }
+  )
   
   // Replace non-breaking spaces from Quill editor with regular spaces
   // This prevents the browser from treating entire paragraphs as single unbreakable words
@@ -19,8 +31,21 @@ function processVideoContent(html: string): string {
   // AGGRESSIVELY clean up ALL problematic formatting
   // Remove ALL inline styles
   html = html.replace(/\s*style\s*=\s*["'][^"']*["']/gi, '')
-  // Remove ALL class attributes (including ql-editor, prose, etc.)
-  html = html.replace(/\s*class\s*=\s*["'][^"']*["']/gi, '')
+  // Keep meaningful Quill formatting classes (ql-size, ql-align, ql-indent, ql-video)
+  // while removing layout/editor classes that can break frontend styling consistency.
+  html = html.replace(/\s*class\s*=\s*["']([^"']*)["']/gi, (_match, classValue) => {
+    const safeClasses = String(classValue)
+      .split(/\s+/)
+      .filter(Boolean)
+      .filter((name) =>
+        name === "ql-video" ||
+        name.startsWith("ql-size-") ||
+        name.startsWith("ql-align-") ||
+        name.startsWith("ql-indent-")
+      )
+
+    return safeClasses.length > 0 ? ` class="${safeClasses.join(" ")}"` : ""
+  })
   // Remove ALL id attributes
   html = html.replace(/\s*id\s*=\s*["'][^"']*["']/gi, '')
   // Remove data attributes

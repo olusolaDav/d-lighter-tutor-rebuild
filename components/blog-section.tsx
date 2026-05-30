@@ -55,6 +55,11 @@ export function BlogSection() {
     async function fetchPosts() {
       try {
         const res = await fetch("/api/blog?limit=3")
+        if (!res.ok) return
+
+        const contentType = res.headers.get("content-type") || ""
+        if (!contentType.includes("application/json")) return
+
         const data = await res.json()
         if (data.ok && Array.isArray(data.posts)) {
           setPosts(data.posts.slice(0, 3))

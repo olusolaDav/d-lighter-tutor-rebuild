@@ -83,6 +83,17 @@ export function BlogListingContent() {
     async function fetchPosts() {
       try {
         const res = await fetch("/api/blog?limit=100")
+        if (!res.ok) {
+          console.error("Error fetching posts: /api/blog returned", res.status)
+          return
+        }
+
+        const contentType = res.headers.get("content-type") || ""
+        if (!contentType.includes("application/json")) {
+          console.error("Error fetching posts: expected JSON but got", contentType || "unknown content type")
+          return
+        }
+
         const data = await res.json()
         if (data.ok && Array.isArray(data.posts)) {
           setPosts(data.posts.map((p: any) => {

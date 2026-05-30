@@ -667,7 +667,7 @@ export function ChatWidget() {
           {/* ── Messages area ── */}
           <div className="flex-1 overflow-y-auto px-4 py-3 space-y-0 scroll-smooth">
             {messages.map(msg => (
-              <MessageBubble key={msg.id} msg={msg} agentName={agentName} onBookNow={openModal} />
+              <MessageBubble key={msg.id} msg={msg} agentName={agentName} onBookNow={() => openModal()} />
             ))}
 
             {isLoading && <TypingIndicator label="Thinking…" />}

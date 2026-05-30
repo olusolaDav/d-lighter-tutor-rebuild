@@ -85,51 +85,21 @@ export async function POST(request: NextRequest) {
       gradeLevel: learnerGrade,
     })
 
-    // WhatsApp notification to admin
-    const gcseNote = gcseSubjects?.length
-      ? `\nGCSE Options: ${gcseSubjects.join(", ")}`
-      : ""
-
-    const whatsappMessage = `
-🎓 *NEW ENROLMENT ENQUIRY*
-
-👤 *Parent/Guardian:*
-Name: ${parentName}
-Email: ${parentEmail}
-Phone: ${parentPhone}
-Country: ${resolvedParentCountry}
-
-👨‍🎓 *Learner:*
-Name: ${learnerName}
-Email: ${learnerEmail}
-Age: ${learnerAge} | Grade: ${learnerGrade}
-School: ${learnerSchool} | Country: ${learnerCountry}
-
-📚 *Subjects:* ${allSubjects.join(", ")}
-
-📝 *Exam Prep:* ${resolvedExamType}${examDate ? ` (${examDate})` : ""}${gcseNote}
-
-🎯 *Weak Areas:* ${weakAreas}
-🎯 *Learning Goals:* ${learningGoals}
-
-📅 *Tester Session:* ${testerDate} at ${testerTime} ${testerAmPm}
-📅 *Class Days:* ${preferredDays.join(", ")}
-⏰ *Class Time:* ${preferredClassTime}
-⏱ *Hours/Week:* ${hoursPerWeek}
-
-ℹ️ *Additional:*
-Urgent needs: ${urgentNeeds}
-Resources: ${specificResources}
-${additionalInfo ? `Extra info: ${additionalInfo}` : ""}
-
-📣 *Heard about us via:* ${referralSource}
-${plan ? `📦 Plan: ${plan}` : ""}
-
-🆔 Lead ID: ${lead._id}
-`.trim()
+    // Keep WhatsApp text concise to avoid broken/too-long URLs on some browsers/devices.
+    const whatsappNumber = (process.env.WHATSAPP_NUMBER || "2348129517392").replace(/\D/g, "")
+    const whatsappMessage = [
+      "NEW ENROLMENT ENQUIRY",
+      `Lead ID: ${lead._id}`,
+      `Parent: ${parentName} (${parentPhone})`,
+      `Learner: ${learnerName}, Age ${learnerAge}, Grade ${learnerGrade}`,
+      `Subjects: ${allSubjects.slice(0, 4).join(", ")}${allSubjects.length > 4 ? "..." : ""}`,
+      `Tester: ${testerDate} ${testerTime} ${testerAmPm || ""}`.trim(),
+      plan ? `Plan: ${plan}` : "",
+      "Please check full details in Admin Leads dashboard.",
+    ].filter(Boolean).join("\n")
 
     const encodedMessage = encodeURIComponent(whatsappMessage)
-    const whatsappUrl = `https://wa.me/2348129517392?text=${encodedMessage}`
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`
 
     return NextResponse.json({
       success: true,

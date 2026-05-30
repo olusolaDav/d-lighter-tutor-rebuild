@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, use } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { ArrowLeft, Loader2, GraduationCap, User, BookOpen, Shield, Plus, X } from "lucide-react"
 import { withAuth } from "@/lib/auth/AuthContext"
 import { Input } from "@/components/ui/input"
@@ -48,6 +48,8 @@ interface ParentOption {
 function CreateUserPage({ params }: { params: Promise<{ role: string }> }) {
   const { role } = use(params)
   const router = useRouter()
+  const pathname = usePathname()
+  const basePath = pathname.startsWith("/super-admin") ? "/super-admin" : "/admin"
 
   const [form, setForm] = useState<Record<string, string>>({
     firstName: "",
@@ -136,7 +138,7 @@ function CreateUserPage({ params }: { params: Promise<{ role: string }> }) {
             ? `Username: ${data.data?.username ?? "Generated"}. Ask the parent to set login credentials.`
             : "Login credentials have been sent to their email.",
         })
-        router.push("/admin/users")
+        router.push(`${basePath}/users`)
       } else {
         toast.error(data.message)
       }
@@ -193,7 +195,7 @@ function CreateUserPage({ params }: { params: Promise<{ role: string }> }) {
                 ) : parents.length === 0 ? (
                   <div className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
                     No parents found. Please{" "}
-                    <button type="button" onClick={() => router.push("/admin/users/new/parent")} className="underline font-medium">
+                    <button type="button" onClick={() => router.push(`${basePath}/users/new/parent`)} className="underline font-medium">
                       create a parent
                     </button>{" "}
                     first.

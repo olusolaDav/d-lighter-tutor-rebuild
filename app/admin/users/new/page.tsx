@@ -1,6 +1,6 @@
 "use client"
 
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { ArrowLeft, GraduationCap, User, BookOpen, Shield } from "lucide-react"
 import { withAuth, useAuth } from "@/lib/auth/AuthContext"
 
@@ -42,6 +42,8 @@ const ADMIN_ROLE = {
 
 function ChooseRolePage() {
   const router = useRouter()
+  const pathname = usePathname()
+  const basePath = pathname.startsWith("/super-admin") ? "/super-admin" : "/admin"
   const { user } = useAuth()
   const roles = user?.role === "super_admin" ? [ADMIN_ROLE, ...ALL_ROLES] : ALL_ROLES
 
@@ -70,7 +72,7 @@ function ChooseRolePage() {
             {roles.map(({ role, label, description, icon: Icon, color, bg }) => (
               <button
                 key={role}
-                onClick={() => router.push(`/admin/users/new/${role}`)}
+                onClick={() => router.push(`${basePath}/users/new/${role}`)}
                 className={`w-full flex items-start gap-4 p-4 rounded-2xl border-2 transition-all text-left ${bg}`}
               >
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-white shadow-sm`}>

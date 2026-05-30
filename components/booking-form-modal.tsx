@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, createContext, useContext, ReactNode, useEffect } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -43,7 +43,7 @@ import { cn } from "@/lib/utils"
 interface BookingFormContextType {
   isOpen: boolean
   selectedPlan: string
-  openModal: (plan?: string) => void
+  openModal: (plan?: unknown) => void
   closeModal: () => void
 }
 
@@ -59,8 +59,11 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false)
   const [selectedPlan, setSelectedPlan] = useState("")
 
-  const openModal = (plan?: string) => {
-    setSelectedPlan(plan || "")
+  const openModal = (plan?: unknown) => {
+    // Some callers pass onClick handlers directly, which sends a React event object.
+    // Accept only string plans and ignore everything else.
+    const normalizedPlan = typeof plan === "string" ? plan : ""
+    setSelectedPlan(normalizedPlan)
     setIsOpen(true)
   }
 
@@ -159,6 +162,29 @@ function BookingFormModal() {
   const [form, setForm] = useState<EnrollmentFormData>(INITIAL_ENROLLMENT_FORM_DATA)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
+  const openWhatsAppSafely = (rawUrl?: string) => {
+    const fallbackNumber = "2348129517392"
+    const fallbackUrl = `https://wa.me/${fallbackNumber}`
+
+    let targetUrl = fallbackUrl
+    if (rawUrl) {
+      try {
+        const parsed = new URL(rawUrl)
+        const host = parsed.hostname.toLowerCase()
+        if (host === "wa.me" || host.endsWith(".whatsapp.com")) {
+          targetUrl = parsed.toString()
+        }
+      } catch {
+        // Ignore invalid URL and continue with fallback URL.
+      }
+    }
+
+    const popup = window.open(targetUrl, "_blank", "noopener,noreferrer")
+    if (!popup) {
+      window.location.href = targetUrl
+    }
+  }
+
   useEffect(() => {
     if (selectedPlan) setForm(prev => ({ ...prev, plan: selectedPlan }))
   }, [selectedPlan])
@@ -233,10 +259,7 @@ function BookingFormModal() {
       if (data.success) {
         setSuccessWhatsAppUrl(data.data?.whatsappUrl ?? "")
         setShowSuccess(true)
-        if (data.data?.whatsappUrl) {
-          const w = window.open(data.data.whatsappUrl, "_blank", "noopener,noreferrer")
-          if (!w) setTimeout(() => toast.info("Click WhatsApp button to continue!", { duration: 5000 }), 800)
-        }
+        openWhatsAppSafely(data.data?.whatsappUrl)
       } else {
         toast.error("Submission failed", { description: data.error || "Please try again." })
       }
@@ -273,6 +296,9 @@ function BookingFormModal() {
               <CheckCircle2 className="w-8 h-8 text-green-600" />
             </div>
             <DialogTitle className="text-2xl font-bold">Enquiry Submitted! 🎉</DialogTitle>
+            <DialogDescription className="sr-only">
+              Confirmation dialog after submitting the learner enquiry form.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-left">
@@ -284,7 +310,7 @@ function BookingFormModal() {
               </ul>
             </div>
             {successWhatsAppUrl && (
-              <Button onClick={() => window.open(successWhatsAppUrl, "_blank")}
+              <Button onClick={() => openWhatsAppSafely(successWhatsAppUrl)}
                 className="w-full bg-green-600 hover:bg-green-700 text-white gap-2 h-11">
                 <MessageCircle className="w-4 h-4" />Continue on WhatsApp
               </Button>
@@ -303,6 +329,9 @@ function BookingFormModal() {
           <DialogTitle className="text-xl font-bold text-gray-900">
             Book a FREE Tester Session
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            Multi-step form for parents to book a free tester session and submit learner details.
+          </DialogDescription>
           {selectedPlan && (
             <p className="text-sm text-gray-500 mt-0.5">
               Plan: <span className="font-semibold text-secondary">{selectedPlan}</span>

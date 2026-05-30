@@ -2,9 +2,10 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Check, Star, Gift, Zap, Crown, Clock } from "lucide-react"
+import { Check, Crown, Gift, Sparkles, Star, Zap, Info } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { useBookingForm } from "@/components/booking-form-modal"
+import { HOMEPAGE_PRICING } from "@/lib/constants/pricing-info"
 
 export function PricingSection() {
   const sectionRef = useRef<HTMLElement>(null)
@@ -29,70 +30,103 @@ export function PricingSection() {
     return () => observer.disconnect()
   }, [])
 
-  const pricing = {
-    NGN: { starter: "₦80,000", premium: "₦120,000", intensive: "₦240,000", hourly: "₦10,000" },
-    GBP: { starter: "£48", premium: "£72", intensive: "£144", hourly: "£6" },
-    USD: { starter: "$60", premium: "$90", intensive: "$180", hourly: "$7.50" },
+  const fxRates = {
+    GBP_TO_USD: 1.25,
+    NGN_TO_USD: 1 / 1600,
   }
 
-  const plans = [
+  const extractAmount = (value: string): number => Number(value.replace(/[^\d.]/g, ""))
+
+  const formatMonthly = (ngnText: string, gbpText: string) => {
+    const ngn = extractAmount(ngnText)
+    const gbp = extractAmount(gbpText)
+    const usd = Math.round(gbp * fxRates.GBP_TO_USD)
+
+    if (currency === "NGN") return `N${ngn.toLocaleString()}/month`
+    if (currency === "GBP") return `GBP${gbp}/month`
+    return `$${usd}/month`
+  }
+
+  const formatOneOff = (ngn: number, gbp: number) => {
+    const usd = Math.round(gbp * fxRates.GBP_TO_USD)
+    if (currency === "NGN") return `N${ngn.toLocaleString()}/month`
+    if (currency === "GBP") return `GBP${gbp}/month`
+    return `$${usd}/month`
+  }
+
+  const elevenPlusGroupFee = formatOneOff(100000, 65)
+  const combinedFee = formatOneOff(180000, 113)
+  const satGroupFee = formatOneOff(100000, 65)
+
+  const cards = [
     {
-      name: "Starter",
-      hours: "2 hours/week",
-      price: pricing[currency].starter,
-      hourlyRate: pricing[currency].hourly,
-      tagline: "Perfect to begin",
+      name: HOMEPAGE_PRICING.receptionToYear3.title,
+      tagline: "One-on-One Classes",
+      bestFor: "Best for early foundation building",
+      modes: ["1-on-1"],
       icon: Star,
-      color: "from-blue-400 to-indigo-500",
-      features: [
+      popular: false,
+      sectionTitle: "Package Options",
+      highlights: HOMEPAGE_PRICING.receptionToYear3.options.map((option) =>
+        `${option.hours} - ${formatMonthly(option.ngn, option.gbp)}`
+      ),
+      details: [HOMEPAGE_PRICING.receptionToYear3.subtitle],
+      bonuses: [HOMEPAGE_PRICING.receptionToYear3.bonus],
+      supportHighlights: [
         "One-on-one personalized lessons",
         "Flexible scheduling",
         "Monthly progress report",
         "Monthly mock tests included",
         "100% Satisfaction Guaranteed",
-        "No credit card required",
-        "Pay only for hours completed",
-        "Cancel anytime",
-     
-
       ],
-      popular: false,
+      ctaPlan: "Reception to Year 3",
     },
     {
-      name: "Standard",
-      hours: "3 hours/week",
-      price: pricing[currency].premium,
-      hourlyRate: pricing[currency].hourly,
-      tagline: "Most Popular Choice",
+      name: "11+, SAT and GCSE Preparation",
+      tagline: "Exam-focused pathways",
+      bestFor: "Best for entrance and exam readiness",
+      modes: ["Group", "1-on-1", "Combined"],
       icon: Crown,
-      color: "from-secondary to-blue-600",
-      features: [
-        "Everything in Starter",
-        "FREE 30-min bonus class weekly",
-        "Priority tutor matching",
-        "Detailed assessments",
-        "Direct WhatsApp support",
-          "5% sibling discount available",
-      ],
       popular: true,
+      sectionTitle: "Preparation Packages",
+      highlights: [
+        `11+ Group Class (Max 6 learners) - ${elevenPlusGroupFee}`,
+        `11+ Combined Package (1-on-1 + Group) - ${combinedFee}`,
+        `SAT Group Class (Max 6 learners) - ${satGroupFee}`,
+        "GCSE One-on-One support (pricing follows Year 4 - Year 11 plans)",
+      ],
+      details: [
+        "11+ Group Subjects: Maths, English, Verbal & Non-Verbal Reasoning",
+        "11+ Schedule: Monday & Thursday, 5:00 PM - 8:00 PM",
+        "Includes continuous assessments + monthly mock examination",
+        "SAT Subjects: Maths (Arithmetic + Reasoning), English (Reading + SPaG), Science",
+        "GCSE Subjects: Core Maths, English, Science and related support subjects",
+      ],
+      bonuses: [],
+      supportHighlights: [],
+      ctaPlan: "11+ / SAT / GCSE Preparation",
     },
     {
-      name: "Intensive",
-      hours: "6 hours/week",
-      price: pricing[currency].intensive,
-      hourlyRate: pricing[currency].hourly,
-      tagline: "For serious learners",
+      name: HOMEPAGE_PRICING.year4To11.title,
+      tagline: "Flexible Subject Options",
+      bestFor: "Best for continuous long-term support",
+      modes: ["1-on-1"],
       icon: Zap,
-      color: "from-slate-500 to-slate-700",
-      features: [
-        "Everything in Standard",
-        "Multiple subjects coverage",
-        "Bi-weekly progress reports",
-        "Parent-tutor consultations",
-        "Custom learning plan",
-        "Best value for families",
-      ],
       popular: false,
+      sectionTitle: "Package Options",
+      highlights: HOMEPAGE_PRICING.year4To11.options.map((option) =>
+        `${option.hours} - ${formatMonthly(option.ngn, option.gbp)}`
+      ),
+      details: [HOMEPAGE_PRICING.year4To11.subtitle],
+      bonuses: [...HOMEPAGE_PRICING.year4To11.bonuses],
+      supportHighlights: [
+        "One-on-one personalized lessons",
+        "Flexible scheduling",
+        "Monthly progress report",
+        "Monthly mock tests included",
+        "100% Satisfaction Guaranteed",
+      ],
+      ctaPlan: "Year 4 to Year 11",
     },
   ]
 
@@ -100,22 +134,20 @@ export function PricingSection() {
     <section ref={sectionRef} id="pricing" className="py-20 bg-white relative overflow-hidden">
 
       <div className="container mx-auto px-4 relative z-10">
-        {/* Section header */}
         <div className={`text-center mb-12 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
-          <p className="text-secondary font-semibold text-sm uppercase tracking-wider mb-4">Transparent Pricing</p>
+          <p className="text-secondary font-semibold text-sm uppercase tracking-wider mb-4">Packages Available</p>
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Plans That <span className="text-secondary">Fit Your Family</span>
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            Pay only for hours completed — no upfront packages. Monthly payment at month end.
+            Choose a plan built around your child's goals, schedule, and pace, with expert guidance and measurable progress every month.
           </p>
 
-          {/* Currency toggle */}
           <div className="mt-6 inline-flex items-center gap-2 bg-muted rounded-full p-1">
             {[
-              { code: "NGN" as const, label: "NGN (₦)" },
-              { code: "GBP" as const, label: "GBP (£)" },
-              { code: "USD" as const, label: "USD ($)" },
+              { code: "NGN" as const, label: "Naira (N)" },
+              { code: "GBP" as const, label: "Pounds (GBP)" },
+              { code: "USD" as const, label: "Dollar ($)" },
             ].map((curr) => (
               <button
                 key={curr.code}
@@ -130,123 +162,161 @@ export function PricingSection() {
               </button>
             ))}
           </div>
+          {currency === "USD" && (
+            <p className="text-xs text-muted-foreground mt-2">USD values are approximate equivalents.</p>
+          )}
         </div>
 
-        {/* Pricing cards */}
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
-          {plans.map((plan, index) => (
+          {cards.map((card, index) => (
             <div
-              key={index}
+              key={card.name}
               className={`transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
               style={{ transitionDelay: `${index * 150}ms` }}
             >
-              <Card 
+              <Card
                 className={`relative h-full border overflow-hidden transition-all duration-300 rounded-2xl ${
-                  plan.popular 
-                    ? "border-secondary shadow-lg scale-105 lg:scale-110" 
+                  card.popular
+                    ? "border-secondary shadow-lg scale-105 lg:scale-110"
                     : "border-border shadow-sm hover:shadow-md hover:border-secondary/50"
                 }`}
               >
-                {/* Popular badge */}
-                {plan.popular && (
+                {card.popular && (
                   <div className="absolute -top-0 -right-0">
-                    <div className="bg-secondary text-secondary-foreground px-6 py-1 text-sm font-bold transform rotate-0 rounded-bl-xl">
-                      MOST POPULAR
+                    <div className="bg-secondary text-secondary-foreground px-6 py-1 text-sm font-bold rounded-bl-xl">
+                      POPULAR
                     </div>
                   </div>
                 )}
 
-                {/* Top gradient bar */}
-                {plan.popular && <div className="h-1 bg-secondary" />}
+                {card.popular && <div className="h-1 bg-secondary" />}
 
                 <CardHeader className="text-center pb-4 pt-8">
-                  {/* Plan icon */}
-                  <div className="mx-auto mb-4 relative">
-                    <div className={`h-14 w-14 rounded-2xl ${plan.popular ? "bg-secondary" : "bg-blue-50"} flex items-center justify-center`}>
-                      <plan.icon className={`h-7 w-7 ${plan.popular ? "text-white" : "text-secondary"}`} />
+                  <div className="mx-auto mb-4">
+                    <div className={`h-14 w-14 rounded-2xl ${card.popular ? "bg-secondary" : "bg-blue-50"} flex items-center justify-center`}>
+                      <card.icon className={`h-7 w-7 ${card.popular ? "text-white" : "text-secondary"}`} />
                     </div>
                   </div>
 
-                  <CardTitle className="text-2xl font-bold text-foreground mb-1">{plan.name}</CardTitle>
-                  <p className="text-sm text-muted-foreground">{plan.tagline}</p>
-                  
-                  {/* Hours badge */}
-                  <div className="mt-4 inline-flex items-center gap-2 bg-muted rounded-full px-4 py-2">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-semibold text-foreground">{plan.hours}</span>
-                  </div>
-                  
-                  {/* Price */}
-                  <div className="mt-4">
-                    <span className="text-3xl font-bold text-foreground">
-                      {plan.price}
-                    </span>
-                    <span className="text-muted-foreground text-sm">/month</span>
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-1">
-                    ({plan.hourlyRate}/hour)
+                  <CardTitle className="text-2xl font-bold text-foreground mb-1">{card.name}</CardTitle>
+                  <p className="text-sm text-muted-foreground">{card.tagline}</p>
+                  <p className="text-xs font-medium text-secondary mt-1">{card.bestFor}</p>
+
+                  <div className="mt-3 flex flex-wrap justify-center gap-1.5">
+                    {card.modes.map((mode) => (
+                      <span key={mode} className="text-[11px] px-2.5 py-1 rounded-full bg-muted text-muted-foreground border border-border">
+                        {mode}
+                      </span>
+                    ))}
                   </div>
                 </CardHeader>
 
                 <CardContent className="space-y-4 pb-8 px-6">
+                  <div className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-secondary bg-secondary/10 rounded-full px-2.5 py-1">
+                    <Info className="h-3 w-3" />
+                    {card.sectionTitle}
+                  </div>
+
                   <ul className="space-y-3">
-                    {plan.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-start gap-3">
+                    {card.highlights.map((item) => (
+                      <li key={item} className="flex items-start gap-3">
                         <div className="shrink-0 h-5 w-5 rounded-full bg-secondary/10 flex items-center justify-center mt-0.5">
                           <Check className="h-3 w-3 text-secondary" />
                         </div>
-                        <span className={`text-sm ${feature.includes("FREE") ? "font-semibold text-foreground" : "text-muted-foreground"}`}>
-                          {feature}
-                        </span>
+                        <span className="text-sm font-medium text-foreground">{item}</span>
                       </li>
                     ))}
                   </ul>
-                  
+
+                  <div className="pt-2 border-t border-border/60 space-y-2">
+                    {card.details.map((detail) => (
+                      <p key={detail} className="text-xs text-muted-foreground leading-relaxed">
+                        {detail}
+                      </p>
+                    ))}
+                  </div>
+
+                  {card.supportHighlights.length > 0 ? (
+                    <div className="pt-2 border-t border-border/60 space-y-2">
+                      {card.supportHighlights.map((item) => (
+                        <p key={item} className="text-xs text-muted-foreground leading-relaxed">
+                          {item}
+                        </p>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="pt-2 border-t border-border/60">
+                      <p className="text-xs text-muted-foreground leading-relaxed">All plans include progress tracking and guided academic support.</p>
+                    </div>
+                  )}
+
+                  {card.bonuses.length > 0 && (
+                    <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 space-y-2">
+                      <p className="text-xs font-bold text-amber-900 uppercase tracking-wide">Bonuses</p>
+                      {card.bonuses.map((bonus) => (
+                        <p key={bonus} className="text-xs text-amber-800 leading-relaxed flex items-start gap-1.5">
+                          <Sparkles className="h-3.5 w-3.5 mt-0.5" />
+                          <span>{bonus}</span>
+                        </p>
+                      ))}
+                    </div>
+                  )}
+
                   <Button
-                    onClick={() => openModal(plan.name)}
+                    onClick={() => openModal(card.ctaPlan)}
                     size="lg"
                     className={`w-full rounded-full transition-all ${
-                      plan.popular 
-                        ? "bg-secondary hover:bg-secondary/90 text-white shadow-md" 
+                      card.popular
+                        ? "bg-secondary hover:bg-secondary/90 text-white shadow-md"
                         : "bg-primary hover:bg-primary/90 text-primary-foreground"
                     }`}
                   >
                     Get Started
                   </Button>
                 </CardContent>
-
-                {/* Bottom gradient on hover */}
               </Card>
             </div>
           ))}
         </div>
 
-        {/* Bottom info */}
         <div className={`mt-16 text-center space-y-6 transition-all duration-700 delay-500 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
-          {/* Free trial banner */}
+          <div className="grid gap-6 lg:grid-cols-1 text-left max-w-4xl mx-auto">
+            <Card className="border-border">
+              <CardHeader>
+                <CardTitle className="text-lg">Exams + Age Group</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div>
+                  <p className="text-sm font-semibold mb-1">We prepare learners for:</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {HOMEPAGE_PRICING.examsPrepared.map((exam) => (
+                      <p key={exam} className="text-sm text-muted-foreground bg-muted/40 rounded-lg px-3 py-1.5">{exam}</p>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm font-semibold mb-1">Age Group / Class Level</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {HOMEPAGE_PRICING.ageGroup.map((item) => (
+                      <p key={item} className="text-sm text-muted-foreground bg-muted/40 rounded-lg px-3 py-1.5">{item}</p>
+                    ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
           <div className="inline-flex flex-col sm:flex-row items-center gap-4 bg-blue-50 border border-secondary/20 rounded-2xl px-8 py-4">
             <div className="h-12 w-12 rounded-xl bg-secondary/10 flex items-center justify-center">
               <Gift className="h-6 w-6 text-secondary" />
             </div>
             <div className="text-center sm:text-left">
-              <p className="font-bold text-foreground text-lg">First Trial Lesson is FREE!</p>
-              <p className="text-muted-foreground">Try us risk-free before committing</p>
+              <p className="font-bold text-foreground text-lg">Free 20-Minute Trial Assessment</p>
+              <p className="text-muted-foreground">Start with a guided trial and get a personalized study recommendation.</p>
             </div>
-          </div>
-
-          {/* Additional info */}
-          <div className="flex flex-wrap justify-center gap-4 text-sm text-muted-foreground">
-            {[
-              { icon: Check, text: "Pay only for completed hours" },
-              { icon: Check, text: "5% sibling discount" },
-              { icon: Check, text: "24-hour cancellation policy" },
-              { icon: Check, text: "All Nigerian tutors" },
-            ].map((item, i) => (
-              <span key={i} className="flex items-center gap-2 bg-muted/50 rounded-full px-4 py-2">
-                <item.icon className="h-4 w-4 text-amber-500" />
-                {item.text}
-              </span>
-            ))}
+            <Button onClick={() => openModal("Free Trial")} className="rounded-full bg-secondary hover:bg-secondary/90 text-white">
+              Book Free Trial
+            </Button>
           </div>
         </div>
       </div>

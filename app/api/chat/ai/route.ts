@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
 import dbConnect from '@/lib/mongodb'
 import ChatSession from '@/lib/models/ChatSession'
+import { PRICING_KNOWLEDGE_BLOCK } from '@/lib/constants/pricing-info'
 
 const openai = new OpenAI({
   baseURL: 'https://models.github.ai/inference',
@@ -50,39 +51,7 @@ CURRICULUM:
 We teach using the UK National Curriculum and school-specific or location-specific curricula. If parents prefer specific textbooks or materials, we tailor lessons accordingly. We recommend parents share their child's school scheme of work or curriculum outline so we can reinforce school-taught topics and ensure continuity.
 
 PACKAGES & PRICING:
-
-── Reception – Year 3 (One-on-One Classes) ──
-Flexible subject options available.
-• 3 Hours/Week → ₦120,000/month or £75/month
-• 4 Hours/Week → ₦160,000/month or £99/month
-• 5 Hours/Week → ₦200,000/month or £125/month
-Bonus: 1-hour FREE monthly assessment session for two subjects of your choice.
-
-── Year 4 – Year 5 (11+ Preparation) ──
-Option 1: One-on-One Classes (pricing on request — contact us on WhatsApp)
-Option 2: Group Class (max 6 learners) → £65 or ₦100,000/month
-  • Subjects: Maths, English, Verbal & Non-Verbal Reasoning
-  • Schedule: Twice weekly (Monday & Thursday), 5:00 PM – 8:00 PM
-  • Includes continuous assessments after every class + monthly mock exams
-
-Available package options for 11+ parents:
-• Combined Package (One-on-One 2 subjects/2hrs per week + Group Class) → £113 or ₦180,000/month
-• Group Class Only → £65 or ₦100,000/month
-• One-on-One Only (all 4 subjects) → contact us for pricing
-
-── Year 5 – Year 6 (SAT Preparation) ──
-Option 1: One-on-One Classes
-Option 2: Group Class (max 6 learners) → £65 or ₦100,000/month
-Subjects: Maths (Paper 1 Arithmetic + Papers 2 & 3 Reasoning), English (Reading + SPaG), and Science.
-
-── Year 4 – Year 11 (General / Flexible Subjects) ──
-• 3 Hours/Week → ₦144,000/month (£86/month)
-• 4 Hours/Week → ₦170,000/month (£105/month)
-• 5 Hours/Week → ₦210,000/month (£130/month)
-• 6 Hours/Week → ₦240,000/month (£145/month)
-• 8 Hours/Week → ₦320,000/month (£196/month)
-Bonus A: 2-hour FREE group classes on any two subjects (Language, Science, or English)
-Bonus B: 1-hour FREE monthly assessment session for two subjects of your choice
+${PRICING_KNOWLEDGE_BLOCK}
 
 HOW TO GET STARTED:
 1. Fill and submit the D-Lighter Tutor inquiry form (or click "Book a Free Trial" on the website)
@@ -113,7 +82,7 @@ Q: How do I get started or book a trial?
 A: Click any "Book a Free Trial" button on our website, or message us on WhatsApp at +2348129517392. We start with a free 20-minute trial assessment to determine the best approach for your child.
 
 Q: How much do lessons cost?
-A: Pricing depends on your child's year group and how many hours per week you need. For example, Reception–Year 3 starts from ₦120,000/month (£75/month) for 3 hours/week. Year 4–11 starts from ₦144,000/month (£86/month) for 3 hours/week. 11+ and SAT group classes are £65/₦100,000 per month. Contact us on WhatsApp for a personalised quote.
+A: Pricing depends on year group and weekly hours. Reception-Year 3 starts from N120,000/month (GBP75/month) for 3 hours/week. Year 4-Year 11 starts from N144,000/month (GBP86/month) for 3 hours/week. 11+ and SAT group classes are GBP65 or N100,000/month. Combined 11+ package is GBP113 or N180,000/month.
 
 Q: Can I pay in pounds or dollars?
 A: Yes! We accept GBP (£) and can discuss other currency equivalents. Contact us on WhatsApp for current rates.

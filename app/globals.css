@@ -584,8 +584,8 @@
 /* Base rich text display - like a Word document */
 .rich-text-display {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
-  font-size: 1.0625rem;
-  line-height: 1.85;
+  font-size: 1rem;
+  line-height: 1.9;
   color: #1f2937;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -593,40 +593,40 @@
 
 /* Headings - Document-style hierarchy */
 .rich-text-display h1 {
-  font-size: 1.625rem;
+  font-size: 2rem;
   font-weight: 700;
   color: #111827;
-  margin-top: 1.75rem;
-  margin-bottom: 0.875rem;
+  margin-top: 2.25rem;
+  margin-bottom: 1rem;
   padding-bottom: 0.5rem;
   border-bottom: 2px solid #e5e7eb;
-  line-height: 1.3;
+  line-height: 1.25;
 }
 
 .rich-text-display h2 {
-  font-size: 1.375rem;
-  font-weight: 600;
+  font-size: 1.65rem;
+  font-weight: 700;
   color: #1f2937;
-  margin-top: 1.5rem;
+  margin-top: 2rem;
+  margin-bottom: 0.85rem;
+  line-height: 1.3;
+}
+
+.rich-text-display h3 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-top: 1.75rem;
   margin-bottom: 0.75rem;
   line-height: 1.35;
 }
 
-.rich-text-display h3 {
-  font-size: 1.125rem;
+.rich-text-display h4 {
+  font-size: 1.18rem;
   font-weight: 600;
   color: #374151;
-  margin-top: 1.25rem;
-  margin-bottom: 0.625rem;
-  line-height: 1.4;
-}
-
-.rich-text-display h4 {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #4b5563;
-  margin-top: 1rem;
-  margin-bottom: 0.5rem;
+  margin-top: 1.4rem;
+  margin-bottom: 0.6rem;
   line-height: 1.45;
 }
 
@@ -640,11 +640,55 @@
   line-height: 1.5;
 }
 
+/* Quill size classes often represent sub-headings in editor-authored content */
+.rich-text-display .ql-size-huge {
+  display: block;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.28;
+  margin-top: 1.85rem;
+  margin-bottom: 0.9rem;
+}
+
+.rich-text-display .ql-size-large {
+  display: block;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1.32;
+  margin-top: 1.65rem;
+  margin-bottom: 0.75rem;
+}
+
+.rich-text-display .ql-size-small {
+  font-size: 0.9375rem;
+}
+
+/* Fallback: many posts use <p><strong>...</strong></p> for headings */
+.rich-text-display p > strong:only-child,
+.rich-text-display p > b:only-child {
+  display: block;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.32;
+  margin-top: 1.6rem;
+  margin-bottom: 0.5rem;
+}
+
 /* Paragraphs */
 .rich-text-display p {
   margin-top: 0;
-  margin-bottom: 1rem;
+  margin-bottom: 1.1rem;
   text-align: left;
+}
+
+.rich-text-display p + h1,
+.rich-text-display p + h2,
+.rich-text-display p + h3,
+.rich-text-display p + h4 {
+  margin-top: 2rem;
 }
 
 .rich-text-display p:last-child {
@@ -882,6 +926,19 @@
 .dark .rich-text-display h5,
 .dark .rich-text-display h6 {
   color: #9ca3af;
+}
+
+.dark .rich-text-display .ql-size-huge {
+  color: #f3f4f6;
+}
+
+.dark .rich-text-display .ql-size-large {
+  color: #e5e7eb;
+}
+
+.dark .rich-text-display p > strong:only-child,
+.dark .rich-text-display p > b:only-child {
+  color: #f3f4f6;
 }
 
 .dark .rich-text-display p {

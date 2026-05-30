@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { withAuth, useAuth } from "@/lib/auth/AuthContext"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import {
@@ -58,6 +58,8 @@ const TABS = [
 function AdminUsersPage() {
   const { user } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
+  const basePath = pathname.startsWith("/super-admin") ? "/super-admin" : "/admin"
   const [users, setUsers] = useState<UserRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
@@ -150,7 +152,7 @@ function AdminUsersPage() {
         actions={
           <Button
             size="sm"
-            onClick={() => router.push("/admin/users/new")}
+            onClick={() => router.push(`${basePath}/users/new`)}
             className="gap-1.5 bg-secondary hover:bg-secondary/90 text-white text-xs"
           >
             <UserPlus className="w-3.5 h-3.5" />
@@ -298,11 +300,11 @@ function AdminUsersPage() {
                                 </button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end" className="w-44">
-                                <DropdownMenuItem onClick={() => router.push(`/admin/users/${u._id}`)}>
+                                <DropdownMenuItem onClick={() => router.push(`${basePath}/users/${u._id}`)}>
                                   View profile
                                 </DropdownMenuItem>
                                 {u.role === "student" && (
-                                  <DropdownMenuItem onClick={() => router.push(`/admin/users/${u._id}/credentials`)}>
+                                  <DropdownMenuItem onClick={() => router.push(`${basePath}/users/${u._id}/credentials`)}>
                                     Set credentials
                                   </DropdownMenuItem>
                                 )}
