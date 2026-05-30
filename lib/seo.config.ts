@@ -179,12 +179,41 @@ export function generateJobPostMetadata(opts: PositionMetaOptions): import("next
     description?.substring(0, 160) ||
     `Apply for the ${title} position at ${SITE_NAME}. ${subjects?.length ? `Subjects: ${subjects.slice(0, 3).join(', ')}.` : ''}`
   const positionUrl = `${SITE_URL}/careers/${id}`
+  const keywordSet = new Set<string>([
+    `${title} job`,
+    `${SITE_NAME} careers`,
+    "online tutor jobs",
+    "remote teaching jobs",
+    "education jobs",
+    locationStr,
+  ])
+
+  if (type) keywordSet.add(type)
+  if (employmentType) keywordSet.add(employmentType)
+  ;(subjects || []).forEach((subject) => keywordSet.add(subject))
 
   return {
     title: `${title} | Careers at ${SITE_NAME}`,
     description: metaDescription,
+    keywords: Array.from(keywordSet),
+    alternates: {
+      canonical: positionUrl,
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
+    },
     openGraph: {
       type: "article",
+      locale: "en_NG",
+      alternateLocale: ["en_GB", "en_US"],
       url: positionUrl,
       siteName: SITE_NAME,
       title: `${title} — ${SITE_NAME}`,

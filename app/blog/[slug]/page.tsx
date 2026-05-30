@@ -54,8 +54,8 @@ export async function generateMetadata({ params }: BlogDetailPageProps): Promise
  */
 export async function generateStaticParams() {
   try {
-    const posts = await listPublishedBlogs(1000, 0) as Array<{ slug: string; _id: string }>
-    return posts.map((post) => ({
+    const { posts } = await listPublishedBlogs(5000, 0)
+    return (posts || []).map((post: { slug: string }) => ({
       slug: post.slug,
     }))
   } catch {
