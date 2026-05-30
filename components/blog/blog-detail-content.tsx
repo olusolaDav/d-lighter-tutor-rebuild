@@ -151,21 +151,17 @@ export function BlogDetailContent({ post }: BlogDetailContentProps) {
         <div className="max-w-4xl mx-auto">
           {/* Optional Description */}
           {post.description && (
-            <ScrollAnimation delay={0.1}>
-              <p 
-                className="text-lg text-muted-foreground mb-8 italic border-l-4 border-primary pl-4"
-              >
-                {post.description}
-              </p>
-            </ScrollAnimation>
+            <p 
+              className="text-lg text-muted-foreground mb-8 italic border-l-4 border-primary pl-4"
+            >
+              {post.description}
+            </p>
           )}
           
-          <ScrollAnimation delay={0.15}>
-            <div 
-              className="rich-text-display"
-              dangerouslySetInnerHTML={{ __html: processedContent }}
-            />
-          </ScrollAnimation>
+          <div 
+            className="rich-text-display"
+            dangerouslySetInnerHTML={{ __html: processedContent }}
+          />
 
           {/* Tags */}
           {post.tags && post.tags.length > 0 && (

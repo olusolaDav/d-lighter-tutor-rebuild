@@ -29,6 +29,9 @@ export interface ILead extends Document {
   testerDate: string
   testerTime: string
   testerAmPm: string
+  testerTimezone?: string
+  testerSlotKey?: string
+  testerBookingId?: mongoose.Types.ObjectId
   // Step 3 — Schedule
   preferredDays: string[]
   preferredClassTime: string
@@ -89,6 +92,9 @@ const LeadSchema = new Schema<ILead>(
     testerDate: { type: String, default: "" },
     testerTime: { type: String, default: "" },
     testerAmPm: { type: String, default: "AM" },
+    testerTimezone: { type: String, default: "West Africa Time (WAT)" },
+    testerSlotKey: { type: String, default: "" },
+    testerBookingId: { type: Schema.Types.ObjectId, ref: "TesterBooking" },
     // Step 3 — Schedule
     preferredDays: [{ type: String }],
     preferredClassTime: { type: String, default: "" },

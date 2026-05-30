@@ -76,6 +76,8 @@ interface Lead {
   testerDate?: string
   testerTime?: string
   testerAmPm?: string
+  testerSlotKey?: string
+  testerTimezone?: string
   preferredDays: string[]
   preferredClassTime?: string
   hoursPerWeek?: string
@@ -269,7 +271,7 @@ function LeadsPage() {
       "Learner Name","Learner Age","Learner Grade","Learner School","Learner Country",
       "Subjects","Exam Type","Exam Date","GCSE Subjects",
       "Weak Areas","Learning Goals",
-      "Tester Date","Tester Time","Preferred Days","Class Time","Hours/Week",
+      "Tester Date","Tester Time","Tester Slot Key","Tester Timezone","Preferred Days","Class Time","Hours/Week",
       "Urgent Needs","Specific Resources","Additional Info",
       "Referral Source","Plan","Status","Source","Date Submitted",
     ]
@@ -291,6 +293,8 @@ function LeadsPage() {
       l.learningGoals ?? "",
       l.testerDate ?? "",
       l.testerTime ? `${l.testerTime} ${l.testerAmPm ?? ""}` : "",
+      l.testerSlotKey ?? "",
+      l.testerTimezone ?? "",
       (l.preferredDays ?? []).join("; "),
       l.preferredClassTime ?? l.preferredTime ?? "",
       l.hoursPerWeek ?? "",
@@ -694,7 +698,19 @@ function LeadsPage() {
               <div>
                 <h4 className="font-semibold mb-2 flex items-center gap-2 text-sm"><Calendar className="h-4 w-4 text-secondary" />Schedule</h4>
                 <div className="grid sm:grid-cols-2 gap-3 text-sm">
-                  {selectedLead.testerDate && <div><p className="text-muted-foreground text-xs">Tester Session</p><p className="font-medium">{selectedLead.testerDate} {selectedLead.testerTime} {selectedLead.testerAmPm}</p></div>}
+                  {selectedLead.testerDate && (
+                    <div>
+                      <p className="text-muted-foreground text-xs">Tester Session</p>
+                      <p className="font-medium">{selectedLead.testerDate} {selectedLead.testerTime} {selectedLead.testerAmPm}</p>
+                      {selectedLead.testerTimezone ? <p className="text-xs text-muted-foreground mt-0.5">{selectedLead.testerTimezone}</p> : null}
+                    </div>
+                  )}
+                  {selectedLead.testerSlotKey ? (
+                    <div>
+                      <p className="text-muted-foreground text-xs">Slot ID</p>
+                      <p className="font-medium">{selectedLead.testerSlotKey}</p>
+                    </div>
+                  ) : null}
                   <div><p className="text-muted-foreground text-xs">Preferred Days</p><p className="font-medium">{selectedLead.preferredDays.join(", ")}</p></div>
                   {selectedLead.preferredClassTime && <div><p className="text-muted-foreground text-xs">Class Time</p><p className="font-medium">{selectedLead.preferredClassTime}</p></div>}
                   {selectedLead.hoursPerWeek && <div><p className="text-muted-foreground text-xs">Hours/Week</p><p className="font-medium">{selectedLead.hoursPerWeek}</p></div>}

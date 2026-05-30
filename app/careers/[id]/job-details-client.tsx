@@ -19,6 +19,7 @@ import {
   BookOpen, Star, Briefcase, Heart, Share2, Eye, X,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { PositionViewTracker } from '@/components/careers/position-view-tracker';
 
 /* ─── Types ─────────────────────────────────────────────────────────────── */
 
@@ -985,6 +986,7 @@ export default function PositionDetailsClient({ positionId }: { positionId?: str
 
   return (
     <>
+      <PositionViewTracker positionId={position._id} />
       <div className="min-h-screen bg-background">
         {/* Header */}
         <div className={`border-b ${isTutor ? 'bg-gradient-to-r from-secondary/10 via-background to-brand-orange/5' : 'bg-muted/30'}`}>

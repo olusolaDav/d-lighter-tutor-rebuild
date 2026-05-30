@@ -18,6 +18,8 @@ import { toast } from "sonner"
 import {
   ArrowRight,
   ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
   CheckCircle2,
   Loader2,
   User,
@@ -81,7 +83,8 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
 }
 
 // ── Step progress ─────────────────────────────────────────────────────────────
-const STEP_LABELS = ["Parent & Learner", "Subjects & Exams", "Needs & Schedule", "Final Details"]
+const STEP_LABELS = ["Parent & Learner", "Subjects & Exams", "Tester Schedule", "Needs & Class Plan", "Final Details"]
+const TOTAL_STEPS = STEP_LABELS.length
 
 function StepProgress({ step }: { step: number }) {
   return (
@@ -110,9 +113,9 @@ function StepProgress({ step }: { step: number }) {
       </div>
       <div className="relative h-1.5 bg-gray-100 rounded-full">
         <div className="absolute inset-y-0 left-0 bg-secondary rounded-full transition-all duration-500"
-          style={{ width: `${((step - 1) / 3) * 100}%` }} />
+          style={{ width: `${((step - 1) / (TOTAL_STEPS - 1)) * 100}%` }} />
       </div>
-      <p className="text-xs text-gray-400 mt-1 text-right">Step {step} of 4</p>
+      <p className="text-xs text-gray-400 mt-1 text-right">Step {step} of {TOTAL_STEPS}</p>
     </div>
   )
 }
@@ -161,6 +164,88 @@ function BookingFormModal() {
   const [successWhatsAppUrl, setSuccessWhatsAppUrl] = useState("")
   const [form, setForm] = useState<EnrollmentFormData>(INITIAL_ENROLLMENT_FORM_DATA)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [calendarMonth, setCalendarMonth] = useState(() => {
+    const now = new Date()
+    return new Date(now.getFullYear(), now.getMonth(), 1)
+  })
+  const [scheduleData, setScheduleData] = useState<{
+    timezone: string
+    availableDates: Set<string>
+    unavailableDates: Set<string>
+    slots: Array<{ key: string; label: string; available: boolean }>
+  }>({
+    timezone: "West Africa Time (WAT)",
+    availableDates: new Set<string>(),
+    unavailableDates: new Set<string>(),
+    slots: [],
+  })
+  const [scheduleLoading, setScheduleLoading] = useState(false)
+
+  const monthLabel = calendarMonth.toLocaleDateString("en-GB", { month: "long", year: "numeric" })
+
+  const monthValue = `${calendarMonth.getFullYear()}-${String(calendarMonth.getMonth() + 1).padStart(2, "0")}`
+
+  const toDateKey = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
+
+  const isSameDay = (a: Date, b: Date) =>
+    a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
+
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const selectedDateObj = form.testerDate ? new Date(`${form.testerDate}T00:00:00`) : null
+  const firstWeekday = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), 1).getDay()
+  const daysInMonth = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 0).getDate()
+  const leadingEmptyDays = Array.from({ length: firstWeekday })
+  const monthDays = Array.from({ length: daysInMonth }, (_, i) => {
+    const date = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), i + 1)
+    const dateKey = toDateKey(date)
+    const inPast = date < today
+    const isSelected = selectedDateObj ? isSameDay(date, selectedDateObj) : false
+    const isAvailable = scheduleData.availableDates.has(dateKey)
+    const isUnavailable = inPast || scheduleData.unavailableDates.has(dateKey) || !isAvailable
+
+    return { date, dateKey, day: i + 1, isSelected, isAvailable, isUnavailable }
+  })
+
+  const fetchSchedule = async (dateKey?: string) => {
+    setScheduleLoading(true)
+    try {
+      const params = new URLSearchParams({ month: monthValue })
+      if (dateKey) params.set("date", dateKey)
+
+      const res = await fetch(`/api/leads/tester-schedule?${params.toString()}`)
+      const data = await res.json()
+
+      if (!data.success) throw new Error(data.error || "Failed to load schedule")
+
+      const payload = data.data
+      const nextSlots = payload.slots || []
+
+      setScheduleData({
+        timezone: payload.timezone || "West Africa Time (WAT)",
+        availableDates: new Set<string>(payload.availableDates || []),
+        unavailableDates: new Set<string>(payload.unavailableDates || []),
+        slots: nextSlots,
+      })
+
+      const selectedStillAvailable = nextSlots.some((slot: any) => slot.key === form.testerSlotKey && slot.available)
+      const hasAnyAvailableSlot = nextSlots.some((slot: any) => slot.available)
+
+      if (dateKey && form.testerSlotKey && (!selectedStillAvailable || !hasAnyAvailableSlot)) {
+        set("testerSlotKey", "")
+        set("testerTime", "")
+        set("testerAmPm", "")
+      }
+      if (!form.testerTimezone && payload.timezone) {
+        set("testerTimezone", payload.timezone)
+      }
+    } catch {
+      toast.error("Could not load tester schedule right now")
+    } finally {
+      setScheduleLoading(false)
+    }
+  }
 
   const openWhatsAppSafely = (rawUrl?: string) => {
     const fallbackNumber = "2348129517392"
@@ -188,6 +273,13 @@ function BookingFormModal() {
   useEffect(() => {
     if (selectedPlan) setForm(prev => ({ ...prev, plan: selectedPlan }))
   }, [selectedPlan])
+
+  useEffect(() => {
+    if (step === 3) {
+      fetchSchedule(form.testerDate || undefined)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, monthValue, form.testerDate])
 
   const set = (k: keyof EnrollmentFormData, v: unknown) =>
     setForm(prev => ({ ...prev, [k]: v }))
@@ -221,15 +313,18 @@ function BookingFormModal() {
       if (!form.examType) e.examType = "Required"
     }
     if (s === 3) {
-      if (!form.weakAreas.trim()) e.weakAreas = "Required"
-      if (!form.learningGoals.trim()) e.learningGoals = "Required"
       if (!form.testerDate) e.testerDate = "Required"
       if (!form.testerTime.trim()) e.testerTime = "Required"
+      if (!form.testerSlotKey.trim()) e.testerTime = "Please select an available time slot"
+    }
+    if (s === 4) {
+      if (!form.weakAreas.trim()) e.weakAreas = "Required"
+      if (!form.learningGoals.trim()) e.learningGoals = "Required"
       if (!form.preferredDays.length) e.preferredDays = "Select at least one day"
       if (!form.preferredClassTime.trim()) e.preferredClassTime = "Required"
       if (!form.hoursPerWeek.trim()) e.hoursPerWeek = "Required"
     }
-    if (s === 4) {
+    if (s === 5) {
       if (!form.urgentNeeds.trim()) e.urgentNeeds = "Required"
       if (!form.specificResources.trim()) e.specificResources = "Required"
       if (!form.additionalInfo.trim()) e.additionalInfo = "Required"
@@ -247,7 +342,7 @@ function BookingFormModal() {
   function back() { setStep(s => s - 1); setErrors({}) }
 
   async function handleSubmit() {
-    if (!validate(4)) { toast.error("Please fill in all required fields"); return }
+    if (!validate(5)) { toast.error("Please fill in all required fields"); return }
     setIsSubmitting(true)
     try {
       const res = await fetch("/api/leads", {
@@ -261,6 +356,10 @@ function BookingFormModal() {
         setShowSuccess(true)
         openWhatsAppSafely(data.data?.whatsappUrl)
       } else {
+        if (res.status === 409) {
+          setStep(3)
+          await fetchSchedule(form.testerDate || undefined)
+        }
         toast.error("Submission failed", { description: data.error || "Please try again." })
       }
     } catch {
@@ -271,7 +370,19 @@ function BookingFormModal() {
   }
 
   function handleClose() {
-    closeModal(); setStep(1); setForm(INITIAL_ENROLLMENT_FORM_DATA); setErrors({}); setShowSuccess(false)
+    closeModal()
+    setStep(1)
+    setForm(INITIAL_ENROLLMENT_FORM_DATA)
+    setErrors({})
+    setShowSuccess(false)
+    const now = new Date()
+    setCalendarMonth(new Date(now.getFullYear(), now.getMonth(), 1))
+    setScheduleData({
+      timezone: "West Africa Time (WAT)",
+      availableDates: new Set<string>(),
+      unavailableDates: new Set<string>(),
+      slots: [],
+    })
   }
 
   // GCSE groups
@@ -520,10 +631,141 @@ function BookingFormModal() {
           </div>
         )}
 
-        {/* ── Step 3: Learning Needs & Schedule ────────────────── */}
+        {/* ── Step 3: Tester Schedule ───────────────────────────── */}
         {step === 3 && (
           <div className="space-y-5">
-            <SectionHeader icon={BookOpen} title="Section 5: Learning Needs" />
+            <SectionHeader icon={Calendar} title="Section 5: Tester Session Scheduling" />
+            <p className="text-xs text-gray-500 -mt-3">
+              Tester sessions must be scheduled at least 24 hours in advance.
+            </p>
+            <div className="rounded-2xl border border-gray-200 overflow-hidden">
+              <div className="grid lg:grid-cols-[1.5fr_1fr]">
+                <div className="p-4 sm:p-5 border-b lg:border-b-0 lg:border-r border-gray-200">
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-lg font-semibold text-gray-900">{monthLabel}</h4>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => setCalendarMonth(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1))}
+                        className="h-8 w-8 rounded-md border border-gray-200 flex items-center justify-center hover:bg-gray-50"
+                        aria-label="Previous month"
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setCalendarMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1))}
+                        className="h-8 w-8 rounded-md border border-gray-200 flex items-center justify-center hover:bg-gray-50"
+                        aria-label="Next month"
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-7 gap-1 text-xs text-gray-500 mb-2">
+                    {["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"].map((d) => (
+                      <div key={d} className="h-8 flex items-center justify-center font-medium">{d}</div>
+                    ))}
+                  </div>
+
+                  <div className="grid grid-cols-7 gap-1">
+                    {leadingEmptyDays.map((_, i) => (
+                      <div key={`empty-${i}`} className="h-10" />
+                    ))}
+                    {monthDays.map((item) => (
+                      <button
+                        key={item.dateKey}
+                        type="button"
+                        disabled={item.isUnavailable}
+                        onClick={() => {
+                          set("testerDate", item.dateKey)
+                          set("testerSlotKey", "")
+                          set("testerTime", "")
+                          set("testerAmPm", "")
+                        }}
+                        className={cn(
+                          "h-10 rounded-lg text-sm transition-all border",
+                          item.isSelected && "bg-secondary text-white border-secondary font-semibold",
+                          !item.isSelected && item.isAvailable && "bg-white border-gray-200 text-gray-800 hover:border-secondary/60",
+                          item.isUnavailable && "bg-gray-50 border-gray-100 text-gray-300 cursor-not-allowed"
+                        )}
+                      >
+                        {item.day}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="flex flex-wrap gap-4 mt-4 text-xs text-gray-500">
+                    <div className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-gray-300" />Unavailable</div>
+                    <div className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full border border-gray-400" />Available</div>
+                    <div className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-secondary" />Selected</div>
+                  </div>
+                </div>
+
+                <div className="p-4 sm:p-5">
+                  <h4 className="text-base font-semibold text-gray-900 mb-1">Select Time</h4>
+                  <p className="text-sm text-gray-700 mb-1">{form.testerDate ? new Date(`${form.testerDate}T00:00:00`).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" }) : "Choose a date first"}</p>
+                  <p className="text-xs text-gray-500 mb-3">{scheduleData.timezone}</p>
+
+                  <div className="space-y-2 max-h-[280px] overflow-y-auto pr-1">
+                    {scheduleLoading ? (
+                      <p className="text-sm text-gray-500">Loading available times...</p>
+                    ) : !form.testerDate ? (
+                      <p className="text-sm text-gray-500">Select a date to view available time slots.</p>
+                    ) : scheduleData.slots.length === 0 ? (
+                      <p className="text-sm text-gray-500">No slots configured for this day.</p>
+                    ) : (
+                      scheduleData.slots.map((slot) => {
+                        const selected = form.testerSlotKey === slot.key
+                        return (
+                          <button
+                            key={slot.key}
+                            type="button"
+                            disabled={!slot.available}
+                            onClick={() => {
+                              set("testerSlotKey", slot.key)
+                              set("testerTime", slot.label)
+                              set("testerAmPm", slot.label.includes("PM") ? "PM" : "AM")
+                              set("testerTimezone", scheduleData.timezone)
+                            }}
+                            className={cn(
+                              "w-full h-11 rounded-xl border px-3 text-sm flex items-center justify-between transition-all",
+                              selected && "border-secondary bg-secondary/10 text-secondary font-semibold",
+                              !selected && slot.available && "border-gray-200 hover:border-secondary/60",
+                              !slot.available && "border-gray-100 text-gray-300 bg-gray-50 cursor-not-allowed"
+                            )}
+                          >
+                            <span>{slot.label}</span>
+                            <span className={cn("h-4 w-4 rounded-full border", selected ? "border-secondary bg-secondary" : "border-gray-300")} />
+                          </button>
+                        )
+                      })
+                    )}
+                  </div>
+
+                  {errors.testerDate || errors.testerTime ? (
+                    <p className="text-xs text-red-500 mt-2">{errors.testerTime || errors.testerDate}</p>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-between gap-3 pt-1">
+              <Button variant="outline" onClick={back} className="px-6 h-11 gap-2">
+                <ArrowLeft className="w-4 h-4" />Back
+              </Button>
+              <Button onClick={next} className="bg-secondary hover:bg-secondary/90 text-white px-8 h-11 gap-2">
+                Next <ArrowRight className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* ── Step 4: Learning Needs & Class Plan ─────────────── */}
+        {step === 4 && (
+          <div className="space-y-5">
+            <SectionHeader icon={BookOpen} title="Section 6: Learning Needs" />
             <Field label="What are the learner's weak areas or challenges?" required error={errors.weakAreas}>
               <p className="text-xs text-gray-400 -mt-1">e.g. Algebra, Essay writing, Reading comprehension, Exam confidence</p>
               <Textarea value={form.weakAreas} onChange={e => set("weakAreas", e.target.value)}
@@ -533,27 +775,6 @@ function BookingFormModal() {
               <Textarea value={form.learningGoals} onChange={e => set("learningGoals", e.target.value)}
                 placeholder="Describe desired learning outcomes..." rows={3} className={textareaCls(!!errors.learningGoals)} />
             </Field>
-
-            <SectionHeader icon={Calendar} title="Section 6: Tester Session Scheduling" />
-            <div className="grid sm:grid-cols-2 gap-4">
-              <Field label="Preferred date for tester session" required error={errors.testerDate}>
-                <Input type="date" value={form.testerDate} min={new Date().toISOString().split("T")[0]}
-                  onChange={e => set("testerDate", e.target.value)} className={inputCls(!!errors.testerDate)} />
-              </Field>
-              <Field label="Preferred Time for tester session (Time zone)" required error={errors.testerTime}>
-                <div className="flex gap-2">
-                  <Input type="time" value={form.testerTime} onChange={e => set("testerTime", e.target.value)}
-                    className={cn("flex-1", inputCls(!!errors.testerTime))} />
-                  <Select value={form.testerAmPm} onValueChange={v => set("testerAmPm", v)}>
-                    <SelectTrigger className="w-20 h-11 border-gray-200 rounded-lg"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="AM">AM</SelectItem>
-                      <SelectItem value="PM">PM</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </Field>
-            </div>
 
             <SectionHeader icon={Calendar} title="Section 7: Weekly Class Schedule" />
             <Field label="Preferred days for classes" required error={errors.preferredDays}>
@@ -591,8 +812,8 @@ function BookingFormModal() {
           </div>
         )}
 
-        {/* ── Step 4: Additional Info & Referral ───────────────── */}
-        {step === 4 && (
+        {/* ── Step 5: Additional Info & Referral ───────────────── */}
+        {step === 5 && (
           <div className="space-y-5">
             <SectionHeader icon={Info} title="Section 8: Additional Information" />
             <Field label="Any urgent academic needs we should be aware of?" required error={errors.urgentNeeds}>

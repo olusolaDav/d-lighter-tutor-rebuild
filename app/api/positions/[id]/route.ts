@@ -16,9 +16,6 @@ export async function GET(_req: NextRequest, { params }: Params) {
       return NextResponse.json({ success: false, error: 'Position not found' }, { status: 404 });
     }
 
-    // Increment view count (fire-and-forget)
-    Position.findByIdAndUpdate(id, { $inc: { views: 1 } }).catch(() => {});
-
     return NextResponse.json({ success: true, data: position });
   } catch (error) {
     console.error('Get position error:', error);

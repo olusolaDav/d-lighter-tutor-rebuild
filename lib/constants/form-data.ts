@@ -197,6 +197,8 @@ export interface EnrollmentFormData {
   testerDate: string
   testerTime: string
   testerAmPm: string
+  testerSlotKey: string
+  testerTimezone: string
   // Step 3 — Weekly Schedule
   preferredDays: string[]
   preferredClassTime: string
@@ -218,7 +220,7 @@ export const INITIAL_ENROLLMENT_FORM_DATA: EnrollmentFormData = {
   subjects: [], otherSubject: "",
   examType: "", otherExamType: "", examDate: "", gcseSubjects: [], otherGcseSubject: "",
   weakAreas: "", learningGoals: "",
-  testerDate: "", testerTime: "", testerAmPm: "AM",
+  testerDate: "", testerTime: "", testerAmPm: "AM", testerSlotKey: "", testerTimezone: "West Africa Time (WAT)",
   preferredDays: [], preferredClassTime: "", hoursPerWeek: "",
   urgentNeeds: "", specificResources: "", additionalInfo: "",
   referralSource: "", otherReferralSource: "",
