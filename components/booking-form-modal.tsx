@@ -39,6 +39,14 @@ import {
   INITIAL_ENROLLMENT_FORM_DATA,
   type EnrollmentFormData,
 } from "@/lib/constants/form-data"
+import {
+  TESTER_BOOKING_WINDOW_DAYS,
+  TESTER_TIME_SLOTS,
+  TESTER_TIMEZONE_LABEL,
+  isDateWithinBookingWindow,
+  isSlotBookable,
+  isTesterWorkingDay,
+} from "@/lib/constants/tester-schedule"
 import { cn } from "@/lib/utils"
 
 // ── Context ──────────────────────────────────────────────────────────────────
@@ -209,15 +217,74 @@ function BookingFormModal() {
   })
 
   const fetchSchedule = async (dateKey?: string) => {
+    const buildFallbackSchedule = (selectedDateKey?: string) => {
+      const [year, month] = monthValue.split("-").map(Number)
+      const fallbackAvailableDates: string[] = []
+      const fallbackUnavailableDates: string[] = []
+
+      if (!year || !month) {
+        return {
+          timezone: TESTER_TIMEZONE_LABEL,
+          availableDates: new Set<string>(),
+          unavailableDates: new Set<string>(),
+          slots: [] as Array<{ key: string; label: string; available: boolean }>,
+        }
+      }
+
+      const monthStart = new Date(year, month - 1, 1)
+      const monthEnd = new Date(year, month, 0)
+      const cursor = new Date(monthStart)
+
+      while (cursor <= monthEnd) {
+        const key = toDateKey(cursor)
+        const hasBookableSlot = TESTER_TIME_SLOTS.some((slot) => isSlotBookable(key, slot.key))
+        const dayAvailable = isTesterWorkingDay(cursor) && isDateWithinBookingWindow(cursor) && hasBookableSlot
+
+        if (dayAvailable) fallbackAvailableDates.push(key)
+        else fallbackUnavailableDates.push(key)
+
+        cursor.setDate(cursor.getDate() + 1)
+      }
+
+      const selectedDateObj = selectedDateKey ? new Date(`${selectedDateKey}T00:00:00`) : null
+      const canSelectDate =
+        !!selectedDateObj &&
+        !Number.isNaN(selectedDateObj.getTime()) &&
+        isTesterWorkingDay(selectedDateObj) &&
+        isDateWithinBookingWindow(selectedDateObj)
+
+      const slots = !selectedDateKey || !canSelectDate
+        ? TESTER_TIME_SLOTS.map((slot) => ({ ...slot, available: false }))
+        : TESTER_TIME_SLOTS.map((slot) => ({
+            ...slot,
+            available: isSlotBookable(selectedDateKey, slot.key),
+          }))
+
+      return {
+        timezone: TESTER_TIMEZONE_LABEL,
+        availableDates: new Set<string>(fallbackAvailableDates),
+        unavailableDates: new Set<string>(fallbackUnavailableDates),
+        slots,
+      }
+    }
+
     setScheduleLoading(true)
     try {
       const params = new URLSearchParams({ month: monthValue })
       if (dateKey) params.set("date", dateKey)
 
-      const res = await fetch(`/api/leads/tester-schedule?${params.toString()}`)
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 8000)
+
+      const res = await fetch(`/api/leads/tester-schedule?${params.toString()}`, {
+        signal: controller.signal,
+        cache: "no-store",
+      })
+      clearTimeout(timeoutId)
+
       const data = await res.json()
 
-      if (!data.success) throw new Error(data.error || "Failed to load schedule")
+      if (!res.ok || !data.success) throw new Error(data.error || "Failed to load schedule")
 
       const payload = data.data
       const nextSlots = payload.slots || []
@@ -241,7 +308,20 @@ function BookingFormModal() {
         set("testerTimezone", payload.timezone)
       }
     } catch {
-      toast.error("Could not load tester schedule right now")
+      const fallback = buildFallbackSchedule(dateKey)
+      setScheduleData(fallback)
+      if (dateKey && form.testerSlotKey) {
+        const selectedStillAvailable = fallback.slots.some((slot) => slot.key === form.testerSlotKey && slot.available)
+        if (!selectedStillAvailable) {
+          set("testerSlotKey", "")
+          set("testerTime", "")
+          set("testerAmPm", "")
+        }
+      }
+      if (!form.testerTimezone) {
+        set("testerTimezone", TESTER_TIMEZONE_LABEL)
+      }
+      toast.error("Could not load live tester bookings. Showing standard availability.")
     } finally {
       setScheduleLoading(false)
     }
@@ -636,7 +716,7 @@ function BookingFormModal() {
           <div className="space-y-5">
             <SectionHeader icon={Calendar} title="Section 5: Tester Session Scheduling" />
             <p className="text-xs text-gray-500 -mt-3">
-              Tester sessions must be scheduled at least 24 hours in advance.
+              Tester sessions must be scheduled at least 72 hours in advance.
             </p>
             <div className="rounded-2xl border border-gray-200 overflow-hidden">
               <div className="grid lg:grid-cols-[1.5fr_1fr]">

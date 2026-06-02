@@ -6,12 +6,13 @@ export interface TesterTimeSlot {
 export const TESTER_TIMEZONE_LABEL = "West Africa Time (WAT)"
 
 export const TESTER_TIME_SLOTS: TesterTimeSlot[] = [
-  { key: "09:00", label: "09:00 AM - 09:15 AM" },
-  { key: "10:00", label: "10:00 AM - 10:15 AM" },
-  { key: "11:30", label: "11:30 AM - 11:45 AM" },
-  { key: "14:00", label: "02:00 PM - 02:15 PM" },
-  { key: "15:30", label: "03:30 PM - 03:45 PM" },
-  { key: "16:00", label: "04:00 PM - 04:15 PM" },
+  { key: "06:00", label: "06:00 AM - 06:20 AM" },
+  { key: "09:00", label: "09:00 AM - 09:20 AM" },
+  { key: "12:00", label: "12:00 PM - 12:20 PM" },
+  { key: "15:00", label: "03:00 PM - 03:20 PM" },
+  { key: "18:00", label: "06:00 PM - 06:20 PM" },
+  { key: "21:00", label: "09:00 PM - 09:20 PM" },
+  { key: "23:00", label: "11:00 PM - 11:20 PM" },
 ]
 
 // 0=Sunday ... 6=Saturday. Sundays unavailable by default.
@@ -19,7 +20,7 @@ export const TESTER_AVAILABLE_WEEKDAYS = [1, 2, 3, 4, 5, 6]
 
 export const TESTER_BOOKING_WINDOW_DAYS = 90
 
-export const TESTER_MINIMUM_LEAD_HOURS = 24
+export const TESTER_MINIMUM_LEAD_HOURS = 72
 
 export function toDateKey(input: Date): string {
   const year = input.getFullYear()

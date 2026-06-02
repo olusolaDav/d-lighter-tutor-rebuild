@@ -2,7 +2,13 @@ import { NextRequest, NextResponse } from "next/server"
 import dbConnect from "@/lib/mongodb"
 import Lead from "@/lib/models/lead"
 import TesterBooking from "@/lib/models/testerBooking"
-import { TESTER_TIME_SLOTS, TESTER_TIMEZONE_LABEL } from "@/lib/constants/tester-schedule"
+import {
+  TESTER_TIME_SLOTS,
+  TESTER_TIMEZONE_LABEL,
+  isDateWithinBookingWindow,
+  isSlotBookable,
+  isTesterWorkingDay,
+} from "@/lib/constants/tester-schedule"
 import { sendEmail } from "@/lib/email"
 
 export async function POST(request: NextRequest) {
@@ -69,6 +75,24 @@ export async function POST(request: NextRequest) {
     if (!derivedSlotKey) {
       return NextResponse.json(
         { success: false, error: "Please select an available tester time slot" },
+        { status: 400 }
+      )
+    }
+
+    const matchedSlot = TESTER_TIME_SLOTS.find((slot) => slot.key === derivedSlotKey)
+    const testerDateObj = new Date(`${testerDate}T00:00:00`)
+    const slotStillBookable = matchedSlot
+      ? isSlotBookable(testerDate, matchedSlot.key)
+      : false
+
+    const dateIsValid =
+      !Number.isNaN(testerDateObj.getTime()) &&
+      isTesterWorkingDay(testerDateObj) &&
+      isDateWithinBookingWindow(testerDateObj)
+
+    if (!matchedSlot || !dateIsValid || !slotStillBookable) {
+      return NextResponse.json(
+        { success: false, error: "Selected tester slot is no longer available. Please choose another date/time." },
         { status: 400 }
       )
     }

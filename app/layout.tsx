@@ -138,7 +138,7 @@ export const metadata: Metadata = {
     creator: "@dlightertutor",
     site: "@dlightertutor",
   },
-  robots: {
+  robots: {   
     index: true,
     follow: true,
     googleBot: {
