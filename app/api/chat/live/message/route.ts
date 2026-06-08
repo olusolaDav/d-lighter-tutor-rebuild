@@ -41,13 +41,18 @@ export async function POST(request: NextRequest) {
       ? session.visitorName
       : 'Visitor'
 
-    // Forward visitor message to admin via WhatsApp, clearly labelled with visitor identity
+    // Forward visitor message to admin via WhatsApp — only message body + dashboard link
     const adminPhone = process.env.WHATSAPP_NUMBER || ''
     if (adminPhone && (session.status === 'live' || session.status === 'waiting')) {
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://d-lightertutor.com'
+      const dashboardLink = `${baseUrl}/admin/chat?session=${sessionId}`
       const phoneLabel = session.visitorPhone ? ` | ${session.visitorPhone}` : ''
-      const replyText = encodeURIComponent(`${sessionId}: `)
-      const replyLink = `https://wa.me/${adminPhone}?text=${replyText}`
-      const whatsappMsg = `👤 *${nameLabel}${phoneLabel}*\n🆔 Session: *${sessionId}*\n\n${message.trim()}\n\n💬 _Tap to reply:_ ${replyLink}`
+      const whatsappMsg = `👤 *${nameLabel}${phoneLabel}*
+🆔 *${sessionId}*
+
+${message.trim()}
+
+🖥️ Reply on dashboard: ${dashboardLink}`
       await sendWhatsAppMessage(adminPhone, whatsappMsg)
     }
 

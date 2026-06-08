@@ -178,6 +178,21 @@ export async function POST(request: NextRequest, { params }: Params) {
       console.error('Application confirmation email error:', emailError);
     }
 
+    // Best-effort: notify admin of the new application.
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://d-lightertutor.com';
+      const dashboardUrl = `${baseUrl}/admin/job-applications`;
+      await emailService.sendAdminApplicationNotificationEmail({
+        positionTitle: position.title,
+        candidateName: `${personalInfo.firstName.trim()} ${personalInfo.lastName.trim()}`,
+        candidateEmail: personalInfo.email.toLowerCase().trim(),
+        candidatePhone: personalInfo.phone?.trim() || '',
+        dashboardUrl,
+      });
+    } catch (emailError) {
+      console.error('Admin application notification email error:', emailError);
+    }
+
     return NextResponse.json(
       {
         success: true,

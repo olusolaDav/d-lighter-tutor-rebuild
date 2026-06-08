@@ -66,43 +66,22 @@ export async function POST(request: NextRequest) {
 
     await session.save()
 
-    // Build WhatsApp notification for admin
+    // Build WhatsApp notification for admin — only message body + dashboard link
     const adminPhone = process.env.WHATSAPP_NUMBER || ''
-    const preview = visitorMessage
-      ? `"${visitorMessage.slice(0, 120)}${visitorMessage.length > 120 ? '…' : ''}"`
-      : '(no initial message)'
-
-    // Build recent AI conversation summary (last 4 exchanges)
-    const recentExchanges = session.messages
-      .filter((m: { role: string }) => m.role === 'visitor' || m.role === 'ai')
-      .slice(-8)
-      .map((m: { role: string; content: string }) => `${m.role === 'visitor' ? '👤 Visitor' : '🤖 AI'}: ${m.content.slice(0, 100)}`)
-      .join('\n')
-
-    const phoneDisplay = session.visitorPhone ? `📞 ${session.visitorPhone}` : '📞 Not provided'
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.d-lightertutor.com'
     const dashboardLink = `${siteUrl}/admin/chat?session=${session.sessionId}`
 
-    // Pre-filled greeting template — admin can personalise the name before sending
-    const greetingTemplate = `${session.sessionId}: Hello 👋\nThank you for contacting D-lighter Tutor Support.\nMy name is Blessing. How may I assist you today?`
-    const greetingLink = `https://wa.me/${adminPhone}?text=${encodeURIComponent(greetingTemplate)}`
+    const nameLabel = session.visitorName || 'Visitor'
+    const msgPreview = visitorMessage
+      ? visitorMessage.slice(0, 200)
+      : '(no initial message)'
 
-    const whatsappMsg = `🔔 *D-lighter Tutor — New Live Chat*
-━━━━━━━━━━━━━━
-Session: *${session.sessionId}*
-👤 Visitor: *${session.visitorName || 'Visitor'}*
-${phoneDisplay}
-Page: ${session.visitorPage || '/'}
-Time: ${new Date().toLocaleTimeString('en-GB', { timeZone: 'Africa/Lagos' })} (Lagos)
+    const whatsappMsg = `👤 *${nameLabel}* wants to chat
+🆔 *${session.sessionId}*
 
-${recentExchanges ? `📋 *Recent AI conversation:*\n${recentExchanges}\n\n` : ''}
-━━━━━━━━━━━━━━
-🖥️ *Open dashboard:* ${dashboardLink}
+${msgPreview}
 
-👋 *Send greeting:* ${greetingLink}
-
-✅ *Or reply directly:* ${session.sessionId}: your message
-🔴 *To end:* ${session.sessionId}: END`
+🖥️ Reply on dashboard: ${dashboardLink}`
 
     if (adminPhone) {
       await sendWhatsAppMessage(adminPhone, whatsappMsg)
