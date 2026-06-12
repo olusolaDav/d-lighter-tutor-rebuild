@@ -4,6 +4,49 @@ import { useState } from "react"
 import { GraduationCap, Eye, EyeOff, Loader2, ShieldCheck, Lock } from "lucide-react"
 import { toast } from "sonner"
 
+function PasswordField({
+  name,
+  label,
+  placeholder,
+  value,
+  show,
+  onToggle,
+  onChange,
+}: {
+  name: string
+  label: string
+  placeholder: string
+  value: string
+  show: boolean
+  onToggle: () => void
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+}) {
+  return (
+    <div>
+      <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">{label}</label>
+      <div className="relative">
+        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <input
+          name={name}
+          type={show ? "text" : "password"}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          required
+          className="w-full pl-9 pr-10 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary"
+        />
+        <button
+          type="button"
+          onClick={onToggle}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+        >
+          {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export default function ChangePasswordPage() {
   const [form, setForm] = useState({ currentPassword: "", newPassword: "", confirmPassword: "" })
   const [show, setShow] = useState({ current: false, new: false, confirm: false })
@@ -43,41 +86,6 @@ export default function ChangePasswordPage() {
     }
   }
 
-  const PasswordField = ({
-    name,
-    label,
-    placeholder,
-    showKey,
-  }: {
-    name: keyof typeof form
-    label: string
-    placeholder: string
-    showKey: keyof typeof show
-  }) => (
-    <div>
-      <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">{label}</label>
-      <div className="relative">
-        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-        <input
-          name={name}
-          type={show[showKey] ? "text" : "password"}
-          value={form[name]}
-          onChange={handleChange}
-          placeholder={placeholder}
-          required
-          className="w-full pl-9 pr-10 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary"
-        />
-        <button
-          type="button"
-          onClick={() => setShow((p) => ({ ...p, [showKey]: !p[showKey] }))}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-        >
-          {show[showKey] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-        </button>
-      </div>
-    </div>
-  )
-
   return (
     <div
       className="min-h-screen flex items-center justify-center p-6"
@@ -114,19 +122,28 @@ export default function ChangePasswordPage() {
               name="currentPassword"
               label="Current / Temporary Password"
               placeholder="Enter the password sent to you"
-              showKey="current"
+              value={form.currentPassword}
+              show={show.current}
+              onToggle={() => setShow((p) => ({ ...p, current: !p.current }))}
+              onChange={handleChange}
             />
             <PasswordField
               name="newPassword"
               label="New Password"
               placeholder="Min. 8 characters"
-              showKey="new"
+              value={form.newPassword}
+              show={show.new}
+              onToggle={() => setShow((p) => ({ ...p, new: !p.new }))}
+              onChange={handleChange}
             />
             <PasswordField
               name="confirmPassword"
               label="Confirm New Password"
               placeholder="Re-enter your new password"
-              showKey="confirm"
+              value={form.confirmPassword}
+              show={show.confirm}
+              onToggle={() => setShow((p) => ({ ...p, confirm: !p.confirm }))}
+              onChange={handleChange}
             />
 
             <div className="text-xs text-gray-400 space-y-1 pt-1">
