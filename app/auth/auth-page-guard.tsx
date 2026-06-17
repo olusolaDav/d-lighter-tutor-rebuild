@@ -6,15 +6,16 @@ import { AuthProvider } from "@/lib/auth/AuthContext"
 
 function Guard({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth()
+  const shouldStayOnAuthPage = !!user?.mustChangePassword
 
   useEffect(() => {
-    if (!loading && user) {
+    if (!loading && user && !shouldStayOnAuthPage) {
       const dest = ROLE_ROUTES[user.role] ?? "/auth/login"
       window.location.href = dest
     }
-  }, [user, loading])
+  }, [user, loading, shouldStayOnAuthPage])
 
-  if (loading || user) {
+  if (loading || (user && !shouldStayOnAuthPage)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary via-primary to-primary/90">
         <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white" />

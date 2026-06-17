@@ -435,7 +435,8 @@ D-lighter Tutor Team
         .cred-label { color:#6b7280; font-size:13px; font-weight:500; }
         .cred-value { color:#1e3a8a; font-size:14px; font-weight:700; font-family:monospace; }
         .warning { background:#fef3c7; border:1px solid #fbbf24; border-radius:8px; padding:16px; margin:20px 0; color:#92400e; font-size:13px; }
-        .btn { display:inline-block; background:linear-gradient(135deg,#1e40af,#3b82f6); color:#fff; padding:14px 32px; text-decoration:none; border-radius:8px; font-weight:600; font-size:15px; margin:16px 0; }
+        .btn { display:inline-block; background:#1e40af; color:#ffffff !important; padding:14px 32px; text-decoration:none; border-radius:8px; font-weight:600; font-size:15px; margin:16px 0; border:1px solid #1e3a8a; }
+        .btn:hover, .btn:active, .btn:visited { color:#ffffff !important; background:#1e3a8a; text-decoration:none; }
         .footer { background:#f8fafc; padding:24px; text-align:center; color:#9ca3af; font-size:12px; }
       </style>
     </head>
@@ -466,7 +467,9 @@ D-lighter Tutor Team
             ⚠️ <strong>Important:</strong> You will be required to change this password upon your first login. Please do so immediately to secure your account.
           </div>
           <div style="text-align:center;">
-            <a href="${loginUrl}" class="btn">Login to Your Account</a>
+            <a href="${loginUrl}" class="btn" style="display:inline-block;background:#1e40af;border:1px solid #1e3a8a;border-radius:8px;padding:14px 32px;text-decoration:none;color:#ffffff !important;font-weight:600;font-size:15px;line-height:1;">
+              <span style="color:#ffffff !important;text-decoration:none;">Login to Your Account</span>
+            </a>
           </div>
           <p style="font-size:13px;color:#6b7280;margin-top:24px;">
             If you have any issues logging in, please contact the administrator. Do not share your credentials with anyone.

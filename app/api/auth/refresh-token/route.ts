@@ -39,6 +39,7 @@ export async function POST(request: NextRequest) {
       email: admin.email,
       role: admin.role,
       permissions: admin.permissions,
+      mustChangePassword: admin.mustChangePassword ?? false,
     });
 
     const res = NextResponse.json(
@@ -51,6 +52,7 @@ export async function POST(request: NextRequest) {
           lastName: admin.lastName,
           role: admin.role,
           permissions: admin.permissions,
+          mustChangePassword: admin.mustChangePassword ?? false,
         },
       },
       { status: 200 }

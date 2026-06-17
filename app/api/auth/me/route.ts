@@ -29,6 +29,7 @@ async function meHandler(request: AuthenticatedRequest) {
           permissions: adminData.permissions,
           isEmailVerified: adminData.isEmailVerified,
           twoFactorEnabled: adminData.twoFactorEnabled,
+          mustChangePassword: adminData.mustChangePassword ?? false,
           lastLogin: adminData.lastLogin,
           profileImage: adminData.profileImage,
           createdAt: adminData.createdAt,
