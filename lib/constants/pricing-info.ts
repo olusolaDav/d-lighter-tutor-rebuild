@@ -1,11 +1,11 @@
 export const HOMEPAGE_PRICING = {
   receptionToYear3: {
-    title: 'Reception - Year 3',
-    subtitle: 'Flexible subject options available.',
+    title: 'Reception to Year 3',
+    subtitle: 'N12,000 per hour, billed every four weeks.',
     options: [
-      { hours: '3 Hours Per Week', ngn: 'N120,000/month', gbp: 'GBP75/month' },
-      { hours: '4 Hours Per Week', ngn: 'N160,000/month', gbp: 'GBP99/month' },
-      { hours: '5 Hours Per Week', ngn: 'N200,000/month', gbp: 'GBP125/month' },
+      { hours: '3 Hours Per Week', ngn: 'N144,000 / four weeks' },
+      { hours: '4 Hours Per Week', ngn: 'N192,000 / four weeks' },
+      { hours: '5 Hours Per Week', ngn: 'N240,000 / four weeks' },
     ],
     bonus: '1-hour FREE monthly assessment session for two subjects of your choice.',
   },
@@ -13,7 +13,7 @@ export const HOMEPAGE_PRICING = {
     title: 'Year 4 and 5 (11+ Preparation Classes)',
     options: [
       'Option 1: One-on-One Classes',
-      'Option 2: Group Class (Max of 6 learners) - GBP65 or N100,000/month',
+      'Option 2: Group Class (Max of 6 learners) - N160,000/month',
     ],
     groupDetails: [
       'Subjects: Maths, English, Verbal & Non-Verbal Reasoning',
@@ -24,8 +24,8 @@ export const HOMEPAGE_PRICING = {
       'Monthly mock examination',
     ],
     parentOptions: [
-      'Combine Package: One-on-One classes (2 subjects / 2 hours per week) with Group Class subscription (GBP113 or N180,000/month).',
-      'Group Class only Package: GBP65 or N100,000/month.',
+      '11+ Combined Package: One-on-One classes + Group Class (N256,000/month).',
+      '11+ Group Class only: N160,000/month.',
       'One-on-One class only Package: One-on-One classes for all 4 subjects.',
     ],
   },
@@ -33,19 +33,23 @@ export const HOMEPAGE_PRICING = {
     title: 'Year 5 and 6 (SAT Preparation Classes)',
     options: [
       'Option 1: One-on-One Classes',
-      'Option 2: Group Class (Max of 6 learners) - GBP65 or N100,000/month',
+      'Option 2: Group Class (Max of 6 learners) - N160,000/month',
       'Subjects: Maths (Paper 1 Arithmetic, Papers 2 & 3 Reasoning), English (Reading and SPaG - Spelling, Punctuation and Grammar), and Science.',
     ],
   },
+  examPackagePrices: {
+    elevenPlusGroup: 'N160,000/month',
+    elevenPlusCombined: 'N256,000/month',
+    satGroup: 'N160,000/month',
+  },
   year4To11: {
     title: 'Year 4 - Year 11',
-    subtitle: 'Flexible subject options available.',
+    subtitle: 'N12,000 per hour, billed every four weeks.',
     options: [
-      { hours: '3 Hours Per Week', ngn: 'N144,000/month', gbp: 'GBP86/month' },
-      { hours: '4 Hours Per Week', ngn: 'N170,000/month', gbp: 'GBP105/month' },
-      { hours: '5 Hours Per Week', ngn: 'N210,000/month', gbp: 'GBP130/month' },
-      { hours: '6 Hours Per Week', ngn: 'N240,000/month', gbp: 'GBP145/month' },
-      { hours: '8 Hours Per Week', ngn: 'N320,000/month', gbp: 'GBP196/month' },
+      { hours: '3 Hours Per Week', ngn: 'N144,000 / four weeks' },
+      { hours: '4 Hours Per Week', ngn: 'N192,000 / four weeks' },
+      { hours: '5 Hours Per Week', ngn: 'N240,000 / four weeks' },
+      { hours: '6 Hours Per Week', ngn: 'N288,000 / four weeks' },
     ],
     bonuses: [
       'Bonus A: 2-hour FREE group classes on any two subjects (Language, Science or English).',
@@ -76,15 +80,15 @@ export const HOMEPAGE_PRICING = {
 
 export const PRICING_KNOWLEDGE_BLOCK = `
 -- Reception - Year 3 (One-on-One Classes) --
-Flexible subject options available.
-* 3 Hours/Week -> N120,000/month or GBP75/month
-* 4 Hours/Week -> N160,000/month or GBP99/month
-* 5 Hours/Week -> N200,000/month or GBP125/month
+N12,000 per hour, billed every four weeks.
+* 3 Hours/Week -> N144,000 / four weeks
+* 4 Hours/Week -> N192,000 / four weeks
+* 5 Hours/Week -> N240,000 / four weeks
 Bonus: 1-hour FREE monthly assessment session for two subjects of your choice.
 
 -- Year 4 and 5 (11+ Preparation Classes) --
 Option 1: One-on-One Classes.
-Option 2: Group Class (max 6 learners) -> GBP65 or N100,000/month.
+Option 2: Group Class (max 6 learners) -> N160,000/month.
 Group class details:
 * Subjects: Maths, English, Verbal & Non-Verbal Reasoning
 * Schedule: Twice weekly
@@ -93,22 +97,22 @@ Group class details:
 * Continuous assessments after every class
 * Monthly mock examination
 Parent package options:
-* Combine Package (One-on-One 2 subjects / 2 hours per week + Group subscription) -> GBP113 or N180,000/month
-* Group Class only -> GBP65 or N100,000/month
+* 11+ Combined Package (One-on-One + Group) -> N256,000/month
+* 11+ Group Class only -> N160,000/month
 * One-on-One class only package for all 4 subjects
 
 -- Year 5 and 6 (SAT Preparation Classes) --
 Option 1: One-on-One Classes.
-Option 2: Group Class (max 6 learners) -> GBP65 or N100,000/month.
+Option 2: Group Class (max 6 learners) -> N160,000/month.
 Subjects: Maths (Paper 1 Arithmetic, Papers 2 & 3 Reasoning), English (Reading and SPaG - Spelling, Punctuation and Grammar), and Science.
 
 -- Year 4 - Year 11 (General / Flexible Subjects) --
-Flexible subject options available.
-* 3 Hours/Week -> N144,000/month (GBP86/month)
-* 4 Hours/Week -> N170,000/month (GBP105/month)
-* 5 Hours/Week -> N210,000/month (GBP130/month)
-* 6 Hours/Week -> N240,000/month (GBP145/month)
-* 8 Hours/Week -> N320,000/month (GBP196/month)
+N12,000 per hour, billed every four weeks.
+* 3 Hours/Week -> N144,000 / four weeks
+* 4 Hours/Week -> N192,000 / four weeks
+* 5 Hours/Week -> N240,000 / four weeks
+* 6 Hours/Week -> N288,000 / four weeks
+* GCSE One-on-One support follows the Year 4 - Year 11 plans above.
 Bonus A: 2-hour FREE group classes on any two subjects (Language, Science or English).
 Bonus B: 1-hour FREE monthly assessment session for two subjects of your choice.
 `.trim();

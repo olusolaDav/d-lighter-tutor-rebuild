@@ -10,7 +10,6 @@ import { HOMEPAGE_PRICING } from "@/lib/constants/pricing-info"
 export function PricingSection() {
   const sectionRef = useRef<HTMLElement>(null)
   const [isVisible, setIsVisible] = useState(false)
-  const [currency, setCurrency] = useState<"NGN" | "GBP" | "USD">("NGN")
   const { openModal } = useBookingForm()
 
   useEffect(() => {
@@ -30,34 +29,6 @@ export function PricingSection() {
     return () => observer.disconnect()
   }, [])
 
-  const fxRates = {
-    GBP_TO_USD: 1.25,
-    NGN_TO_USD: 1 / 1600,
-  }
-
-  const extractAmount = (value: string): number => Number(value.replace(/[^\d.]/g, ""))
-
-  const formatMonthly = (ngnText: string, gbpText: string) => {
-    const ngn = extractAmount(ngnText)
-    const gbp = extractAmount(gbpText)
-    const usd = Math.round(gbp * fxRates.GBP_TO_USD)
-
-    if (currency === "NGN") return `N${ngn.toLocaleString()}/month`
-    if (currency === "GBP") return `GBP${gbp}/month`
-    return `$${usd}/month`
-  }
-
-  const formatOneOff = (ngn: number, gbp: number) => {
-    const usd = Math.round(gbp * fxRates.GBP_TO_USD)
-    if (currency === "NGN") return `N${ngn.toLocaleString()}/month`
-    if (currency === "GBP") return `GBP${gbp}/month`
-    return `$${usd}/month`
-  }
-
-  const elevenPlusGroupFee = formatOneOff(100000, 65)
-  const combinedFee = formatOneOff(180000, 113)
-  const satGroupFee = formatOneOff(100000, 65)
-
   const cards = [
     {
       name: HOMEPAGE_PRICING.receptionToYear3.title,
@@ -68,7 +39,7 @@ export function PricingSection() {
       popular: false,
       sectionTitle: "Package Options",
       highlights: HOMEPAGE_PRICING.receptionToYear3.options.map((option) =>
-        `${option.hours} - ${formatMonthly(option.ngn, option.gbp)}`
+        `${option.hours} - ${option.ngn}`
       ),
       details: [HOMEPAGE_PRICING.receptionToYear3.subtitle],
       bonuses: [HOMEPAGE_PRICING.receptionToYear3.bonus],
@@ -90,9 +61,9 @@ export function PricingSection() {
       popular: true,
       sectionTitle: "Preparation Packages",
       highlights: [
-        `11+ Group Class (Max 6 learners) - ${elevenPlusGroupFee}`,
-        `11+ Combined Package (1-on-1 + Group) - ${combinedFee}`,
-        `SAT Group Class (Max 6 learners) - ${satGroupFee}`,
+        `11+ Group Class (Max 6 learners) - ${HOMEPAGE_PRICING.examPackagePrices.elevenPlusGroup}`,
+        `11+ Combined Package (1-on-1 + Group) - ${HOMEPAGE_PRICING.examPackagePrices.elevenPlusCombined}`,
+        `SAT Group Class (Max 6 learners) - ${HOMEPAGE_PRICING.examPackagePrices.satGroup}`,
         "GCSE One-on-One support (pricing follows Year 4 - Year 11 plans)",
       ],
       details: [
@@ -115,7 +86,7 @@ export function PricingSection() {
       popular: false,
       sectionTitle: "Package Options",
       highlights: HOMEPAGE_PRICING.year4To11.options.map((option) =>
-        `${option.hours} - ${formatMonthly(option.ngn, option.gbp)}`
+        `${option.hours} - ${option.ngn}`
       ),
       details: [HOMEPAGE_PRICING.year4To11.subtitle],
       bonuses: [...HOMEPAGE_PRICING.year4To11.bonuses],
@@ -143,28 +114,6 @@ export function PricingSection() {
             Choose a plan built around your child's goals, schedule, and pace, with expert guidance and measurable progress every month.
           </p>
 
-          <div className="mt-6 inline-flex items-center gap-2 bg-muted rounded-full p-1">
-            {[
-              { code: "NGN" as const, label: "Naira (N)" },
-              { code: "GBP" as const, label: "Pounds (GBP)" },
-              { code: "USD" as const, label: "Dollar ($)" },
-            ].map((curr) => (
-              <button
-                key={curr.code}
-                onClick={() => setCurrency(curr.code)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all cursor-pointer ${
-                  currency === curr.code
-                    ? "bg-secondary text-secondary-foreground shadow"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {curr.label}
-              </button>
-            ))}
-          </div>
-          {currency === "USD" && (
-            <p className="text-xs text-muted-foreground mt-2">USD values are approximate equivalents.</p>
-          )}
         </div>
 
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">

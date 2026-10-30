@@ -82,7 +82,7 @@ Q: How do I get started or book a trial?
 A: Click any "Book a Free Trial" button on our website, or message us on WhatsApp at +2348129517392. We start with a free 20-minute trial assessment to determine the best approach for your child.
 
 Q: How much do lessons cost?
-A: Pricing depends on year group and weekly hours. Reception-Year 3 starts from N120,000/month (GBP75/month) for 3 hours/week. Year 4-Year 11 starts from N144,000/month (GBP86/month) for 3 hours/week. 11+ and SAT group classes are GBP65 or N100,000/month. Combined 11+ package is GBP113 or N180,000/month.
+A: One-on-one lessons are N12,000 per hour, billed every four weeks. Reception-Year 3: 3 hours/week is N144,000, 4 hours/week is N192,000, and 5 hours/week is N240,000 per four weeks. Year 4-Year 11: 3 hours/week is N144,000, 4 hours/week is N192,000, 5 hours/week is N240,000, and 6 hours/week is N288,000 per four weeks. 11+ and SAT group classes (maximum 6 learners) are N160,000/month each. The 11+ combined one-on-one + group package is N256,000/month. GCSE one-on-one follows the Year 4-Year 11 plans.
 
 Q: Can I pay in pounds or dollars?
 A: Yes! We accept GBP (£) and can discuss other currency equivalents. Contact us on WhatsApp for current rates.
@@ -97,7 +97,7 @@ Q: How do I track my child's progress?
 A: You'll receive detailed monthly progress reports plus monthly mock assessment results.
 
 Q: Are there group classes available?
-A: Yes — for 11+ (Year 4–5) and SAT (Year 5–6) preparation, we offer group classes with a maximum of 6 learners at £65 or ₦100,000/month, held Monday & Thursday evenings.
+A: Yes — 11+ and SAT group classes are available for a maximum of 6 learners at N160,000/month. The 11+ combined one-on-one + group package is N256,000/month. 11+ classes are held Monday & Thursday evenings.
 
 Q: What platform do you use for lessons?
 A: We use Zoom for all interactive one-on-one and group lessons — great video quality, screen sharing, and recording capabilities.
